@@ -15,6 +15,7 @@ mkdir Gen3
 cd Gen3
 mkdir Halo3Beta
 mkdir Halo3Retail
+mkdir Halo3MythicRetail
 mkdir Halo3ODST
 mkdir HaloReach
 mkdir HaloReach11883
