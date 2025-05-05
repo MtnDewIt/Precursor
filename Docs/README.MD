@@ -10,7 +10,7 @@ The Blam! titles supported by Precursor line up roughly with engine versions cur
 
 > Default cache paths refer to the default paths defined in the `cache_paths.cmds` script. These are purely to be used as a reference for how to structure the builds, though realistically any file path will function correctly.
 
-> If multiple builds reference the same default path, it means that anyone of those builds can be placed in the input path, and Precursor will still recognise it as a valid build for the specified TagTool Cache Version
+> If multiple builds reference the same default path, it means that anyone of those builds can be placed in the input path, and Precursor will still recognise it as a valid build for the specified TagTool Cache Version.
 
 &nbsp;
 
@@ -79,7 +79,7 @@ The Blam! titles supported by Precursor line up roughly with engine versions cur
 
 ### MCC
 
-MCC cache files are handled differently from all other builds. Since MCC uses a static folder structure for all its supported engine versions, the only input required is the path to the base MCC installation path.
+MCC cache files are handled differently from all other builds. Since MCC uses a static folder structure for all its supported engine versions, the only input required is the path to the base MCC installation directory.
 
 | Build    | TagTool Cache Version |
 | -------- | --------------------- |
