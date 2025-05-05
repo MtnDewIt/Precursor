@@ -26,4 +26,12 @@
     <ProjectReference Include="..\TagTool-NET\ShaderGenerator\HaloShaderGenerator\HaloShaderGenerator.csproj" Private="false" />
     <ProjectReference Include="..\TagTool-NET\TagTool\TagTool.csproj" Private="false" />
   </ItemGroup>
+  <PropertyGroup>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+  </PropertyGroup>
+  <Target Name="RemoveSatelliteAssemblies" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceSatellitePaths)" />
+    </ItemGroup>
+  </Target>
 </Project>
