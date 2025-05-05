@@ -197,5 +197,6 @@ FakesAssemblies/
 
 # Banned Uploads
 xsd.exe
+TagTool-NET
 HaloShaderGenerator.dll
 launchSettings.json

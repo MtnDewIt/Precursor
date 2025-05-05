@@ -1,8 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <ProjectGuid>{D107C22E-F288-4BDA-AEDB-459B57E7D755}</ProjectGuid>
     <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Precursor</RootNamespace>
+    <AssemblyName>Precursor</AssemblyName>
+    <ApplicationIcon>Precursor.ico</ApplicationIcon>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>12</LangVersion>
+    <GenerateLaunchSettingsFile>false</GenerateLaunchSettingsFile>
+    <Deterministic>false</Deterministic>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <Platforms>x64</Platforms>
+    <Configuration>Release</Configuration>
+    <Platform>x64</Platform>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Precursor.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TagTool-NET\ShaderGenerator\HaloShaderGenerator\HaloShaderGenerator.csproj" Private="false" />
+    <ProjectReference Include="..\TagTool-NET\TagTool\TagTool.csproj" Private="false" />
+  </ItemGroup>
 </Project>
