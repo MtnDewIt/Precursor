@@ -28,6 +28,12 @@
     </ReferenceCopyLocalPaths>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\TagTool-NET\TagTool\TagTool.csproj" Private="false" />
     <ProjectReference Include="..\TagTool-NET\ShaderGenerator\HaloShaderGenerator\HaloShaderGenerator.csproj" Private="false" />
   </ItemGroup>

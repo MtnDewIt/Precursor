@@ -1,12 +1,16 @@
-﻿using System.Globalization;
-using TagTool.Commands.Common;
-using HaloShaderGenerator.Globals;
+﻿using Precursor.Cache;
 using Precursor.Resolvers;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System;
 
 namespace Precursor
 {
     public static class Program
     {
+        public static string PrecursorDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
         static void Main(string[] args)
         {
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.GetCultureInfo("en-US");
@@ -14,20 +18,53 @@ namespace Precursor
             AssemblyResolver.ResolveManagedAssemblies();
             AssemblyResolver.ResolveUnmanagedAssemblies();
 
-            Test();
+            Console.WriteLine($"Precursor [{Assembly.GetExecutingAssembly().GetName().Version} (Built {GetLinkerTimestampUtc(Assembly.GetExecutingAssembly())} UTC)]\n");
 
-            // Basic idea is it opens its own command context similar to TagTool
-            // The input file is a static json file containing all paths to all required engine versions
-            // all unit tests are run in parallel with the option to run unit tests for a given cache version, or cache generation
-            // shader unit tests are also run in parallel, with separate tests for explicit, chud, global, and template generation
-            // default config is to run all unit tests available.
+            var inputPath = $@"{PrecursorDirectory}\Precursor.json";
+
+            var isNewFile = false;
+
+            if (!File.Exists(inputPath)) 
+            {
+                Console.WriteLine("> Unable to locate Precursor.json\n");
+                Console.WriteLine("> Generating default data...\n");
+                CacheResolver.GenerateCacheData(inputPath);
+                isNewFile = true;
+            }
+
+            if (!isNewFile)
+            {
+                CacheResolver.ValidateCacheData(inputPath);
+            }
+            else 
+            {
+                Console.WriteLine("> Default data generated. Cache paths will need to be populated manually");
+            }
+
+            Console.WriteLine("\nEnter \"help\" to list available commands. Enter \"quit\" to quit.");
         }
 
-        public static void Test() 
+        public static DateTime GetLinkerTimestampUtc(Assembly assembly)
         {
-            var blendMode = Assimp.BlendMode.Additive;
-            var hlslFloat = HLSLType.Float;
-            new TagToolWarning("Silence fills the empty grave");
+            var location = assembly.Location;
+            return GetLinkerTimestampUtc(location);
+        }
+
+        public static DateTime GetLinkerTimestampUtc(string filePath)
+        {
+            const int peHeaderOffset = 60;
+            const int linkerTimestampOffset = 8;
+            var bytes = new byte[2048];
+
+            using (var file = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                file.Read(bytes, 0, bytes.Length);
+            }
+
+            var headerPos = BitConverter.ToInt32(bytes, peHeaderOffset);
+            var secondsSince1970 = BitConverter.ToInt32(bytes, headerPos + linkerTimestampOffset);
+            var dt = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return dt.AddSeconds(secondsSince1970);
         }
     }
 }
