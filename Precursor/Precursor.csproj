@@ -22,10 +22,21 @@
   <ItemGroup>
     <Content Include="Precursor.ico" />
   </ItemGroup>
+  <ItemDefinitionGroup>
+    <ReferenceCopyLocalPaths>
+      <DestinationSubDirectory>Tools\</DestinationSubDirectory>
+    </ReferenceCopyLocalPaths>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TagTool-NET\ShaderGenerator\HaloShaderGenerator\HaloShaderGenerator.csproj" Private="false" />
     <ProjectReference Include="..\TagTool-NET\TagTool\TagTool.csproj" Private="false" />
+    <ProjectReference Include="..\TagTool-NET\ShaderGenerator\HaloShaderGenerator\HaloShaderGenerator.csproj" Private="false" />
   </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="Build">
+    <ItemGroup>
+      <TagTool-NET Include="..\TagTool-NET\TagTool\bin\$(Platform)\$(ConfigurationName)\$(TargetFramework)\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(TagTool-NET)" DestinationFolder="$(OutDir)Tools\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
   <PropertyGroup>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
