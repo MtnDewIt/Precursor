@@ -1,4 +1,4 @@
-﻿using Precursor.Cache;
+﻿using Precursor.Cache.Resolvers;
 using Precursor.Resolvers;
 using System.Globalization;
 using System.IO;
@@ -28,13 +28,13 @@ namespace Precursor
             {
                 Console.WriteLine("> Unable to locate Precursor.json\n");
                 Console.WriteLine("> Generating default data...\n");
-                CacheResolver.GenerateCacheData(inputPath);
+                CacheResolver.GenerateBuildData(inputPath);
                 isNewFile = true;
             }
 
             if (!isNewFile)
             {
-                CacheResolver.ValidateCacheData(inputPath);
+                CacheResolver.VerifyBuilds(inputPath);
             }
             else 
             {
@@ -42,6 +42,8 @@ namespace Precursor
             }
 
             Console.WriteLine("\nEnter \"help\" to list available commands. Enter \"quit\" to quit.");
+
+
         }
 
         public static DateTime GetLinkerTimestampUtc(Assembly assembly)

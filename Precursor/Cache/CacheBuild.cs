@@ -1,6 +1,6 @@
 ﻿namespace Precursor.Cache
 {
-    public enum CacheType 
+    public enum CacheBuild 
     {
         None = 0,
         HaloXbox,

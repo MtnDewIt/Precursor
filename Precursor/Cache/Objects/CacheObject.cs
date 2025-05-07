@@ -4,21 +4,21 @@ namespace Precursor.Cache.Objects
 {
     public class CacheObject
     {
-        public List<CacheTypeObject> Caches { get; set; }
+        public List<CacheBuildObject> Builds { get; set; }
 
         public CacheObject()
         {
-            Caches = new List<CacheTypeObject>();
+            Builds = new List<CacheBuildObject>();
         }
 
-        public class CacheTypeObject 
+        public class CacheBuildObject 
         {
-            public CacheType CacheType { get; set; }
+            public CacheBuild Build { get; set; }
             public string Path { get; set; }
 
-            public CacheTypeObject(CacheType cacheType, string path)
+            public CacheBuildObject(CacheBuild build, string path)
             {
-                CacheType = cacheType;
+                Build = build;
                 Path = path;
             }
         }
