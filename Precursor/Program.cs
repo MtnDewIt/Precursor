@@ -4,12 +4,14 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System;
+using Precursor.Common;
 
 namespace Precursor
 {
     public static class Program
     {
         public static string PrecursorDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public static string PrecursorInput = Path.Combine(PrecursorDirectory, "Precursor.json");
 
         static void Main(string[] args)
         {
@@ -20,25 +22,23 @@ namespace Precursor
 
             Console.WriteLine($"Precursor [{Assembly.GetExecutingAssembly().GetName().Version} (Built {GetLinkerTimestampUtc(Assembly.GetExecutingAssembly())} UTC)]\n");
 
-            var inputPath = $@"{PrecursorDirectory}\Precursor.json";
-
             var isNewFile = false;
 
-            if (!File.Exists(inputPath)) 
+            if (!File.Exists(PrecursorInput)) 
             {
-                Console.WriteLine("> Unable to locate Precursor.json\n");
-                Console.WriteLine("> Generating default data...\n");
-                CacheResolver.GenerateBuildData(inputPath);
+                new PrecursorWarning("Unable to locate Precursor.json");
+                new PrecursorWarning("Generating default data...");
+                CacheResolver.GenerateBuildData(PrecursorInput);
                 isNewFile = true;
             }
 
             if (!isNewFile)
             {
-                CacheResolver.VerifyBuilds(inputPath);
+                CacheResolver.VerifyBuilds(PrecursorInput);
             }
             else 
             {
-                Console.WriteLine("> Default data generated. Cache paths will need to be populated manually");
+                new PrecursorWarning("Default data generated. Cache paths will need to be populated manually");
             }
 
             Console.WriteLine("\nEnter \"help\" to list available commands. Enter \"quit\" to quit.");

@@ -55,12 +55,12 @@ namespace Precursor.Cache.Resolvers
         {
             if (string.IsNullOrEmpty(build.Path))
             {
-                Console.WriteLine($"> Cache Type: {build.Build} - Null or Empty Path Detected, Skipping Verification...");
+                Console.WriteLine($"> Build Type: {build.Build} - Null or Empty Path Detected, Skipping Verification...");
                 return;
             }
             else if (!Path.Exists(build.Path))
             {
-                Console.WriteLine($"> Cache Type: {build.Build} - Unable to Locate Directory, Skipping Verification...");
+                Console.WriteLine($"> Build Type: {build.Build} - Unable to Locate Directory, Skipping Verification...");
                 return;
             }
             else
@@ -69,7 +69,7 @@ namespace Precursor.Cache.Resolvers
 
                 if (cacheFiles.Count == 0)
                 {
-                    Console.WriteLine($"> Cache Type: {build.Build} - No .Map Files Found in Directory, Skipping Verification...");
+                    Console.WriteLine($"> Build Type: {build.Build} - No .Map Files Found in Directory, Skipping Verification...");
                     return;
                 }
 
@@ -89,7 +89,7 @@ namespace Precursor.Cache.Resolvers
 
                             if (!mapFile.Header.IsValid())
                             {
-                                Console.WriteLine($"> Cache Type: {build.Build} - Invalid Cache File");
+                                Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
                                 continue;
                             }
 
@@ -103,7 +103,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -115,31 +115,31 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
                                 case CacheBuild.HaloOnline235640:
-                                    if (mapFile.Header.GetBuild() == "1.235640 cert_ms23")
+                                    if (mapFile.Header.GetBuild() == "1.235640 cert_ms25")
                                     {
                                         HaloOnline235640Files.Add(cacheFile);
                                         validFiles++;
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
                                 case CacheBuild.HaloOnline301003:
-                                    if (mapFile.Header.GetBuild() == "0.0.1.301003 cert_MS26_new")
+                                    if (mapFile.Header.GetBuild() == "Jun 12 2015 13:02:50")
                                     {
                                         HaloOnline301003Files.Add(cacheFile);
                                         validFiles++;
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -151,7 +151,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -163,7 +163,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -175,7 +175,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -187,7 +187,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -199,7 +199,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -211,7 +211,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -223,7 +223,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -235,7 +235,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -247,7 +247,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -259,7 +259,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -271,19 +271,19 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
                                 case CacheBuild.HaloOnline604673:
-                                    if (mapFile.Header.GetBuild() == "11.1.604673 cert_ms29 Live")
+                                    if (mapFile.Header.GetBuild() == "11.1.601838 Live")
                                     {
                                         HaloOnline604673Files.Add(cacheFile);
                                         validFiles++;
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -295,7 +295,7 @@ namespace Precursor.Cache.Resolvers
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"> Cache Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
                                         continue;
                                     }
                                     break;
@@ -304,7 +304,7 @@ namespace Precursor.Cache.Resolvers
                     }
                 }
 
-                Console.WriteLine($"> Cache Type: {build.Build} - Successfully Verified {validFiles}/{cacheFiles.Count} Files");
+                Console.WriteLine($"> Build Type: {build.Build} - Successfully Verified {validFiles}/{cacheFiles.Count} Files");
             }
         }
     }

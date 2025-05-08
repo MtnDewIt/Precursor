@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Precursor.Cache.Handlers;
 using Precursor.Cache.Objects;
+using Precursor.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,7 +38,7 @@ namespace Precursor.Cache.Resolvers
         {
             if (!File.Exists(inputPath))
             {
-                Console.WriteLine("Unable to locate Precursor.json\n");
+                new PrecursorWarning("Unable to locate Precursor.json");
                 return;
             }
 
@@ -69,9 +70,12 @@ namespace Precursor.Cache.Resolvers
                     case CacheBuild.Halo3MythicRetail:
                     case CacheBuild.Halo3ODST:
                     case CacheBuild.HaloReach:
-                    case CacheBuild.HaloReach11883:
                         var resolverGen3 = new CacheGen3Resolver();
                         resolverGen3.VerifyBuild(cache);
+                        break;
+                    case CacheBuild.HaloReach11883:
+                        var resolverGenMonolithic = new CacheGenMonolithicResolver();
+                        resolverGenMonolithic.VerifyBuild(cache);
                         break;
                     case CacheBuild.Halo4Retail:
                         var resolverGen4 = new CacheGen4Resolver();
