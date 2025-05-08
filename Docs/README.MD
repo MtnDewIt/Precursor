@@ -15,24 +15,24 @@ The Blam! titles supported by Precursor line up roughly with engine versions cur
 &nbsp;
 
 ### Gen1
-| Build    | TagTool Cache Version | Default Build Path |
-| -------- | --------------------- | ----------------- |
+| Build String | TagTool Cache Version | Default Build Path |
+| ------------ | --------------------- | ----------------- |
 | 01.09.25.2247 | HaloXbox | Gen1\HaloXbox |
 | 01.10.12.2276 | HaloXbox | Gen1\HaloXbox |
 | 01.00.00.0564 | HaloPC | Gen1\HaloPC |
 | 01.00.00.0609 | HaloCustomEdition | Gen1\HaloCustomEdition |
 
 ### Gen2
-| Build    | TagTool Cache Version | Default Build Path |
-| -------- | --------------------- | ----------------- |
+| Build String | TagTool Cache Version | Default Build Path |
+| ------------ | --------------------- | ----------------- |
 | 02.01.07.4998 | Halo2Alpha | Gen2\Halo2Alpha |
 | 02.06.28.07902 | Halo2Beta | Gen2\Halo2Beta |
 | 02.09.27.09809 | Halo2Xbox | Gen2\Halo2Xbox |
 | 11081.07.04.30.0934.main | Halo2Vista | Gen2\Halo2Vista |
 
 ### Gen3
-| Build    | TagTool Cache Version | Default Build Path |
-| -------- | --------------------- | ----------------- |
+| Build String | TagTool Cache Version | Default Build Path |
+| ------------ | --------------------- | ----------------- |
 | 09699.07.05.01.1534.delta | Halo3Beta | Gen3\Halo3Beta |
 | 11855.07.08.20.2317.halo3_ship | Halo3Retail | Gen3\Halo3Retail |
 | 12065.08.08.26.0819.halo3_ship | Halo3Retail | Gen3\Halo3MythicRetail |
@@ -41,8 +41,8 @@ The Blam! titles supported by Precursor line up roughly with engine versions cur
 | 11883.10.10.25.1227.dlc_1_ship__tag_test | HaloReach11883 | Gen3\HaloReach11883 |
 
 ### Gen4
-| Build    | TagTool Cache Version | Default Build Path |
-| -------- | --------------------- | ----------------- |
+| Build String | TagTool Cache Version | Default Build Path |
+| ------------ | --------------------- | ----------------- |
 | 20810.12.09.22.1647.main | Halo4 | Gen4\Halo4 |
 | 21122.12.11.21.0101.main | Halo4 | Gen4\Halo4 |
 | 21165.12.12.12.0112.main | Halo4 | Gen4\Halo4 |
@@ -50,8 +50,8 @@ The Blam! titles supported by Precursor line up roughly with engine versions cur
 | 21391.13.03.13.1711.main | Halo4 | Gen4\Halo4 |
 
 ### GenHaloOnline
-| Build    | TagTool Cache Version | Default Build Path |
-| -------- | --------------------- | ----------------- |
+| Build String | TagTool Cache Version | Default Build Path |
+| ------------ | --------------------- | ----------------- |
 | ElDewrito 0.7.1 | HaloOnlineED | GenHaloOnline\HaloOnlineED |
 | 1.106708 cert_ms23  | HaloOnline106708 | GenHaloOnline\HaloOnline106708 |
 | 1.235640 cert_ms25  | HaloOnline235640 | GenHaloOnline\HaloOnline235640 |
