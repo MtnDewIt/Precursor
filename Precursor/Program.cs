@@ -24,7 +24,7 @@ namespace Precursor
 
             var isNewFile = false;
 
-            if (!File.Exists(PrecursorInput)) 
+            if (!File.Exists(PrecursorInput))
             {
                 new PrecursorWarning("Unable to locate Precursor.json");
                 new PrecursorWarning("Generating default data...");
@@ -36,14 +36,29 @@ namespace Precursor
             {
                 CacheResolver.VerifyBuilds(PrecursorInput);
             }
-            else 
+            else
             {
                 new PrecursorWarning("Default data generated. Cache paths will need to be populated manually");
             }
 
             Console.WriteLine("\nEnter \"help\" to list available commands. Enter \"quit\" to quit.");
 
+            var contextStack = new PrecursorContextStack();
+            var context = PrecursorContextFactory.Create(contextStack);
+            contextStack.Push(context);
 
+            var commandRunner = new PrecursorCommandRunner(contextStack);
+
+            while (!commandRunner.Exit) 
+            {
+                Console.WriteLine();
+                Console.Write("> ");
+                Console.Title = $"Precursor >";
+
+                var line = Console.ReadLine();
+
+                commandRunner.RunCommand(line);
+            }
         }
 
         public static DateTime GetLinkerTimestampUtc(Assembly assembly)
