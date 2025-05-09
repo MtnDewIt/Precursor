@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Precursor.Common
+namespace Precursor.Commands
 {
     public abstract class PrecursorCommand
     {

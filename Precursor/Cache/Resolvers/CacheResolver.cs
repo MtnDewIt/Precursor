@@ -1,39 +1,12 @@
-﻿using Assimp;
-using Newtonsoft.Json;
-using Precursor.Cache.Handlers;
-using Precursor.Cache.Objects;
+﻿using Precursor.Cache.Handlers;
 using Precursor.Common;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using TagTool.BlamFile;
-using TagTool.Cache;
-using TagTool.IO;
 
 namespace Precursor.Cache.Resolvers
 {
     public class CacheResolver
     {
-        public static void GenerateBuildData(string outputPath)
-        {
-            var cacheObject = new CacheObject();
-
-            foreach (CacheBuild build in Enum.GetValues(typeof(CacheBuild)))
-            {
-                if (build == CacheBuild.None)
-                    continue;
-
-                cacheObject.Builds.Add(new CacheObject.CacheBuildObject(build, null));
-            }
-
-            var handler = new CacheObjectHandler();
-
-            var outputObject = handler.Serialize(cacheObject);
-
-            File.WriteAllText(outputPath, outputObject);
-        }
-
         public static void VerifyBuilds(string inputPath)
         {
             if (!File.Exists(inputPath))
@@ -48,22 +21,24 @@ namespace Precursor.Cache.Resolvers
 
             var cacheObject = handler.Deserialize(jsonData);
 
-            foreach (var cache in cacheObject.Builds)
+            foreach (var build in cacheObject.Builds)
             {
-                switch (cache.Build) 
+                Console.WriteLine($"Verifying {build.Build} Cache Files...");
+
+                switch (build.Build) 
                 {
                     case CacheBuild.HaloXbox:
                     case CacheBuild.HaloPC:
                     case CacheBuild.HaloCustomEdition:
                         var resolverGen1 = new CacheGen1Resolver();
-                        resolverGen1.VerifyBuild(cache);
+                        resolverGen1.VerifyBuild(build);
                         break;
                     case CacheBuild.Halo2Alpha:
                     case CacheBuild.Halo2Beta:
                     case CacheBuild.Halo2Xbox:
                     case CacheBuild.Halo2Vista:
                         var resolverGen2 = new CacheGen2Resolver();
-                        resolverGen2.VerifyBuild(cache);
+                        resolverGen2.VerifyBuild(build);
                         break;
                     case CacheBuild.Halo3Beta:
                     case CacheBuild.Halo3Retail:
@@ -71,15 +46,15 @@ namespace Precursor.Cache.Resolvers
                     case CacheBuild.Halo3ODST:
                     case CacheBuild.HaloReach:
                         var resolverGen3 = new CacheGen3Resolver();
-                        resolverGen3.VerifyBuild(cache);
+                        resolverGen3.VerifyBuild(build);
                         break;
                     case CacheBuild.HaloReach11883:
                         var resolverGenMonolithic = new CacheGenMonolithicResolver();
-                        resolverGenMonolithic.VerifyBuild(cache);
+                        resolverGenMonolithic.VerifyBuild(build);
                         break;
                     case CacheBuild.Halo4Retail:
                         var resolverGen4 = new CacheGen4Resolver();
-                        resolverGen4.VerifyBuild(cache);
+                        resolverGen4.VerifyBuild(build);
                         break;
                     case CacheBuild.HaloOnlineED:
                     case CacheBuild.HaloOnline106708:
@@ -99,11 +74,11 @@ namespace Precursor.Cache.Resolvers
                     case CacheBuild.HaloOnline604673:
                     case CacheBuild.HaloOnline700123:
                         var resolverGenHaloOnline = new CacheGenHaloOnlineResolver();
-                        resolverGenHaloOnline.VerifyBuild(cache);
+                        resolverGenHaloOnline.VerifyBuild(build);
                         break;
                     case CacheBuild.MCCRetail:
                         var resolverMCC = new CacheMCCResolver();
-                        resolverMCC.VerifyBuild(cache);
+                        resolverMCC.VerifyBuild(build);
                         break;
                 }
             }

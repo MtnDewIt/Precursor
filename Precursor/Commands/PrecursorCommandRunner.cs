@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Precursor.Commands.Context;
+using Precursor.Common;
+using System;
 using System.Collections.Generic;
 using TagTool.Commands;
 
-namespace Precursor.Common
+namespace Precursor.Commands
 {
     public class PrecursorCommandRunner
     {

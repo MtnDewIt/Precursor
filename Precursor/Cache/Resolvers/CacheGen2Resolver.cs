@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TagTool.BlamFile;
 using TagTool.IO;
 
@@ -136,7 +134,7 @@ namespace Precursor.Cache.Resolvers
                     }
                 }
 
-                Console.WriteLine($"> Build Type: {build.Build} - Successfully Verified {validFiles}/{cacheFiles.Count} Files");
+                Console.WriteLine($"Successfully Verified {validFiles}/{cacheFiles.Count} Files\n");
             }
         }
     }

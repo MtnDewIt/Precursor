@@ -1,4 +1,6 @@
-﻿namespace Precursor.Common
+﻿using Precursor.Commands.Common;
+
+namespace Precursor.Commands.Context
 {
     public static class PrecursorContextFactory
     {
@@ -11,7 +13,7 @@
 
         public static void Populate(PrecursorContextStack contextStack, PrecursorContext context) 
         {
-            
+            context.AddCommand(new ClearCommand());
         }
     }
 }

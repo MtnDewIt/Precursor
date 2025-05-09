@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Precursor.Common
+namespace Precursor.Commands.Context
 {
     public class PrecursorContext
     {

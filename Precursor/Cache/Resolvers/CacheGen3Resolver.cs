@@ -158,19 +158,6 @@ namespace Precursor.Cache.Resolvers
                                             continue;
                                         }
                                         break;
-                                    // This might need to be handled differently
-                                    case CacheBuild.HaloReach11883:
-                                        if (mapFile.Header.GetBuild() == "11883.10.10.25.1227.dlc_1_ship__tag_test")
-                                        {
-                                            HaloReach11883Files.Add(cacheFile);
-                                            validFiles++;
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                            continue;
-                                        }
-                                        break;
                                 }
                             }
 
@@ -179,7 +166,7 @@ namespace Precursor.Cache.Resolvers
                     }
                 }
 
-                Console.WriteLine($"> Build Type: {build.Build} - Successfully Verified {validFiles}/{cacheFileCount} Files");
+                Console.WriteLine($"Successfully Verified {validFiles}/{cacheFileCount} Files\n");
             }
         }
     }

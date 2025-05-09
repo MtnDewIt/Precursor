@@ -304,7 +304,7 @@ namespace Precursor.Cache.Resolvers
                     }
                 }
 
-                Console.WriteLine($"> Build Type: {build.Build} - Successfully Verified {validFiles}/{cacheFiles.Count} Files");
+                Console.WriteLine($"Successfully Verified {validFiles}/{cacheFiles.Count} Files\n");
             }
         }
     }

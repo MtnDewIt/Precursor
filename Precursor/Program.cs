@@ -4,7 +4,10 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System;
+using Precursor.Cache.Objects;
 using Precursor.Common;
+using Precursor.Commands;
+using Precursor.Commands.Context;
 
 namespace Precursor
 {
@@ -28,7 +31,7 @@ namespace Precursor
             {
                 new PrecursorWarning("Unable to locate Precursor.json");
                 new PrecursorWarning("Generating default data...");
-                CacheResolver.GenerateBuildData(PrecursorInput);
+                CacheObject.GenerateBuildData(PrecursorInput);
                 isNewFile = true;
             }
 
@@ -53,7 +56,7 @@ namespace Precursor
             {
                 Console.WriteLine();
                 Console.Write("> ");
-                Console.Title = $"Precursor >";
+                Console.Title = $"Precursor";
 
                 var line = Console.ReadLine();
 

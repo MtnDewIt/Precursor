@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Precursor.Common
+namespace Precursor.Commands.Context
 {
     public class PrecursorContextStack
     {
@@ -9,7 +9,7 @@ namespace Precursor.Common
 
         public event Action<PrecursorContext> ContextPopped;
 
-        public PrecursorContext Context => (ContextStack.Count > 0) ? ContextStack.Peek() : null;
+        public PrecursorContext Context => ContextStack.Count > 0 ? ContextStack.Peek() : null;
 
         public void Push(PrecursorContext context)
         {
