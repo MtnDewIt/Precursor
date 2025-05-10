@@ -8,7 +8,7 @@ using TagTool.IO;
 
 namespace Precursor.Cache.Resolvers
 {
-    public class CacheGen2Resolver
+    public class CacheGen2Resolver : CacheResolver
     {
         public List<string> Halo2AlphaFiles { get; set; }
         public List<string> Halo2AlphaSharedFiles { get; set; }
@@ -37,105 +37,122 @@ namespace Precursor.Cache.Resolvers
             Halo2VistaSharedFiles = new List<string>();
         }
 
-        public void VerifyBuild(CacheObject.CacheBuildObject build)
+        public override void VerifyBuild(CacheObject.CacheBuildObject build)
         {
-            if (string.IsNullOrEmpty(build.Path))
+            if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
             {
-                Console.WriteLine($"> Build Type: {build.Build} - Null or Empty Path Detected, Skipping Verification...");
+                Console.WriteLine($"> Build Type: {build.Build} - Invalid or Missing Path, Skipping Verification...");
                 return;
             }
-            else if (!Path.Exists(build.Path))
+
+            var cacheFiles = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
+
+            if (cacheFiles.Count == 0)
             {
-                Console.WriteLine($"> Build Type: {build.Build} - Unable to Locate Directory, Skipping Verification...");
+                Console.WriteLine($"> Build Type: {build.Build} - No .Map Files Found in Directory, Skipping Verification...");
                 return;
             }
-            else
+
+            var validFiles = 0;
+
+            foreach (var cacheFile in cacheFiles)
             {
-                var cacheFiles = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
-
-                if (cacheFiles.Count == 0)
-                {
-                    Console.WriteLine($"> Build Type: {build.Build} - No .Map Files Found in Directory, Skipping Verification...");
-                    return;
-                }
-
-                var validFiles = 0;
-
-                foreach (var cacheFile in cacheFiles)
+                if (!SharedFiles.Contains(Path.GetFileName(cacheFile)))
                 {
                     var fileInfo = new FileInfo(cacheFile);
 
                     using (var stream = fileInfo.OpenRead())
+                    using (var reader = new EndianReader(stream))
                     {
-                        using (var reader = new EndianReader(stream))
+                        var mapFile = new MapFile();
+
+                        mapFile.Read(reader);
+
+                        if (!mapFile.Header.IsValid())
                         {
-                            var mapFile = new MapFile();
+                            Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
+                            continue;
+                        }
 
-                            mapFile.Read(reader);
-
-                            if (!mapFile.Header.IsValid())
-                            {
-                                Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
-                                continue;
-                            }
-
-                            switch (build.Build)
-                            {
-                                case CacheBuild.Halo2Alpha:
-                                    if (mapFile.Header.GetBuild() == "02.01.07.4998")
-                                    {
-                                        Halo2AlphaFiles.Add(cacheFile);
-                                        validFiles++;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                        continue;
-                                    }
-                                    break;
-                                case CacheBuild.Halo2Beta:
-                                    if (mapFile.Header.GetBuild() == "02.06.28.07902")
-                                    {
-                                        Halo2BetaFiles.Add(cacheFile);
-                                        validFiles++;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                        continue;
-                                    }
-                                    break;
-                                case CacheBuild.Halo2Xbox:
-                                    if (mapFile.Header.GetBuild() == "02.09.27.09809")
-                                    {
-                                        Halo2XboxFiles.Add(cacheFile);
-                                        validFiles++;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                        continue;
-                                    }
-                                    break;
-                                case CacheBuild.Halo2Vista:
-                                    if (mapFile.Header.GetBuild() == "11081.07.04.30.0934.main")
-                                    {
-                                        Halo2VistaFiles.Add(cacheFile);
-                                        validFiles++;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                        continue;
-                                    }
-                                    break;
-                            }
+                        switch (build.Build)
+                        {
+                            case CacheBuild.Halo2Alpha:
+                                if (mapFile.Header.GetBuild() == "02.01.07.4998")
+                                {
+                                    Halo2AlphaFiles.Add(cacheFile);
+                                    validFiles++;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                    continue;
+                                }
+                                break;
+                            case CacheBuild.Halo2Beta:
+                                if (mapFile.Header.GetBuild() == "02.06.28.07902")
+                                {
+                                    Halo2BetaFiles.Add(cacheFile);
+                                    validFiles++;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                    continue;
+                                }
+                                break;
+                            case CacheBuild.Halo2Xbox:
+                                if (mapFile.Header.GetBuild() == "02.09.27.09809")
+                                {
+                                    Halo2XboxFiles.Add(cacheFile);
+                                    validFiles++;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                    continue;
+                                }
+                                break;
+                            case CacheBuild.Halo2Vista:
+                                if (mapFile.Header.GetBuild() == "11081.07.04.30.0934.main")
+                                {
+                                    Halo2VistaFiles.Add(cacheFile);
+                                    validFiles++;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                    continue;
+                                }
+                                break;
                         }
                     }
                 }
-
-                Console.WriteLine($"Successfully Verified {validFiles}/{cacheFiles.Count} Files\n");
+                else 
+                {
+                    switch (build.Build) 
+                    {
+                        case CacheBuild.Halo2Alpha:
+                            Halo2AlphaSharedFiles.Add(cacheFile);
+                            break;
+                        case CacheBuild.Halo2Beta:
+                            Halo2BetaSharedFiles.Add(cacheFile);
+                            break;
+                        case CacheBuild.Halo2Xbox:
+                            Halo2XboxSharedFiles.Add(cacheFile);
+                            break;
+                        case CacheBuild.Halo2Vista:
+                            Halo2VistaSharedFiles.Add(cacheFile);
+                            break;
+                    }
+                }
             }
+
+            Console.WriteLine($"Successfully Verified {validFiles}/{cacheFiles.Count} Files\n");
+        }
+
+        public override bool IsValidCacheFile()
+        {
+            return false;
         }
     }
 }

@@ -8,6 +8,7 @@ using Precursor.Cache.Objects;
 using Precursor.Common;
 using Precursor.Commands;
 using Precursor.Commands.Context;
+using Precursor.Cache.Handlers;
 
 namespace Precursor
 {
@@ -37,7 +38,20 @@ namespace Precursor
 
             if (!isNewFile)
             {
-                CacheResolver.VerifyBuilds(PrecursorInput);
+                var jsonData = File.ReadAllText(PrecursorInput);
+
+                var handler = new CacheObjectHandler();
+
+                var cacheObject = handler.Deserialize(jsonData);
+
+                foreach (var build in cacheObject.Builds) 
+                {
+                    Console.WriteLine($"Verifying {build.Build} Cache Files...");
+
+                    var resolver = CacheResolver.GetResolver(build.Build);
+
+                    resolver.VerifyBuild(build);
+                }
             }
             else
             {

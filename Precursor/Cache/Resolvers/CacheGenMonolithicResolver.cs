@@ -9,7 +9,7 @@ using TagTool.IO;
 
 namespace Precursor.Cache.Resolvers
 {
-    public class CacheGenMonolithicResolver
+    public class CacheGenMonolithicResolver : CacheResolver
     {
         public List<string >HaloReach11883Files;
         public List<string >HaloReach11883BlobFiles;
@@ -20,72 +20,68 @@ namespace Precursor.Cache.Resolvers
             HaloReach11883BlobFiles = new List<string>();
         }
 
-        public void VerifyBuild(CacheObject.CacheBuildObject build) 
+        public override void VerifyBuild(CacheObject.CacheBuildObject build) 
         {
-            if (string.IsNullOrEmpty(build.Path))
+            if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
             {
-                Console.WriteLine($"> Build Type: {build.Build} - Null or Empty Path Detected, Skipping Verification...");
+                Console.WriteLine($"> Build Type: {build.Build} - Invalid or Missing Path, Skipping Verification...");
                 return;
             }
-            else if (!Path.Exists(build.Path))
+
+            var cacheFiles = Directory.EnumerateFiles(build.Path, "blob_index.dat", SearchOption.AllDirectories).ToList();
+            var cacheFileBlobs = Directory.EnumerateFiles($@"{build.Path}\blobs", "*.", SearchOption.AllDirectories).ToList();
+
+            if (cacheFiles.Count == 0)
             {
-                Console.WriteLine($"> Build Type: {build.Build} - Unable to Locate Directory, Skipping Verification...");
+                Console.WriteLine($"> Build Type: {build.Build} - No blob_index.dat Files Found in Directory, Skipping Verification...");
                 return;
             }
-            else 
+
+            var totalFileCount = cacheFiles.Count + cacheFileBlobs.Count;
+            var validFiles = 0;
+
+            foreach (var cacheFile in cacheFiles)
             {
-                var cacheFiles = Directory.EnumerateFiles(build.Path, "blob_index.dat", SearchOption.AllDirectories).ToList();
-                var cacheFileBlobs = Directory.EnumerateFiles($@"{build.Path}\blobs", "*.", SearchOption.AllDirectories).ToList();
+                var fileInfo = new FileInfo(cacheFile);
 
-                if (cacheFiles.Count == 0)
+                using (var stream = fileInfo.OpenRead())
+                using (var reader = new EndianReader(stream))
                 {
-                    Console.WriteLine($"> Build Type: {build.Build} - No blob_index.dat Files Found in Directory, Skipping Verification...");
-                    return;
-                }
+                    var guid = new Guid(reader.ReadBytes(16));
 
-                var totalFileCount = cacheFiles.Count + cacheFileBlobs.Count;
-                var validFiles = 0;
-
-                foreach (var cacheFile in cacheFiles) 
-                {
-                    var fileInfo = new FileInfo(cacheFile);
-
-                    using (var stream = fileInfo.OpenRead())
+                    if (guid.ToString() == "0237d057-1e3c-4390-9cfc-6108a911de01")
                     {
-                        using (var reader = new EndianReader(stream))
-                        {
-                            var guid = new Guid(reader.ReadBytes(16));
-
-                            if (guid.ToString() == "0237d057-1e3c-4390-9cfc-6108a911de01") 
-                            {
-                                HaloReach11883Files.Add(cacheFile);
-                                validFiles++;
-                            }
-                            else
-                            {
-                                Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{guid}\"");
-                                continue;
-                            }
-                        }
-                    }
-                }
-
-                foreach (var blob in cacheFileBlobs) 
-                {
-                    if (Path.GetFileName(blob).StartsWith("cache_") || Path.GetFileName(blob).StartsWith("tags_") || Path.GetExtension(blob) == null)
-                    {
-                        HaloReach11883BlobFiles.Add(blob);
+                        HaloReach11883Files.Add(cacheFile);
                         validFiles++;
                     }
-                    else 
+                    else
                     {
-                        Console.WriteLine($"> Build Type: {build.Build} - Invalid Blob File \"{Path.GetFileName(blob)}\"");
+                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{guid}\"");
                         continue;
                     }
                 }
-
-                Console.WriteLine($"Successfully Verified {validFiles}/{totalFileCount} Files\n");
             }
+
+            foreach (var blob in cacheFileBlobs)
+            {
+                if (Path.GetFileName(blob).StartsWith("cache_") || Path.GetFileName(blob).StartsWith("tags_") || Path.GetExtension(blob) == null)
+                {
+                    HaloReach11883BlobFiles.Add(blob);
+                    validFiles++;
+                }
+                else
+                {
+                    Console.WriteLine($"> Build Type: {build.Build} - Invalid Blob File \"{Path.GetFileName(blob)}\"");
+                    continue;
+                }
+            }
+
+            Console.WriteLine($"Successfully Verified {validFiles}/{totalFileCount} Files\n");
+        }
+
+        public override bool IsValidCacheFile()
+        {
+            return false;
         }
     }
 }

@@ -3,14 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TagTool.BlamFile;
 using TagTool.IO;
 
 namespace Precursor.Cache.Resolvers
 {
-    public class CacheMCCResolver
+    public class CacheMCCResolver : CacheResolver
     {
         public List<string> Halo1Files { get; set; }
         public List<string> Halo1SharedFiles { get; set; }
@@ -55,320 +53,304 @@ namespace Precursor.Cache.Resolvers
             "single_player_shared.map"
         };
 
-        public void VerifyBuild(CacheObject.CacheBuildObject build)
+        public override void VerifyBuild(CacheObject.CacheBuildObject build)
         {
-            if (string.IsNullOrEmpty(build.Path))
+            if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
             {
-                Console.WriteLine($"> Build Type: {build.Build} - Null or Empty Path Detected, Skipping Verification...");
+                Console.WriteLine($"> Build Type: {build.Build} - Invalid or Missing Path, Skipping Verification...");
                 return;
             }
-            else if (!Path.Exists(build.Path))
+
+            var halo1CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo1\maps", "*.map", SearchOption.AllDirectories).ToList();
+            var halo2CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo2\h2_maps_win64_dx11", "*.map", SearchOption.AllDirectories).ToList();
+            var halo3CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo3\maps", "*.map", SearchOption.AllDirectories).ToList();
+            var halo3OdstCacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo3odst\maps", "*.map", SearchOption.AllDirectories).ToList();
+            var haloReachCacheFiles = Directory.EnumerateFiles($@"{build.Path}\haloreach\maps", "*.map", SearchOption.AllDirectories).ToList();
+            var halo4CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo4\maps", "*.map", SearchOption.AllDirectories).ToList();
+            var halo2AMPCacheFiles = Directory.EnumerateFiles($@"{build.Path}\groundhog\maps", "*.map", SearchOption.AllDirectories).ToList();
+
+            var totalFileCount = 0;
+            var validFiles = 0;
+
+            foreach (var cacheFile in halo1CacheFiles)
             {
-                Console.WriteLine($"> Build Type: {build.Build} - Unable to Locate Directory, Skipping Verification...");
-                return;
+                if (!SharedFiles.Contains(Path.GetFileName(cacheFile)))
+                {
+                    totalFileCount++;
+
+                    var fileInfo = new FileInfo(cacheFile);
+
+                    using (var stream = fileInfo.OpenRead())
+                    using (var reader = new EndianReader(stream))
+                    {
+                        var mapFile = new MapFile();
+
+                        mapFile.Read(reader);
+
+                        if (!mapFile.Header.IsValid())
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
+                            continue;
+                        }
+
+                        if (mapFile.Header.GetBuild() == "01.03.43.0000")
+                        {
+                            Halo1Files.Add(cacheFile);
+                            validFiles++;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                            continue;
+                        }
+                    }
+                }
+                else
+                {
+                    Halo1SharedFiles.Add(cacheFile);
+                }
             }
-            else
+
+            foreach (var cacheFile in halo2CacheFiles)
             {
-                var halo1CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo1\maps", "*.map", SearchOption.AllDirectories).ToList();
-                var halo2CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo2\h2_maps_win64_dx11", "*.map", SearchOption.AllDirectories).ToList();
-                var halo3CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo3\maps", "*.map", SearchOption.AllDirectories).ToList();
-                var halo3OdstCacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo3odst\maps", "*.map", SearchOption.AllDirectories).ToList();
-                var haloReachCacheFiles = Directory.EnumerateFiles($@"{build.Path}\haloreach\maps", "*.map", SearchOption.AllDirectories).ToList();
-                var halo4CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo4\maps", "*.map", SearchOption.AllDirectories).ToList();
-                var halo2AMPCacheFiles = Directory.EnumerateFiles($@"{build.Path}\groundhog\maps", "*.map", SearchOption.AllDirectories).ToList();
-
-                var totalFileCount = 0;
-                var validFiles = 0;
-
-                foreach (var cacheFile in halo1CacheFiles)
+                if (!SharedFiles.Contains(Path.GetFileName(cacheFile)))
                 {
-                    if (!SharedFiles.Contains(Path.GetFileName(cacheFile))) 
+                    totalFileCount++;
+
+                    var fileInfo = new FileInfo(cacheFile);
+
+                    using (var stream = fileInfo.OpenRead())
+                    using (var reader = new EndianReader(stream))
                     {
-                        totalFileCount++;
+                        var mapFile = new MapFile();
 
-                        var fileInfo = new FileInfo(cacheFile);
+                        mapFile.Read(reader);
 
-                        using (var stream = fileInfo.OpenRead())
+                        if (!mapFile.Header.IsValid())
                         {
-                            using (var reader = new EndianReader(stream))
-                            {
-                                var mapFile = new MapFile();
+                            Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
+                            continue;
+                        }
 
-                                mapFile.Read(reader);
-
-                                if (!mapFile.Header.IsValid())
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
-                                    continue;
-                                }
-
-                                if (mapFile.Header.GetBuild() == "01.03.43.0000")
-                                {
-                                    Halo1Files.Add(cacheFile);
-                                    validFiles++;
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                    continue;
-                                }
-                            }
+                        if (mapFile.Header.GetBuild() == "")
+                        {
+                            Halo2Files.Add(cacheFile);
+                            validFiles++;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                            continue;
                         }
                     }
-                    else
-                    {
-                        Halo1SharedFiles.Add(cacheFile);
-                    }
                 }
-
-                foreach (var cacheFile in halo2CacheFiles)
+                else
                 {
-                    if (!SharedFiles.Contains(Path.GetFileName(cacheFile))) 
-                    {
-                        totalFileCount++;
-
-                        var fileInfo = new FileInfo(cacheFile);
-
-                        using (var stream = fileInfo.OpenRead())
-                        {
-                            using (var reader = new EndianReader(stream))
-                            {
-                                var mapFile = new MapFile();
-
-                                mapFile.Read(reader);
-
-                                if (!mapFile.Header.IsValid())
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
-                                    continue;
-                                }
-
-                                if (mapFile.Header.GetBuild() == "")
-                                {
-                                    Halo2Files.Add(cacheFile);
-                                    validFiles++;
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Halo2SharedFiles.Add(cacheFile);
-                    }
+                    Halo2SharedFiles.Add(cacheFile);
                 }
-
-                foreach (var cacheFile in halo3CacheFiles)
-                {
-                    if (!SharedFiles.Contains(Path.GetFileName(cacheFile))) 
-                    {
-                        totalFileCount++;
-
-                        var fileInfo = new FileInfo(cacheFile);
-
-                        using (var stream = fileInfo.OpenRead())
-                        {
-                            using (var reader = new EndianReader(stream))
-                            {
-                                var mapFile = new MapFile();
-
-                                mapFile.Read(reader);
-
-                                if (!mapFile.Header.IsValid())
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
-                                    continue;
-                                }
-
-                                if (mapFile.Header.GetBuild() == "Dec 21 2023 22:31:37")
-                                {
-                                    Halo3Files.Add(cacheFile);
-                                    validFiles++;
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Halo3SharedFiles.Add(cacheFile);
-                    }
-                }
-
-                foreach (var cacheFile in halo3OdstCacheFiles)
-                {
-                    if (!SharedFiles.Contains(Path.GetFileName(cacheFile))) 
-                    {
-                        totalFileCount++;
-
-                        var fileInfo = new FileInfo(cacheFile);
-
-                        using (var stream = fileInfo.OpenRead())
-                        {
-                            using (var reader = new EndianReader(stream))
-                            {
-                                var mapFile = new MapFile();
-
-                                mapFile.Read(reader);
-
-                                if (!mapFile.Header.IsValid())
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
-                                    continue;
-                                }
-
-                                if (mapFile.Header.GetBuild() == "May 16 2023 11:44:41")
-                                {
-                                    Halo3ODSTFiles.Add(cacheFile);
-                                    validFiles++;
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Halo3ODSTSharedFiles.Add(cacheFile);
-                    }
-                }
-
-                foreach (var cacheFile in haloReachCacheFiles)
-                {
-                    if (!SharedFiles.Contains(Path.GetFileName(cacheFile))) 
-                    {
-                        totalFileCount++;
-
-                        var fileInfo = new FileInfo(cacheFile);
-
-                        using (var stream = fileInfo.OpenRead())
-                        {
-                            using (var reader = new EndianReader(stream))
-                            {
-                                var mapFile = new MapFile();
-
-                                mapFile.Read(reader);
-
-                                if (!mapFile.Header.IsValid())
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
-                                    continue;
-                                }
-
-                                if (mapFile.Header.GetBuild() == "Jun 21 2023 15:35:31")
-                                {
-                                    HaloReachFiles.Add(cacheFile);
-                                    validFiles++;
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        HaloReachSharedFiles.Add(cacheFile);
-                    }
-                }
-
-                foreach (var cacheFile in halo4CacheFiles)
-                {
-                    if (!SharedFiles.Contains(Path.GetFileName(cacheFile))) 
-                    {
-                        totalFileCount++;
-
-                        var fileInfo = new FileInfo(cacheFile);
-
-                        using (var stream = fileInfo.OpenRead())
-                        {
-                            using (var reader = new EndianReader(stream))
-                            {
-                                var mapFile = new MapFile();
-
-                                mapFile.Read(reader);
-
-                                if (!mapFile.Header.IsValid())
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
-                                    continue;
-                                }
-
-                                if (mapFile.Header.GetBuild() == "Apr  1 2023 17:35:22")
-                                {
-                                    Halo4Files.Add(cacheFile);
-                                    validFiles++;
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Halo4SharedFiles.Add(cacheFile);
-                    }
-                }
-
-                foreach (var cacheFile in halo2AMPCacheFiles)
-                {
-                    if (!SharedFiles.Contains(Path.GetFileName(cacheFile))) 
-                    {
-                        totalFileCount++;
-
-                        var fileInfo = new FileInfo(cacheFile);
-
-                        using (var stream = fileInfo.OpenRead())
-                        {
-                            using (var reader = new EndianReader(stream))
-                            {
-                                var mapFile = new MapFile();
-
-                                mapFile.Read(reader);
-
-                                if (!mapFile.Header.IsValid())
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
-                                    continue;
-                                }
-
-                                if (mapFile.Header.GetBuild() == "Jun 13 2023 20:21:18")
-                                {
-                                    Halo2AMPFiles.Add(cacheFile);
-                                    validFiles++;
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Halo2AMPSharedFiles.Add(cacheFile);
-                    }
-                }
-
-                Console.WriteLine($"Successfully Verified {validFiles}/{totalFileCount} Files\n");
             }
+
+            foreach (var cacheFile in halo3CacheFiles)
+            {
+                if (!SharedFiles.Contains(Path.GetFileName(cacheFile)))
+                {
+                    totalFileCount++;
+
+                    var fileInfo = new FileInfo(cacheFile);
+
+                    using (var stream = fileInfo.OpenRead())
+                    using (var reader = new EndianReader(stream))
+                    {
+                        var mapFile = new MapFile();
+
+                        mapFile.Read(reader);
+
+                        if (!mapFile.Header.IsValid())
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
+                            continue;
+                        }
+
+                        if (mapFile.Header.GetBuild() == "Dec 21 2023 22:31:37")
+                        {
+                            Halo3Files.Add(cacheFile);
+                            validFiles++;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                            continue;
+                        }
+                    }
+                }
+                else
+                {
+                    Halo3SharedFiles.Add(cacheFile);
+                }
+            }
+
+            foreach (var cacheFile in halo3OdstCacheFiles)
+            {
+                if (!SharedFiles.Contains(Path.GetFileName(cacheFile)))
+                {
+                    totalFileCount++;
+
+                    var fileInfo = new FileInfo(cacheFile);
+
+                    using (var stream = fileInfo.OpenRead())
+                    using (var reader = new EndianReader(stream))
+                    {
+                        var mapFile = new MapFile();
+
+                        mapFile.Read(reader);
+
+                        if (!mapFile.Header.IsValid())
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
+                            continue;
+                        }
+
+                        if (mapFile.Header.GetBuild() == "May 16 2023 11:44:41")
+                        {
+                            Halo3ODSTFiles.Add(cacheFile);
+                            validFiles++;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                            continue;
+                        }
+                    }
+                }
+                else
+                {
+                    Halo3ODSTSharedFiles.Add(cacheFile);
+                }
+            }
+
+            foreach (var cacheFile in haloReachCacheFiles)
+            {
+                if (!SharedFiles.Contains(Path.GetFileName(cacheFile)))
+                {
+                    totalFileCount++;
+
+                    var fileInfo = new FileInfo(cacheFile);
+
+                    using (var stream = fileInfo.OpenRead())
+                    using (var reader = new EndianReader(stream))
+                    {
+                        var mapFile = new MapFile();
+
+                        mapFile.Read(reader);
+
+                        if (!mapFile.Header.IsValid())
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
+                            continue;
+                        }
+
+                        if (mapFile.Header.GetBuild() == "Jun 21 2023 15:35:31")
+                        {
+                            HaloReachFiles.Add(cacheFile);
+                            validFiles++;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                            continue;
+                        }
+                    }
+                }
+                else
+                {
+                    HaloReachSharedFiles.Add(cacheFile);
+                }
+            }
+
+            foreach (var cacheFile in halo4CacheFiles)
+            {
+                if (!SharedFiles.Contains(Path.GetFileName(cacheFile)))
+                {
+                    totalFileCount++;
+
+                    var fileInfo = new FileInfo(cacheFile);
+
+                    using (var stream = fileInfo.OpenRead())
+                    using (var reader = new EndianReader(stream))
+                    {
+                        var mapFile = new MapFile();
+
+                        mapFile.Read(reader);
+
+                        if (!mapFile.Header.IsValid())
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
+                            continue;
+                        }
+
+                        if (mapFile.Header.GetBuild() == "Apr  1 2023 17:35:22")
+                        {
+                            Halo4Files.Add(cacheFile);
+                            validFiles++;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                            continue;
+                        }
+                    }
+                }
+                else
+                {
+                    Halo4SharedFiles.Add(cacheFile);
+                }
+            }
+
+            foreach (var cacheFile in halo2AMPCacheFiles)
+            {
+                if (!SharedFiles.Contains(Path.GetFileName(cacheFile)))
+                {
+                    totalFileCount++;
+
+                    var fileInfo = new FileInfo(cacheFile);
+
+                    using (var stream = fileInfo.OpenRead())
+                    using (var reader = new EndianReader(stream))
+                    {
+                        var mapFile = new MapFile();
+
+                        mapFile.Read(reader);
+
+                        if (!mapFile.Header.IsValid())
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
+                            continue;
+                        }
+
+                        if (mapFile.Header.GetBuild() == "Jun 13 2023 20:21:18")
+                        {
+                            Halo2AMPFiles.Add(cacheFile);
+                            validFiles++;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                            continue;
+                        }
+                    }
+                }
+                else
+                {
+                    Halo2AMPSharedFiles.Add(cacheFile);
+                }
+            }
+
+            Console.WriteLine($"Successfully Verified {validFiles}/{totalFileCount} Files\n");
+        }
+
+        public override bool IsValidCacheFile()
+        {
+            return false;
         }
     }
 }

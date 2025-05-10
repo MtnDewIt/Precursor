@@ -1,17 +1,14 @@
-﻿using Assimp;
-using Precursor.Cache.Objects;
+﻿using Precursor.Cache.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TagTool.BlamFile;
 using TagTool.IO;
 
 namespace Precursor.Cache.Resolvers
 {
-    public class CacheGen1Resolver
+    public class CacheGen1Resolver : CacheResolver
     {
         public List<string> HaloXboxFiles { get; set; }
         public List<string> HaloXboxSharedFiles { get; set; }
@@ -37,97 +34,110 @@ namespace Precursor.Cache.Resolvers
             HaloCustomEditionSharedFiles = new List<string>();
         }
 
-        public void VerifyBuild(CacheObject.CacheBuildObject build) 
+        public override void VerifyBuild(CacheObject.CacheBuildObject build) 
         {
-            if (string.IsNullOrEmpty(build.Path))
+            if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
             {
-                Console.WriteLine($"> Build Type: {build.Build} - Null or Empty Path Detected, Skipping Verification...");
+                Console.WriteLine($"> Build Type: {build.Build} - Invalid or Missing Path, Skipping Verification...");
                 return;
             }
-            else if (!Path.Exists(build.Path))
+
+            var cacheFiles = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
+
+            if (cacheFiles.Count == 0)
             {
-                Console.WriteLine($"> Build Type: {build.Build} - Unable to Locate Directory, Skipping Verification...");
+                Console.WriteLine($"> Build Type: {build.Build} - No .Map Files Found in Directory, Skipping Verification...");
                 return;
             }
-            else
+
+            var cacheFileCount = 0;
+            var validFiles = 0;
+
+            foreach (var cacheFile in cacheFiles)
             {
-                var cacheFiles = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
-
-                if (cacheFiles.Count == 0)
+                if (!SharedFiles.Contains(Path.GetFileName(cacheFile)))
                 {
-                    Console.WriteLine($"> Build Type: {build.Build} - No .Map Files Found in Directory, Skipping Verification...");
-                    return;
-                }
+                    var file = new FileInfo(cacheFile);
 
-                var cacheFileCount = 0;
-                var validFiles = 0;
-
-                foreach (var cacheFile in cacheFiles)
-                {
-                    if (!SharedFiles.Contains(Path.GetFileName(cacheFile))) 
+                    using (var stream = file.OpenRead())
+                    using (var reader = new EndianReader(stream))
                     {
-                        var file = new FileInfo(cacheFile);
+                        var mapFile = new MapFile();
 
-                        using (var stream = file.OpenRead())
-                        using (var reader = new EndianReader(stream))
+                        mapFile.Read(reader);
+
+                        if (!mapFile.Header.IsValid())
                         {
-                            var mapFile = new MapFile();
-
-                            mapFile.Read(reader);
-
-                            if (!mapFile.Header.IsValid())
-                            {
-                                Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
-                                continue;
-                            }
-
-                            switch (build.Build)
-                            {
-                                case CacheBuild.HaloXbox:
-                                    if (mapFile.Header.GetBuild() == "01.10.12.2276")
-                                    {
-                                        HaloXboxFiles.Add(cacheFile);
-                                        validFiles++;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                        continue;
-                                    }
-                                    break;
-                                case CacheBuild.HaloPC:
-                                    if (mapFile.Header.GetBuild() == "01.00.00.0564")
-                                    {
-                                        HaloPCFiles.Add(cacheFile);
-                                        validFiles++;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                        continue;
-                                    }
-                                    break;
-                                case CacheBuild.HaloCustomEdition:
-                                    if (mapFile.Header.GetBuild() == "01.00.00.0609")
-                                    {
-                                        HaloCustomEditionFiles.Add(cacheFile);
-                                        validFiles++;
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
-                                        continue;
-                                    }
-                                    break;
-                            }
+                            Console.WriteLine($"> Build Type: {build.Build} - Invalid Cache File");
+                            continue;
                         }
 
-                        cacheFileCount++;
+                        switch (build.Build)
+                        {
+                            case CacheBuild.HaloXbox:
+                                if (mapFile.Header.GetBuild() == "01.10.12.2276")
+                                {
+                                    HaloXboxFiles.Add(cacheFile);
+                                    validFiles++;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                    continue;
+                                }
+                                break;
+                            case CacheBuild.HaloPC:
+                                if (mapFile.Header.GetBuild() == "01.00.00.0564")
+                                {
+                                    HaloPCFiles.Add(cacheFile);
+                                    validFiles++;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                    continue;
+                                }
+                                break;
+                            case CacheBuild.HaloCustomEdition:
+                                if (mapFile.Header.GetBuild() == "01.00.00.0609")
+                                {
+                                    HaloCustomEditionFiles.Add(cacheFile);
+                                    validFiles++;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"> Build Type: {build.Build} - \"{Path.GetFileName(cacheFile)}\" - Build String Does Not Match Specified Build - \"{mapFile.Header.GetBuild()}\"");
+                                    continue;
+                                }
+                                break;
+                        }
+                    }
+
+                    cacheFileCount++;
+                }
+                else 
+                {
+                    switch (build.Build) 
+                    {
+                        case CacheBuild.HaloXbox:
+                            HaloXboxSharedFiles.Add(cacheFile);
+                            break;
+                        case CacheBuild.HaloPC:
+                            HaloPCSharedFiles.Add(cacheFile);
+                            break;
+                        case CacheBuild.HaloCustomEdition:
+                            HaloCustomEditionSharedFiles.Add(cacheFile);
+                            break;
                     }
                 }
-
-                Console.WriteLine($"Successfully Verified {validFiles}/{cacheFileCount} Files\n");
             }
+
+            Console.WriteLine($"Successfully Verified {validFiles}/{cacheFileCount} Files\n");
+        }
+
+        public override bool IsValidCacheFile()
+        {
+            return false;
         }
     }
 }
