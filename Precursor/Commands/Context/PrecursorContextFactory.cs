@@ -14,6 +14,9 @@ namespace Precursor.Commands.Context
         public static void Populate(PrecursorContextStack contextStack, PrecursorContext context) 
         {
             context.AddCommand(new ClearCommand());
+            context.AddCommand(new HelpCommand(contextStack));
+
+            context.AddCommand(new VerifyBuildsCommand()); 
         }
     }
 }

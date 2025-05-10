@@ -50,7 +50,8 @@ namespace Precursor
 
                     var resolver = CacheResolver.GetResolver(build.Build);
 
-                    resolver.VerifyBuild(build);
+                    // This will return a build data object at some point;
+                    resolver?.VerifyBuild(build);
                 }
             }
             else
