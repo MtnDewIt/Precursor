@@ -30,9 +30,22 @@ namespace Precursor.Cache.Objects
         {
             var cacheObject = new CacheObject();
 
+            var filter = new List<CacheBuild> 
+            {
+                // We resolve the paths for each MCC build collectively, so there is no need to define them individually
+                CacheBuild.None,
+                CacheBuild.Halo1MCC,
+                CacheBuild.Halo2MCC,
+                CacheBuild.Halo3MCC,
+                CacheBuild.Halo3ODSTMCC,
+                CacheBuild.HaloReachMCC,
+                CacheBuild.Halo4MCC,
+                CacheBuild.Halo2AMPMCC,
+            };
+
             foreach (CacheBuild build in Enum.GetValues(typeof(CacheBuild)))
             {
-                if (build == CacheBuild.None)
+                if (filter.Contains(build))
                     continue;
 
                 cacheObject.Builds.Add(new CacheBuildObject(build, null));

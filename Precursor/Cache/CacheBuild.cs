@@ -34,6 +34,13 @@
         HaloOnline571627,
         HaloOnline604673,
         HaloOnline700123,
+        Halo1MCC,
+        Halo2MCC,
+        Halo3MCC,
+        Halo3ODSTMCC,
+        HaloReachMCC,
+        Halo4MCC,
+        Halo2AMPMCC,
         MCCRetail
     }
 }

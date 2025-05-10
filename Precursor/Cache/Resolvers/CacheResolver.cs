@@ -45,7 +45,13 @@ namespace Precursor.Cache.Resolvers
                 case CacheBuild.HaloOnline604673:
                 case CacheBuild.HaloOnline700123:
                     return new CacheGenHaloOnlineResolver();
-                case CacheBuild.MCCRetail:
+                case CacheBuild.Halo1MCC:
+                case CacheBuild.Halo2MCC:
+                case CacheBuild.Halo3MCC:
+                case CacheBuild.Halo3ODSTMCC:
+                case CacheBuild.HaloReachMCC:
+                case CacheBuild.Halo4MCC:
+                case CacheBuild.Halo2AMPMCC:
                     return new CacheMCCResolver();
             }
 

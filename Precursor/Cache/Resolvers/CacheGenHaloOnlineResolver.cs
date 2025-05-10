@@ -390,6 +390,8 @@ namespace Precursor.Cache.Resolvers
                     {
                         var header = deserializer.Deserialize<TagCacheHaloOnlineHeader>(dataContext);
 
+                        // TODO: Validate Tag Cache
+
                         validFiles++;
                     }
                     else if (Path.GetFileName(cacheFile) == "string_ids.dat") 
@@ -399,6 +401,8 @@ namespace Precursor.Cache.Resolvers
                     else
                     {
                         var header = deserializer.Deserialize<ResourceCacheHaloOnlineHeader>(dataContext);
+
+                        // TODO: Validate Resource Cache
 
                         validFiles++;
                     }
