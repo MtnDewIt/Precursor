@@ -4,7 +4,7 @@ namespace Precursor.Cache.Resolvers.BuildInfo.GenMCC
 {
     public class Halo3ODSTMCCInfo : BuildInfo
     {
-        public static readonly CacheBuild Build = CacheBuild.MCCRetail;
+        public static readonly CacheBuild Build = CacheBuild.Halo3ODSTMCC;
 
         public static readonly List<string> BuildStrings = new List<string>
         {
