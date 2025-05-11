@@ -10,39 +10,6 @@ namespace Precursor.Cache.Resolvers
 {
     public class CacheMCCResolver : CacheResolver
     {
-        public List<string> Halo1Files { get; set; }
-        public List<string> Halo1SharedFiles { get; set; }
-        public List<string> Halo2Files { get; set; }
-        public List<string> Halo2SharedFiles { get; set; }
-        public List<string> Halo3Files { get; set; }
-        public List<string> Halo3SharedFiles { get; set; }
-        public List<string> Halo3ODSTFiles { get; set; }
-        public List<string> Halo3ODSTSharedFiles { get; set; }
-        public List<string> HaloReachFiles { get; set; }
-        public List<string> HaloReachSharedFiles { get; set; }
-        public List<string> Halo4Files { get; set; }
-        public List<string> Halo4SharedFiles { get; set; }
-        public List<string> Halo2AMPFiles { get; set; }
-        public List<string> Halo2AMPSharedFiles { get; set; }
-
-        public CacheMCCResolver()
-        {
-            Halo1Files = new List<string>();
-            Halo1SharedFiles = new List<string>();
-            Halo2Files = new List<string>();
-            Halo2SharedFiles = new List<string>();
-            Halo3Files = new List<string>();
-            Halo3SharedFiles = new List<string>();
-            Halo3ODSTFiles = new List<string>();
-            Halo3ODSTSharedFiles = new List<string>();
-            HaloReachFiles = new List<string>();
-            HaloReachSharedFiles = new List<string>();
-            Halo4Files = new List<string>();
-            Halo4SharedFiles = new List<string>();
-            Halo2AMPFiles = new List<string>();
-            Halo2AMPSharedFiles = new List<string>();
-        }
-
         public static List<string> SharedFiles = new List<string>
         {
             "bitmaps.map",
@@ -55,12 +22,6 @@ namespace Precursor.Cache.Resolvers
 
         public override void VerifyBuild(BuildTableProperties.BuildTableEntry build)
         {
-            if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
-            {
-                Console.WriteLine($"> Build Type: {build.Build} - Invalid or Missing Path, Skipping Verification...");
-                return;
-            }
-
             var halo1CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo1\maps", "*.map", SearchOption.AllDirectories).ToList();
             var halo2CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo2\h2_maps_win64_dx11", "*.map", SearchOption.AllDirectories).ToList();
             var halo3CacheFiles = Directory.EnumerateFiles($@"{build.Path}\halo3\maps", "*.map", SearchOption.AllDirectories).ToList();
@@ -95,7 +56,6 @@ namespace Precursor.Cache.Resolvers
 
                         if (mapFile.Header.GetBuild() == "01.03.43.0000")
                         {
-                            Halo1Files.Add(cacheFile);
                             validFiles++;
                         }
                         else
@@ -104,10 +64,6 @@ namespace Precursor.Cache.Resolvers
                             continue;
                         }
                     }
-                }
-                else
-                {
-                    Halo1SharedFiles.Add(cacheFile);
                 }
             }
 
@@ -134,7 +90,6 @@ namespace Precursor.Cache.Resolvers
 
                         if (mapFile.Header.GetBuild() == "")
                         {
-                            Halo2Files.Add(cacheFile);
                             validFiles++;
                         }
                         else
@@ -143,10 +98,6 @@ namespace Precursor.Cache.Resolvers
                             continue;
                         }
                     }
-                }
-                else
-                {
-                    Halo2SharedFiles.Add(cacheFile);
                 }
             }
 
@@ -173,7 +124,6 @@ namespace Precursor.Cache.Resolvers
 
                         if (mapFile.Header.GetBuild() == "Dec 21 2023 22:31:37")
                         {
-                            Halo3Files.Add(cacheFile);
                             validFiles++;
                         }
                         else
@@ -182,10 +132,6 @@ namespace Precursor.Cache.Resolvers
                             continue;
                         }
                     }
-                }
-                else
-                {
-                    Halo3SharedFiles.Add(cacheFile);
                 }
             }
 
@@ -212,7 +158,6 @@ namespace Precursor.Cache.Resolvers
 
                         if (mapFile.Header.GetBuild() == "May 16 2023 11:44:41")
                         {
-                            Halo3ODSTFiles.Add(cacheFile);
                             validFiles++;
                         }
                         else
@@ -221,10 +166,6 @@ namespace Precursor.Cache.Resolvers
                             continue;
                         }
                     }
-                }
-                else
-                {
-                    Halo3ODSTSharedFiles.Add(cacheFile);
                 }
             }
 
@@ -251,7 +192,6 @@ namespace Precursor.Cache.Resolvers
 
                         if (mapFile.Header.GetBuild() == "Jun 21 2023 15:35:31")
                         {
-                            HaloReachFiles.Add(cacheFile);
                             validFiles++;
                         }
                         else
@@ -260,10 +200,6 @@ namespace Precursor.Cache.Resolvers
                             continue;
                         }
                     }
-                }
-                else
-                {
-                    HaloReachSharedFiles.Add(cacheFile);
                 }
             }
 
@@ -290,7 +226,6 @@ namespace Precursor.Cache.Resolvers
 
                         if (mapFile.Header.GetBuild() == "Apr  1 2023 17:35:22")
                         {
-                            Halo4Files.Add(cacheFile);
                             validFiles++;
                         }
                         else
@@ -299,10 +234,6 @@ namespace Precursor.Cache.Resolvers
                             continue;
                         }
                     }
-                }
-                else
-                {
-                    Halo4SharedFiles.Add(cacheFile);
                 }
             }
 
@@ -329,7 +260,6 @@ namespace Precursor.Cache.Resolvers
 
                         if (mapFile.Header.GetBuild() == "Jun 13 2023 20:21:18")
                         {
-                            Halo2AMPFiles.Add(cacheFile);
                             validFiles++;
                         }
                         else
@@ -338,10 +268,6 @@ namespace Precursor.Cache.Resolvers
                             continue;
                         }
                     }
-                }
-                else
-                {
-                    Halo2AMPSharedFiles.Add(cacheFile);
                 }
             }
 

@@ -10,9 +10,6 @@ namespace Precursor.Cache.Resolvers
 {
     public class CacheGen4Resolver : CacheResolver
     {
-        public List<string> Halo4RetailFiles { get; set; }
-        public List<string> Halo4RetailSharedFiles { get; set; }
-
         public static List<string> SharedFiles = new List<string>
         {
             "campaign.map",
@@ -28,20 +25,8 @@ namespace Precursor.Cache.Resolvers
             "21391.13.03.13.1711.main"
         };
 
-        public CacheGen4Resolver()
-        {
-            Halo4RetailFiles = new List<string>();
-            Halo4RetailSharedFiles = new List<string>();
-        }
-
         public override void VerifyBuild(BuildTableProperties.BuildTableEntry build)
         {
-            if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
-            {
-                Console.WriteLine($"> Build Type: {build.Build} - Invalid or Missing Path, Skipping Verification...");
-                return;
-            }
-
             var cacheFiles = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
 
             if (cacheFiles.Count == 0)
@@ -76,7 +61,6 @@ namespace Precursor.Cache.Resolvers
                             case CacheBuild.Halo4Retail:
                                 if (RetailBuilds.Contains(mapFile.Header.GetBuild()))
                                 {
-                                    Halo4RetailFiles.Add(cacheFile);
                                     validFiles++;
                                 }
                                 else
@@ -86,15 +70,6 @@ namespace Precursor.Cache.Resolvers
                                 }
                                 break;
                         }
-                    }
-                }
-                else 
-                {
-                    switch (build.Build) 
-                    {
-                        case CacheBuild.Halo4Retail:
-                            Halo4RetailSharedFiles.Add(cacheFile);
-                            break;
                     }
                 }
             }

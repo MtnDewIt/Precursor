@@ -11,23 +11,8 @@ namespace Precursor.Cache.Resolvers
 {
     public class CacheGenMonolithicResolver : CacheResolver
     {
-        public List<string >HaloReach11883Files;
-        public List<string >HaloReach11883BlobFiles;
-
-        public CacheGenMonolithicResolver()
-        {
-            HaloReach11883Files = new List<string>();
-            HaloReach11883BlobFiles = new List<string>();
-        }
-
         public override void VerifyBuild(BuildTableProperties.BuildTableEntry build) 
         {
-            if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
-            {
-                Console.WriteLine($"> Build Type: {build.Build} - Invalid or Missing Path, Skipping Verification...");
-                return;
-            }
-
             var cacheFiles = Directory.EnumerateFiles(build.Path, "blob_index.dat", SearchOption.AllDirectories).ToList();
             var cacheFileBlobs = Directory.EnumerateFiles($@"{build.Path}\blobs", "*.", SearchOption.AllDirectories).ToList();
 
@@ -51,7 +36,6 @@ namespace Precursor.Cache.Resolvers
 
                     if (guid.ToString() == "0237d057-1e3c-4390-9cfc-6108a911de01")
                     {
-                        HaloReach11883Files.Add(cacheFile);
                         validFiles++;
                     }
                     else
@@ -66,7 +50,6 @@ namespace Precursor.Cache.Resolvers
             {
                 if (Path.GetFileName(blob).StartsWith("cache_") || Path.GetFileName(blob).StartsWith("tags_") || Path.GetExtension(blob) == null)
                 {
-                    HaloReach11883BlobFiles.Add(blob);
                     validFiles++;
                 }
                 else

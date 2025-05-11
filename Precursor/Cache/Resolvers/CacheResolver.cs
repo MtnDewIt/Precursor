@@ -1,12 +1,20 @@
 ﻿using Precursor.Cache.BuildTable;
+using Precursor.Common;
+using System.IO;
 
 namespace Precursor.Cache.Resolvers
 {
     public abstract class CacheResolver
     {
-        public static CacheResolver GetResolver(CacheBuild build) 
+        public static CacheResolver GetResolver(BuildTableProperties.BuildTableEntry build) 
         {
-            switch (build)
+            if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
+            {
+                new PrecursorWarning("Invalid or Missing Path, Skipping Verification...");
+                return null;
+            }
+
+            switch (build.Build)
             {
                 case CacheBuild.HaloXbox:
                 case CacheBuild.HaloPC:

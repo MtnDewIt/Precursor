@@ -10,13 +10,6 @@ namespace Precursor.Cache.Resolvers
 {
     public class CacheGen1Resolver : CacheResolver
     {
-        public List<string> HaloXboxFiles { get; set; }
-        public List<string> HaloXboxSharedFiles { get; set; }
-        public List<string> HaloPCFiles { get; set; }
-        public List<string> HaloPCSharedFiles { get; set; }
-        public List<string> HaloCustomEditionFiles { get; set; }
-        public List<string> HaloCustomEditionSharedFiles { get; set; }
-
         public static List<string> SharedFiles = new List<string>
         {
             "bitmaps.map",
@@ -24,24 +17,8 @@ namespace Precursor.Cache.Resolvers
             "sounds.map"
         };
 
-        public CacheGen1Resolver()
-        {
-            HaloXboxFiles = new List<string>();
-            HaloXboxSharedFiles = new List<string>();
-            HaloPCFiles = new List<string>();
-            HaloPCSharedFiles = new List<string>();
-            HaloCustomEditionFiles = new List<string>();
-            HaloCustomEditionSharedFiles = new List<string>();
-        }
-
         public override void VerifyBuild(BuildTableProperties.BuildTableEntry build) 
         {
-            if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
-            {
-                Console.WriteLine($"> Build Type: {build.Build} - Invalid or Missing Path, Skipping Verification...");
-                return;
-            }
-
             var cacheFiles = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
 
             if (cacheFiles.Count == 0)
@@ -77,7 +54,6 @@ namespace Precursor.Cache.Resolvers
                             case CacheBuild.HaloXbox:
                                 if (mapFile.Header.GetBuild() == "01.10.12.2276")
                                 {
-                                    HaloXboxFiles.Add(cacheFile);
                                     validFiles++;
                                 }
                                 else
@@ -89,7 +65,6 @@ namespace Precursor.Cache.Resolvers
                             case CacheBuild.HaloPC:
                                 if (mapFile.Header.GetBuild() == "01.00.00.0564")
                                 {
-                                    HaloPCFiles.Add(cacheFile);
                                     validFiles++;
                                 }
                                 else
@@ -101,7 +76,6 @@ namespace Precursor.Cache.Resolvers
                             case CacheBuild.HaloCustomEdition:
                                 if (mapFile.Header.GetBuild() == "01.00.00.0609")
                                 {
-                                    HaloCustomEditionFiles.Add(cacheFile);
                                     validFiles++;
                                 }
                                 else
@@ -114,21 +88,6 @@ namespace Precursor.Cache.Resolvers
                     }
 
                     cacheFileCount++;
-                }
-                else 
-                {
-                    switch (build.Build) 
-                    {
-                        case CacheBuild.HaloXbox:
-                            HaloXboxSharedFiles.Add(cacheFile);
-                            break;
-                        case CacheBuild.HaloPC:
-                            HaloPCSharedFiles.Add(cacheFile);
-                            break;
-                        case CacheBuild.HaloCustomEdition:
-                            HaloCustomEditionSharedFiles.Add(cacheFile);
-                            break;
-                    }
                 }
             }
 

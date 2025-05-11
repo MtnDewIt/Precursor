@@ -50,10 +50,13 @@ namespace Precursor
                 {
                     Console.WriteLine($"Verifying {build.Build} Cache Files...");
 
-                    var resolver = CacheResolver.GetResolver(build.Build);
+                    var resolver = CacheResolver.GetResolver(build);
 
-                    // This will return a build data object at some point;
-                    resolver?.VerifyBuild(build);
+                    if (resolver != null) 
+                    {
+                        // This will return a build data object at some point;
+                        resolver.VerifyBuild(build);
+                    }
                 }
             }
             else
