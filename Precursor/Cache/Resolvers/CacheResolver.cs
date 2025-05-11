@@ -1,4 +1,4 @@
-﻿using Precursor.Cache.Objects;
+﻿using Precursor.Cache.BuildTable;
 
 namespace Precursor.Cache.Resolvers
 {
@@ -58,7 +58,7 @@ namespace Precursor.Cache.Resolvers
             return null;
         }
 
-        public abstract void VerifyBuild(CacheObject.CacheBuildObject build);
+        public abstract void VerifyBuild(BuildTableProperties.BuildTableEntry build);
         public abstract bool IsValidCacheFile();
     }
 }

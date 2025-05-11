@@ -4,18 +4,20 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System;
-using Precursor.Cache.Objects;
 using Precursor.Common;
 using Precursor.Commands;
 using Precursor.Commands.Context;
-using Precursor.Cache.Handlers;
+using Precursor.Cache.BuildTable.Handlers;
+using Precursor.Cache.BuildTable;
 
 namespace Precursor
 {
-    public static class Program
+    public class Program
     {
         public static string PrecursorDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string PrecursorInput = Path.Combine(PrecursorDirectory, "Precursor.json");
+
+        public BuildTable BuildTable;
 
         static void Main(string[] args)
         {
@@ -32,7 +34,7 @@ namespace Precursor
             {
                 new PrecursorWarning("Unable to locate Precursor.json");
                 new PrecursorWarning("Generating default data...");
-                CacheObject.GenerateBuildData(PrecursorInput);
+                BuildTableProperties.GenerateProperties(PrecursorInput);
                 isNewFile = true;
             }
 
@@ -40,7 +42,7 @@ namespace Precursor
             {
                 var jsonData = File.ReadAllText(PrecursorInput);
 
-                var handler = new CacheObjectHandler();
+                var handler = new BuildTablePropertiesHandler();
 
                 var cacheObject = handler.Deserialize(jsonData);
 

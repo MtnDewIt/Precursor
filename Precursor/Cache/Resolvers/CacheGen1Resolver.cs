@@ -1,4 +1,4 @@
-﻿using Precursor.Cache.Objects;
+﻿using Precursor.Cache.BuildTable;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,7 +34,7 @@ namespace Precursor.Cache.Resolvers
             HaloCustomEditionSharedFiles = new List<string>();
         }
 
-        public override void VerifyBuild(CacheObject.CacheBuildObject build) 
+        public override void VerifyBuild(BuildTableProperties.BuildTableEntry build) 
         {
             if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
             {

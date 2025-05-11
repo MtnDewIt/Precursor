@@ -1,5 +1,4 @@
-﻿using Precursor.Cache.Objects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +9,7 @@ using TagTool.Cache.HaloOnline;
 using TagTool.Cache;
 using TagTool.IO;
 using TagTool.Serialization;
+using Precursor.Cache.BuildTable;
 
 namespace Precursor.Cache.Resolvers
 {
@@ -123,7 +123,7 @@ namespace Precursor.Cache.Resolvers
             HaloOnline700123CacheFiles = new List<string>();
         }
 
-        public override void VerifyBuild(CacheObject.CacheBuildObject build)
+        public override void VerifyBuild(BuildTableProperties.BuildTableEntry build)
         {
             if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
             {

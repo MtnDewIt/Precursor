@@ -1,4 +1,4 @@
-﻿using Precursor.Cache.Handlers;
+﻿using Precursor.Cache.BuildTable.Handlers;
 using Precursor.Cache.Resolvers;
 using System;
 using System.Collections.Generic;
@@ -30,7 +30,7 @@ namespace Precursor.Commands
 
             var jsonData = File.ReadAllText(Program.PrecursorInput);
 
-            var handler = new CacheObjectHandler();
+            var handler = new BuildTablePropertiesHandler();
 
             var cacheObject = handler.Deserialize(jsonData);
 
