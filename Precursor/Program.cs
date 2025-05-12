@@ -17,7 +17,7 @@ namespace Precursor
         public static string PrecursorDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string PrecursorInput = Path.Combine(PrecursorDirectory, "Precursor.json");
 
-        public BuildTable BuildTable;
+        public static BuildTable BuildTable = new BuildTable();
 
         static void Main(string[] args)
         {
@@ -52,10 +52,11 @@ namespace Precursor
 
                     var resolver = CacheResolver.GetResolver(build);
 
-                    if (resolver != null) 
+                    var buildTableEntry = resolver?.VerifyBuild(build);
+
+                    if (buildTableEntry != null) 
                     {
-                        // This will return a build data object at some point;
-                        resolver.VerifyBuild(build);
+                        BuildTable.AddEntry(buildTableEntry);
                     }
                 }
             }

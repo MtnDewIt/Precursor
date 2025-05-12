@@ -1,4 +1,11 @@
+using Precursor.Cache.BuildTable;
+using Precursor.Common;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using TagTool.BlamFile;
+using TagTool.IO;
 
 namespace Precursor.Cache.BuildInfo.GenHaloOnline
 {
@@ -39,6 +46,86 @@ namespace Precursor.Cache.BuildInfo.GenHaloOnline
             CurrentMapFiles = new List<string>();
             CurrentCacheFiles = new List<string>();
             CurrentSharedFiles = new List<string>();
+        }
+
+        public override bool VerifyBuildInfo(BuildTableProperties.BuildTableEntry build)
+        {
+            var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
+            var sharedFiles = Directory.EnumerateFiles(build.Path, "*.dat", SearchOption.AllDirectories).ToList();
+
+            if (!ParseFileCount(files.Count))
+            {
+                return false;
+            }
+
+            var totalFileCount = files.Count + sharedFiles.Count;
+            var validFiles = 0;
+
+            foreach (var file in files)
+            {
+                var fileInfo = new FileInfo(file);
+
+                using (var stream = fileInfo.OpenRead())
+                using (var reader = new EndianReader(stream))
+                {
+                    var mapFile = new MapFile();
+
+                    mapFile.Read(reader);
+
+                    if (!mapFile.Header.IsValid())
+                    {
+                        new PrecursorWarning($"Invalid Cache File: {Path.GetFileName(file)}");
+                        continue;
+                    }
+
+                    if (BuildStrings.Contains(mapFile.Header.GetBuild()))
+                    {
+                        CurrentCacheFiles.Add(file);
+                        validFiles++;
+                    }
+                    else
+                    {
+                        new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)}");
+                        continue;
+                    }
+                }
+            }
+
+            foreach (var file in sharedFiles)
+            {
+                var fileInfo = new FileInfo(file);
+
+                using (var stream = fileInfo.OpenRead())
+                using (var reader = new EndianReader(stream))
+                {
+                    if (Path.GetFileName(file) == "tags.dat")
+                    {
+                        //TODO: Verify Creation Date
+
+                        CurrentCacheFiles.Add(file);
+                        validFiles++;
+                    }
+                    else if (Path.GetFileName(file) == "string_ids.dat")
+                    {
+                        CurrentSharedFiles.Add(file);
+                        validFiles++;
+                    }
+                    else
+                    {
+                        //TODO: Verify Creation Date
+
+                        CurrentSharedFiles.Add(file);
+                        validFiles++;
+                    }
+                }
+            }
+
+            ParseCacheFiles();
+            ParseSharedFiles();
+
+            Console.WriteLine($"Successfully Verified {validFiles}/{totalFileCount} Files\n");
+
+            return true;
         }
 
         public override CacheBuild GetBuild() => Build;

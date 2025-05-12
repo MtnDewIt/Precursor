@@ -11,5 +11,10 @@ namespace Precursor.Cache.BuildTable
         {
             BuildInfo.Add(entry);
         }
+
+        public void EmptyTable()
+        {
+            BuildInfo.Clear();
+        }
     }
 }

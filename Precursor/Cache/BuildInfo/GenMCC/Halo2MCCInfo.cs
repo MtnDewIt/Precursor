@@ -1,4 +1,11 @@
+using Precursor.Cache.BuildTable;
+using Precursor.Common;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using TagTool.BlamFile;
+using TagTool.IO;
 
 namespace Precursor.Cache.BuildInfo.GenMCC
 {
@@ -44,6 +51,72 @@ namespace Precursor.Cache.BuildInfo.GenMCC
             CurrentCacheFiles = new List<string>();
             CurrentSharedFiles = new List<string>();
             CurrentResourceFiles = new List<string>();
+        }
+
+        public override bool VerifyBuildInfo(BuildTableProperties.BuildTableEntry build)
+        {
+            var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
+            var resourceFiles = Directory.EnumerateFiles(build.Path, "*.dat", SearchOption.AllDirectories).ToList();
+
+            if (!ParseFileCount(files.Count))
+            {
+                return false;
+            }
+
+            var totalFileCount = files.Count + resourceFiles.Count;
+            var validFiles = 0;
+
+            foreach (var file in files)
+            {
+                if (!SharedFiles.Contains(Path.GetFileName(file)))
+                {
+                    var fileInfo = new FileInfo(file);
+
+                    using (var stream = fileInfo.OpenRead())
+                    using (var reader = new EndianReader(stream))
+                    {
+                        var mapFile = new MapFile();
+
+                        mapFile.Read(reader);
+
+                        if (!mapFile.Header.IsValid())
+                        {
+                            new PrecursorWarning($"Invalid Cache File: {Path.GetFileName(file)}");
+                            continue;
+                        }
+
+                        if (BuildStrings.Contains(mapFile.Header.GetBuild()))
+                        {
+                            CurrentCacheFiles.Add(file);
+                            validFiles++;
+                        }
+                        else
+                        {
+                            new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)}");
+                            continue;
+                        }
+                    }
+                }
+
+                if (SharedFiles.Contains(Path.GetFileName(file)))
+                {
+                    CurrentSharedFiles.Add(file);
+                    validFiles++;
+                }
+            }
+
+            foreach (var file in resourceFiles)
+            {
+                CurrentResourceFiles.Add(file);
+                validFiles++;
+            }
+
+            ParseSharedFiles();
+            ParseResourceFiles();
+
+            Console.WriteLine($"Successfully Verified {validFiles}/{totalFileCount} Files\n");
+
+            return true;
         }
 
         public override CacheBuild GetBuild() => Build;

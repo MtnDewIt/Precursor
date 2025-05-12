@@ -1,5 +1,7 @@
-﻿using Precursor.Cache.BuildTable.Handlers;
+﻿using Precursor.Cache.BuildTable;
+using Precursor.Cache.BuildTable.Handlers;
 using Precursor.Cache.Resolvers;
+using Precursor.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +16,7 @@ namespace Precursor.Commands
             "VerifyBuilds",
             "Verifies all paths and files in the specified precursor build table.",
 
-            "VerifyBuilds",
+            "VerifyBuilds [Precursor Build Table]",
             "Verifies all paths and files in the specified precursor build table.\n" + 
             "If no path is specified, then the data in the default build table will be parsed"
         )
@@ -23,27 +25,45 @@ namespace Precursor.Commands
 
         public override object Execute(List<string> args)
         {
-            // TODO: Add error handling
+            if (args.Count > 1)
+                return new PrecursorError($"Incorrect amount of arguments supplied");
 
-            // Maybe add the ability to specify a path to a different build table
-            // (Would probably involve importing the data into the default build table location)
+            string filePath = args.Count == 1 ? args[0] : Program.PrecursorInput;
 
-            var jsonData = File.ReadAllText(Program.PrecursorInput);
+            if (!File.Exists(filePath))
+                return new PrecursorError($"Unable to locate file \"{filePath}\"");
 
-            var handler = new BuildTablePropertiesHandler();
+            var jsonData = File.ReadAllText(filePath);
 
-            var cacheObject = handler.Deserialize(jsonData);
+            BuildTableProperties buildProperties;
 
-            foreach (var build in cacheObject.Builds)
+            try
             {
-                Console.WriteLine($"Verifying {build.Build} Cache Files...");
+                var handler = new BuildTablePropertiesHandler();
+
+                buildProperties = handler.Deserialize(jsonData);
+
+                // TODO: Throw exception is invalid JSON format
+                // Either do this in the command or in the handler
+            }
+            catch (Exception)
+            {
+                return new PrecursorError($"Unable to parse file \"{filePath}\"");
+            }
+
+            foreach (var build in buildProperties?.Builds)
+            {
+                Console.WriteLine($"\nVerifying {build.Build} Cache Files...");
 
                 var resolver = CacheResolver.GetResolver(build);
 
-                if (resolver != null) 
+                var buildTableEntry = resolver?.VerifyBuild(build);
+
+                Program.BuildTable.EmptyTable();
+
+                if (buildTableEntry != null)
                 {
-                    // This will return a build data object at some point;
-                    resolver.VerifyBuild(build);
+                    Program.BuildTable.AddEntry(buildTableEntry);
                 }
             }
 

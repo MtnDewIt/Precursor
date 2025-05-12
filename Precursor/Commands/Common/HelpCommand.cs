@@ -28,8 +28,8 @@ namespace Precursor.Commands.Common
 
         public override object Execute(List<string> args)
         {
-            // TODO: Add error handling
-
+            if (args.Count > 1)
+                return new PrecursorError($"Incorrect amount of arguments supplied");
             if (args.Count == 1)
                 GetCommandHelp(args[0]);
             else

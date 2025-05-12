@@ -1,4 +1,5 @@
-﻿using Precursor.Cache.BuildTable;
+﻿using Precursor.Cache.BuildInfo;
+using Precursor.Cache.BuildTable;
 using Precursor.Common;
 using System.IO;
 
@@ -10,7 +11,7 @@ namespace Precursor.Cache.Resolvers
         {
             if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
             {
-                new PrecursorWarning("Invalid or Missing Path, Skipping Verification...");
+                new PrecursorWarning("Invalid or Missing Path, Skipping Verification...\n");
                 return null;
             }
 
@@ -66,7 +67,6 @@ namespace Precursor.Cache.Resolvers
             return null;
         }
 
-        public abstract void VerifyBuild(BuildTableProperties.BuildTableEntry build);
-        public abstract bool IsValidCacheFile();
+        public abstract BuildInfoEntry VerifyBuild(BuildTableProperties.BuildTableEntry build);
     }
 }
