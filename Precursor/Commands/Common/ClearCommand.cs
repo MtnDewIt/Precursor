@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Precursor.Common;
 
 namespace Precursor.Commands.Common
 {
@@ -20,7 +21,7 @@ namespace Precursor.Commands.Common
         public override object Execute(List<string> args)
         {
             if (args.Count > 0)
-                return false;
+                return new PrecursorError($"Incorrect amount of arguments supplied");
 
             Console.Clear();
             return true;
