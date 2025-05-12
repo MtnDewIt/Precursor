@@ -17,7 +17,6 @@ The Blam! titles supported by Precursor line up roughly with engine versions cur
 ### Gen1
 | Build String | TagTool Cache Version | Default Build Path |
 | ------------ | --------------------- | ----------------- |
-| 01.09.25.2247 | HaloXbox | Gen1\HaloXbox |
 | 01.10.12.2276 | HaloXbox | Gen1\HaloXbox |
 | 01.00.00.0564 | HaloPC | Gen1\HaloPC |
 | 01.00.00.0609 | HaloCustomEdition | Gen1\HaloCustomEdition |
