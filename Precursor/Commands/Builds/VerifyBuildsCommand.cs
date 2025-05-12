@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Precursor.Commands
+namespace Precursor.Commands.Builds
 {
     public class VerifyBuildsCommand : PrecursorCommand
     {

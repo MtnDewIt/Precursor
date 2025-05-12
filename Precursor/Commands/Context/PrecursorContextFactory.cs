@@ -1,4 +1,5 @@
-﻿using Precursor.Commands.Common;
+﻿using Precursor.Commands.Builds;
+using Precursor.Commands.Common;
 
 namespace Precursor.Commands.Context
 {
@@ -16,7 +17,8 @@ namespace Precursor.Commands.Context
             context.AddCommand(new ClearCommand());
             context.AddCommand(new HelpCommand(contextStack));
 
-            context.AddCommand(new VerifyBuildsCommand()); 
+            context.AddCommand(new VerifyBuildsCommand());
+            context.AddCommand(new UpdateBuildTableCommand());
         }
     }
 }
