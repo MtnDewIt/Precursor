@@ -34,8 +34,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TagTool-NET\TagTool\TagTool.csproj" Private="false" />
-    <ProjectReference Include="..\TagTool-NET\ShaderGenerator\HaloShaderGenerator\HaloShaderGenerator.csproj" Private="false" />
+    <ProjectReference Include="..\TagTool-NET\TagTool\TagTool.csproj" PrivateAssets="all" Private="false" />
+    <ProjectReference Include="..\TagTool-NET\ShaderGenerator\HaloShaderGenerator\HaloShaderGenerator.csproj" PrivateAssets="all" Private="false" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="Build">
     <ItemGroup>
