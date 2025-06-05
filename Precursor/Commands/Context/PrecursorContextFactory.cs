@@ -1,5 +1,8 @@
 ﻿using Precursor.Commands.Builds;
 using Precursor.Commands.Common;
+using Precursor.Commands.ConvertCache;
+using Precursor.Commands.GenerateCache;
+using Precursor.Commands.GenerateDonkeyCache;
 
 namespace Precursor.Commands.Context
 {
@@ -19,6 +22,11 @@ namespace Precursor.Commands.Context
 
             context.AddCommand(new VerifyBuildsCommand());
             context.AddCommand(new UpdateBuildTableCommand());
+
+            // TODO: Pass the cache into the command contsructor
+            context.AddCommand(new ConvertCacheCommand(null, null));
+            context.AddCommand(new GenerateCacheCommand(null));
+            context.AddCommand(new GenerateDonkeyCacheCommand(null, contextStack));
         }
     }
 }

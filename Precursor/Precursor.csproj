@@ -37,6 +37,11 @@
     <ProjectReference Include="..\TagTool-NET\TagTool\TagTool.csproj" PrivateAssets="all" Private="false" />
     <ProjectReference Include="..\TagTool-NET\ShaderGenerator\HaloShaderGenerator\HaloShaderGenerator.csproj" PrivateAssets="all" Private="false" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Commands\Porting\Gen1\" />
+    <Folder Include="Commands\Porting\Gen2\" />
+    <Folder Include="Commands\Porting\Gen4\" />
+  </ItemGroup>
   <Target Name="PostBuild" AfterTargets="Build">
     <ItemGroup>
       <TagTool-NET Include="..\TagTool-NET\TagTool\bin\$(Platform)\$(ConfigurationName)\$(TargetFramework)\**\*" />
