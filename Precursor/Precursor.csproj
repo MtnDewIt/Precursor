@@ -22,11 +22,9 @@
   <ItemGroup>
     <Content Include="Precursor.ico" />
   </ItemGroup>
-  <ItemDefinitionGroup>
-    <ReferenceCopyLocalPaths>
-      <DestinationSubDirectory>Tools\</DestinationSubDirectory>
-    </ReferenceCopyLocalPaths>
-  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\Resources\**\*" Link="Resources\%(RecursiveDir)\%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -38,10 +36,13 @@
     <ProjectReference Include="..\TagTool-NET\ShaderGenerator\HaloShaderGenerator\HaloShaderGenerator.csproj" PrivateAssets="all" Private="false" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Commands\Porting\Gen1\" />
-    <Folder Include="Commands\Porting\Gen2\" />
-    <Folder Include="Commands\Porting\Gen4\" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" />
   </ItemGroup>
+  <ItemDefinitionGroup>
+    <ReferenceCopyLocalPaths>
+      <DestinationSubDirectory>Tools\</DestinationSubDirectory>
+    </ReferenceCopyLocalPaths>
+  </ItemDefinitionGroup>
   <Target Name="PostBuild" AfterTargets="Build">
     <ItemGroup>
       <TagTool-NET Include="..\TagTool-NET\TagTool\bin\$(Platform)\$(ConfigurationName)\$(TargetFramework)\**\*" />
