@@ -17,9 +17,9 @@ namespace Precursor.Commands.ConvertCache
         (
             true,
             "ConvertCache",
-            "[REDACTED]",
+            "Updates the specified cache so that it functions in ElDewrito 0.6.17.45",
             "ConvertCache",
-            "[REDACTED]"
+            "Updates the specified cache so that it functions in ElDewrito 0.6.17.45"
         )
         {
             Cache = cache;
