@@ -6,6 +6,8 @@ using System.IO;
 using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.IO;
+using TagTool.JSON.Handlers;
+using TagTool.JSON.Objects;
 
 namespace Precursor.Commands
 {
@@ -83,6 +85,30 @@ namespace Precursor.Commands
 
                         var blf = new Blf(version, platform);
                         blf.Read(reader);
+
+                        var fileName = Path.GetFileNameWithoutExtension(input.Name);
+
+                        var fileExtension = input.Extension.TrimStart('.');
+
+                        var handler = new BlfObjectHandler(version, platform);
+
+                        var blfObject = new BlfObject()
+                        {
+                            FileName = fileName,
+                            FileType = fileExtension,
+                            Blf = blf,
+                        };
+
+                        var jsonData = handler.Serialize(blfObject);
+
+                        var fileInfo = new FileInfo(Path.Combine(input.DirectoryName, $"{fileName}.json"));
+
+                        if (!fileInfo.Directory.Exists)
+                        {
+                            fileInfo.Directory.Create();
+                        }
+
+                        File.WriteAllText(fileInfo.FullName, jsonData);
                     }
                 }
                 catch (Exception e) 
