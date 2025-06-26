@@ -1146,7 +1146,7 @@ namespace Precursor.Commands.GenerateDonkeyCache
 
             TagParser = new TagObjectParser(Cache, CacheContext, CacheStream, SourceDirectoryInfo.FullName);
             MapParser = new MapObjectParser(Cache, CacheContext, CacheStream, SourceDirectoryInfo.FullName);
-            BlfParser = new BlfObjectParser(Cache, CacheContext, CacheStream, SourceDirectoryInfo.FullName);
+            BlfParser = new BlfObjectParser(Cache.Version, Cache.Platform, SourceDirectoryInfo.FullName, Cache.Directory.FullName);
 
             haloOnline = new PortingContextGen3(CacheContext, haloOnlineCache, CacheStream);
 

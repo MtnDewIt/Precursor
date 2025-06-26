@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.IO;
 using TagTool.BlamFile;
 using TagTool.Cache;
+using TagTool.Commands.Porting.Gen2;
 using TagTool.IO;
 using TagTool.JSON.Handlers;
 using TagTool.JSON.Objects;
+using TagTool.JSON.Parsers;
 
 namespace Precursor.Commands
 {
@@ -34,86 +36,127 @@ namespace Precursor.Commands
 
         public override object Execute(List<string> args)
         {
-            var eldewritoGameVariants = $@"Resources\GenHaloOnline\HaloOnlineED07\game_variants";
-            ParseFiles(eldewritoGameVariants, CacheVersion.HaloOnlineED, CachePlatform.Original);
-
-            var eldewritoMapVariants = $@"Resources\GenHaloOnline\HaloOnlineED07\map_variants";
-            ParseFiles(eldewritoMapVariants, CacheVersion.HaloOnlineED, CachePlatform.Original);
-
-            var halo3GameVariants = $@"Resources\Gen3\Halo3MythicRetail\game_variants";
-            ParseFiles(halo3GameVariants, CacheVersion.Halo3Retail, CachePlatform.Original);
-
-            var halo3MapVariants = $@"Resources\Gen3\Halo3MythicRetail\map_variants";
-            ParseFiles(halo3MapVariants, CacheVersion.Halo3Retail, CachePlatform.Original);
-
-            var haloReachGameVariants = $@"Resources\Gen3\HaloReach\game_variants";
-            ParseFiles(haloReachGameVariants, CacheVersion.HaloReach, CachePlatform.Original);
-
-            var haloReachMapVariants = $@"Resources\Gen3\HaloReach\map_variants";
-            ParseFiles(haloReachMapVariants, CacheVersion.HaloReach, CachePlatform.Original);
-
-            var halo3MCCGameVariants = $@"Resources\GenMCC\Halo3MCC\game_variants";
-            ParseFiles(halo3MCCGameVariants, CacheVersion.Halo3Retail, CachePlatform.MCC);
-
-            var halo3MCCMapVariants = $@"Resources\GenMCC\Halo3MCC\map_variants";
-            ParseFiles(halo3MCCMapVariants, CacheVersion.Halo3Retail, CachePlatform.MCC);
-
-            var haloReachMCCGameVariants = $@"Resources\GenMCC\HaloReachMCC\game_variants";
-            ParseFiles(haloReachMCCGameVariants, CacheVersion.HaloReach, CachePlatform.MCC);
-
-            var haloReachMCCMapVariants = $@"Resources\GenMCC\HaloReachMCC\map_variants";
-            ParseFiles(haloReachMCCMapVariants, CacheVersion.HaloReach, CachePlatform.MCC);
+            ParseFiles($@"Resources\Gen3\Halo3MythicRetail", CacheVersion.Halo3Retail, CachePlatform.Original);
+            ParseFiles($@"Resources\Gen3\Halo3ODST", CacheVersion.Halo3ODST, CachePlatform.Original);
+            ParseFiles($@"Resources\Gen3\HaloReach", CacheVersion.HaloReach, CachePlatform.Original);
+            ParseFiles($@"Resources\Gen4\Halo4", CacheVersion.Halo4, CachePlatform.Original);
+            ParseFiles($@"Resources\GenHaloOnline\HaloOnlineED07", CacheVersion.HaloOnlineED, CachePlatform.Original);
+            //ParseFiles($@"Resources\GenMCC\Halo1MCC", CacheVersion.HaloCustomEdition, CachePlatform.MCC);
+            //ParseFiles($@"Resources\GenMCC\Halo2MCC", CacheVersion.Halo2Retail, CachePlatform.MCC);
+            ParseFiles($@"Resources\GenMCC\Halo3MCC", CacheVersion.Halo3Retail, CachePlatform.MCC);
+            ParseFiles($@"Resources\GenMCC\Halo3ODSTMCC", CacheVersion.Halo3ODST, CachePlatform.MCC);
+            ParseFiles($@"Resources\GenMCC\HaloReachMCC", CacheVersion.HaloReach, CachePlatform.MCC);
+            ParseFiles($@"Resources\GenMCC\Halo4MCC", CacheVersion.Halo4, CachePlatform.MCC);
+            ParseFiles($@"Resources\GenMCC\Halo2AMPMCC", CacheVersion.Halo2AMP, CachePlatform.MCC);
 
             return true;
         }
 
-        public static void ParseFiles(string path, CacheVersion version, CachePlatform platform) 
+        public static void ParseFiles(string path, CacheVersion version, CachePlatform platform)
         {
-            var files = Directory.EnumerateFiles(path);
+            var files = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories);
 
-            foreach (var filePath in files) 
+            foreach (var filePath in files)
             {
                 Console.WriteLine($"Parsing file \"{filePath}\"...");
 
                 var input = new FileInfo(filePath);
 
+                var tempPath = input.DirectoryName.Replace("Resources", "Temp");
+                var fileName = Path.GetFileNameWithoutExtension(input.Name);
+                var fileExtension = input.Extension.TrimStart('.');
+
+                var blf = new Blf(CacheVersion.Halo3Retail, CachePlatform.Original);
+
+                var output = new FileInfo(Path.Combine(tempPath, $"{fileName}.{fileExtension}"));
+
                 try
                 {
-                    using (var stream = input.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
+                    using (var inStream = input.Open(FileMode.Open, FileAccess.Read, FileShare.Read)) 
                     {
-                        var reader = new EndianReader(stream);
+                        var reader = new EndianReader(inStream);
 
-                        var blf = new Blf(version, platform);
                         blf.Read(reader);
+                    }
+                }
+                catch (Exception e)
+                {
+                    new PrecursorError($"Failed to parse file \"{filePath}\": {e.Message}");
+                }
 
-                        var fileName = Path.GetFileNameWithoutExtension(input.Name);
+                ParseVersion(blf, version, platform, filePath);
 
-                        var fileExtension = input.Extension.TrimStart('.');
+                GenerateJSON(blf, version, platform, fileName, fileExtension, tempPath);
 
-                        var handler = new BlfObjectHandler(version, platform);
+                try
+                {
+                    using (var outStream = output.Create())
+                    {
+                        var writer = new EndianWriter(outStream);
 
-                        var blfObject = new BlfObject()
-                        {
-                            FileName = fileName,
-                            FileType = fileExtension,
-                            Blf = blf,
-                        };
-
-                        var jsonData = handler.Serialize(blfObject);
-
-                        var fileInfo = new FileInfo(Path.Combine(input.DirectoryName, $"{fileName}.json"));
-
-                        if (!fileInfo.Directory.Exists)
-                        {
-                            fileInfo.Directory.Create();
-                        }
-
-                        File.WriteAllText(fileInfo.FullName, jsonData);
+                        blf.Write(writer);
                     }
                 }
                 catch (Exception e) 
                 {
-                    new PrecursorError($"Failed to parse file \"{filePath}\": {e.Message}");
+                    new PrecursorError($"Failed to write blf data \"{filePath}\": {e.Message}");
+                }
+
+                // 4: Diff Against Original File
+
+                // I don't know :/
+                // Binary Diff???
+                // Dump the data from the saved file to JSON
+                // Diff the JSON???
+                // BOTH??????????
+            }
+        }
+
+        public static void GenerateJSON(Blf blf, CacheVersion version, CachePlatform platform, string fileName, string fileExtension, string filePath)
+        {
+            var handler = new BlfObjectHandler(version, platform);
+
+            var blfObject = new BlfObject()
+            {
+                FileName = fileName,
+                FileType = fileExtension,
+                Blf = blf,
+            };
+
+            var jsonData = handler.Serialize(blfObject);
+
+            var fileInfo = new FileInfo(Path.Combine(filePath, $"{fileName}.json"));
+
+            if (!fileInfo.Directory.Exists)
+            {
+                fileInfo.Directory.Create();
+            }
+
+            File.WriteAllText(fileInfo.FullName, jsonData);
+        }
+
+        public static void ParseVersion(Blf blf, CacheVersion version, CachePlatform platform, string filePath) 
+        {
+            if (blf.Version != version || blf.CachePlatform != platform)
+            {
+                // We force Halo3Retail:Original for map images as the format doesn't change from Halo3Retail to Halo4
+                bool isMapImage = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.MapImage);
+
+                // We force Halo3Retail:Original for campaign files up to reach, as the format doesn't change from Halo3Retail to HaloReach
+                bool isGen3Campaign = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.Campaign) && CacheVersionDetection.IsBetween(version, CacheVersion.Halo3Retail, CacheVersion.HaloReach);
+
+                // We force Halo4:Original for campaign files up to h2amp, as the format doesn't change from Halo4 to Halo2AMP
+                bool isGen4Campaign = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.Campaign) && CacheVersionDetection.IsBetween(version, CacheVersion.Halo4, CacheVersion.Halo2AMP);
+
+                // We force Halo4:Original for map info files up to h2amp, as the format doesn't change from Halo4 to Halo2AMP
+                bool isGen4MapInfo = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.Scenario) && CacheVersionDetection.IsBetween(version, CacheVersion.Halo4, CacheVersion.Halo2AMP);
+
+                // We force X:Original for all map info files as the format does not change from X:Original to X:MCC 
+                bool isMCCMapInfo = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.Scenario) && platform == CachePlatform.MCC;
+
+                if (!isMapImage && !isGen3Campaign && !isGen4Campaign && !isMCCMapInfo && !isGen4MapInfo)
+                {
+                    new PrecursorError($"Version Mismatch \"{filePath}\": {blf.Version}:{blf.CachePlatform} != {version}:{platform}");
                 }
             }
         }
