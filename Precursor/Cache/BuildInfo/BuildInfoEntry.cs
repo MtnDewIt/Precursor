@@ -72,5 +72,34 @@ namespace Precursor.Cache.BuildInfo
 
             return true;
         }
+
+        public virtual CacheResource GetResourceType(string fileName)
+        {
+            switch (fileName)
+            {
+                case "tags.dat":
+                    return CacheResource.Tags;
+                case "string_ids.dat":
+                    return CacheResource.StringIds;
+                case "audio.dat":
+                    return CacheResource.Audio;
+                case "lightmaps.dat":
+                    return CacheResource.Lightmaps;
+                case "render_models.dat":
+                    return CacheResource.RenderModels;
+                case "resources.dat":
+                    return CacheResource.Resources;
+                case "resources_b.dat":
+                    return CacheResource.ResourcesB;
+                case "textures.dat":
+                    return CacheResource.Textures;
+                case "textures_b.dat":
+                    return CacheResource.TexturesB;
+                case "video.dat":
+                    return CacheResource.Video;
+                default:
+                    return CacheResource.None;
+            }
+        }
     }
 }
