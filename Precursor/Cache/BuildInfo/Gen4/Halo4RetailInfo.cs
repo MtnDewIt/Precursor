@@ -83,7 +83,9 @@ namespace Precursor.Cache.BuildInfo.Gen4
                         }
                         else
                         {
-                            new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)}");
+                            new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)} - {mapFile.Header.GetBuild()}\n" +
+                                $"\nValid Build Strings:\n" +
+                                $"{string.Join("\n", BuildStrings)}\n");
                             continue;
                         }
                     }

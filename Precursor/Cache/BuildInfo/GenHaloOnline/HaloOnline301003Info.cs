@@ -91,7 +91,7 @@ namespace Precursor.Cache.BuildInfo.GenHaloOnline
                     }
                     else
                     {
-                        new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)}");
+                        new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
                         continue;
                     }
                 }

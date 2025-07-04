@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.IO;
 
@@ -60,7 +61,7 @@ namespace Precursor.Cache.BuildInfo.Gen3
                     }
                     else
                     {
-                        new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)}");
+                        new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)} - {guid.ToString()} != {BuildStrings.FirstOrDefault()}");
                         continue;
                     }
                 }
