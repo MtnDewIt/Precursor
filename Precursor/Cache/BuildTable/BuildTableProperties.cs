@@ -41,6 +41,7 @@ namespace Precursor.Cache.BuildTable
                 CacheBuild.HaloReachMCC,
                 CacheBuild.Halo4MCC,
                 CacheBuild.Halo2AMPMCC,
+                CacheBuild.All,
             };
 
             foreach (CacheBuild build in Enum.GetValues(typeof(CacheBuild)))

@@ -41,6 +41,7 @@
         HaloReachMCC,
         Halo4MCC,
         Halo2AMPMCC,
-        MCCRetail
+        MCCRetail,
+        All,
     }
 }

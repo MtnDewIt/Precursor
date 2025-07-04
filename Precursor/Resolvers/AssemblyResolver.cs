@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
@@ -8,6 +10,15 @@ namespace Precursor.Resolvers
 {
     public class AssemblyResolver
     {
+        [ModuleInitializer]
+        public static void Init() 
+        {
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
+            ResolveManagedAssemblies();
+            ResolveUnmanagedAssemblies();
+        }
+
         public static void ResolveManagedAssemblies() 
         {
             AssemblyLoadContext.Default.Resolving += static (AssemblyLoadContext ctx, AssemblyName name) =>

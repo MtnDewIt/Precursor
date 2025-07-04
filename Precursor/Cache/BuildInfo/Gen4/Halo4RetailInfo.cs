@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TagTool.BlamFile;
+using TagTool.Cache;
 using TagTool.IO;
 
 namespace Precursor.Cache.BuildInfo.Gen4
@@ -13,7 +14,13 @@ namespace Precursor.Cache.BuildInfo.Gen4
     {
         public static readonly CacheBuild Build = CacheBuild.Halo4Retail;
 
+        public static readonly CacheVersion Version = CacheVersion.Halo4;
+
+        public static readonly CachePlatform Platform = CachePlatform.Original;
+
         public static readonly CacheGeneration Generation = CacheGeneration.Gen4;
+
+        public static readonly string ResourcePath = @"Resources\Gen4\Halo4";
 
         public static readonly List<string> BuildStrings = new List<string> 
         {
@@ -97,7 +104,11 @@ namespace Precursor.Cache.BuildInfo.Gen4
         }
 
         public override CacheBuild GetBuild() => Build;
+        public override CacheVersion GetVersion() => Version;
+        public override CachePlatform GetPlatform() => Platform;
         public override CacheGeneration GetGeneration() => Generation;
+
+        public override string GetResourcePath() => ResourcePath;
 
         public override List<string> GetBuildStrings() => BuildStrings;
 

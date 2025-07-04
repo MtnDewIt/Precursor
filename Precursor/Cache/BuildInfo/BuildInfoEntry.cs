@@ -3,13 +3,18 @@ using Precursor.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TagTool.Cache;
 
 namespace Precursor.Cache.BuildInfo
 {
     public abstract class BuildInfoEntry
     {
         public abstract CacheBuild GetBuild();
+        public abstract CacheVersion GetVersion();
+        public abstract CachePlatform GetPlatform();
         public abstract CacheGeneration GetGeneration();
+
+        public abstract string GetResourcePath();
 
         public abstract List<string> GetBuildStrings();
 

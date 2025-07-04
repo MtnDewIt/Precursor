@@ -5,16 +5,19 @@ namespace Precursor.Cache.BuildTable
 {
     public class BuildTable
     {
-        private List<BuildInfoEntry> BuildInfo = new List<BuildInfoEntry>();
+        private List<BuildInfoEntry> BuildInfo { get; set; }
 
-        public void AddEntry(BuildInfoEntry entry) 
+        public BuildTable()
         {
-            BuildInfo.Add(entry);
+            BuildInfo = new List<BuildInfoEntry>();
         }
 
-        public void EmptyTable()
-        {
-            BuildInfo.Clear();
-        }
+        public List<BuildInfoEntry> GetEntryTable() => BuildInfo;
+
+        public void AddEntry(BuildInfoEntry entry) => BuildInfo.Add(entry);
+
+        public void RemoveEntry(BuildInfoEntry entry) => BuildInfo.Remove(entry);
+
+        public void EmptyTable() => BuildInfo.Clear();
     }
 }

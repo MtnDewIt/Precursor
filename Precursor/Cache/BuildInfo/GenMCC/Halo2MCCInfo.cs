@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TagTool.BlamFile;
+using TagTool.Cache;
 using TagTool.IO;
 
 namespace Precursor.Cache.BuildInfo.GenMCC
@@ -13,7 +14,13 @@ namespace Precursor.Cache.BuildInfo.GenMCC
     {
         public static readonly CacheBuild Build = CacheBuild.Halo2MCC;
 
+        public static readonly CacheVersion Version = CacheVersion.Halo2Retail;
+
+        public static readonly CachePlatform Platform = CachePlatform.MCC;
+
         public static readonly CacheGeneration Generation = CacheGeneration.GenMCC;
+
+        public static readonly string ResourcePath = @"Resources\GenMCC\Halo2MCC";
 
         public static readonly List<string> BuildStrings = new List<string>
         {
@@ -120,7 +127,11 @@ namespace Precursor.Cache.BuildInfo.GenMCC
         }
 
         public override CacheBuild GetBuild() => Build;
+        public override CacheVersion GetVersion() => Version;
+        public override CachePlatform GetPlatform() => Platform;
         public override CacheGeneration GetGeneration() => Generation;
+
+        public override string GetResourcePath() => ResourcePath;
 
         public override List<string> GetBuildStrings() => BuildStrings;
 

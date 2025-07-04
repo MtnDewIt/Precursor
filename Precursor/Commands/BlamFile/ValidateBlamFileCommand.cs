@@ -1,0 +1,57 @@
+﻿using Precursor.Cache;
+using Precursor.Cache.Resolvers.BlamFile;
+using Precursor.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Precursor.Commands.BlamFile
+{
+    public class ValidateBlamFileCommand : PrecursorCommand
+    {
+        public ValidateBlamFileCommand() : base
+        (
+            false,
+            "ValidateBlamFiles",
+            "Validates all blf files associated with the specified build version.",
+
+            "ValidateBlamFiles <Build>",
+            "Validates all blf files associated with the specified build version."
+        )
+        {
+        }
+
+        public override object Execute(List<string> args)
+        {
+            if (args.Count != 1)
+                return new PrecursorError($"Incorrect amount of arguments supplied");
+
+            if (!Enum.TryParse(args[0], true, out CacheBuild build))
+                return new PrecursorError($"Invalid build");
+
+            var buildTable = Program.BuildTable.GetEntryTable();
+
+            if (build == CacheBuild.All)
+            {
+                foreach (var buildInfo in buildTable) 
+                {
+                    if (buildInfo.GetResourcePath() != null) 
+                    {
+                        BlfResolver.ParseFiles(buildInfo);
+                    }
+                }
+            }
+            else 
+            {
+                var buildInfo = buildTable.Where(x => x.GetBuild() == build).FirstOrDefault();
+
+                if (buildInfo.GetResourcePath() != null)
+                {
+                    BlfResolver.ParseFiles(buildInfo);
+                }
+            }
+
+            return true;
+        }
+    }
+}

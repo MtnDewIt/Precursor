@@ -31,7 +31,7 @@ namespace Precursor.Commands.Builds
             if (args.Count != 2)
                 return new PrecursorError($"Incorrect amount of arguments supplied");
 
-            if (!Enum.TryParse(typeof(CacheBuild), args[0], true, out var build))
+            if (!Enum.TryParse(args[0], out CacheBuild build))
                 return new PrecursorError($"Invalid build");
 
             var buildPath = args[1];
@@ -48,7 +48,40 @@ namespace Precursor.Commands.Builds
 
             var buildProperties = handler.Deserialize(inputData);
 
-            buildProperties.Builds.First(x => x.Build == (CacheBuild)build).Path = buildPath;
+            foreach (var buildEntry in buildProperties.Builds) 
+            {
+                if (build == CacheBuild.MCCRetail)
+                {
+                    switch (buildEntry.Build)
+                    {
+                        case CacheBuild.Halo1MCC:
+                            buildEntry.Path = $@"{buildPath}\halo1\maps";
+                            break;
+                        case CacheBuild.Halo2MCC:
+                            buildEntry.Path = $@"{buildPath}\halo2\h2_maps_win64_dx11";
+                            break;
+                        case CacheBuild.Halo3MCC:
+                            buildEntry.Path = $@"{buildPath}\halo3\maps";
+                            break;
+                        case CacheBuild.Halo3ODSTMCC:
+                            buildEntry.Path = $@"{buildPath}\halo3odst\maps";
+                            break;
+                        case CacheBuild.HaloReachMCC:
+                            buildEntry.Path = $@"{buildPath}\haloreach\maps";
+                            break;
+                        case CacheBuild.Halo4MCC:
+                            buildEntry.Path = $@"{buildPath}\halo4\maps";
+                            break;
+                        case CacheBuild.Halo2AMPMCC:
+                            buildEntry.Path = $@"{buildPath}\groundhog\maps";
+                            break;
+                    }
+                }
+                else if (buildEntry.Build == build)
+                {
+                    buildEntry.Path = buildPath;
+                }
+            }
 
             var outputData = handler.Serialize(buildProperties);
 

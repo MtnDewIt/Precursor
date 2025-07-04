@@ -2,7 +2,7 @@
 using Precursor.Cache.BuildInfo.GenHaloOnline;
 using Precursor.Cache.BuildInfo;
 
-namespace Precursor.Cache.Resolvers
+namespace Precursor.Cache.Resolvers.Cache
 {
     public class CacheGenHaloOnlineResolver : CacheResolver
     {

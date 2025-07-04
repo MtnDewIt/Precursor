@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TagTool.BlamFile;
+using TagTool.Cache;
 using TagTool.IO;
 
 namespace Precursor.Cache.BuildInfo.Gen3
@@ -12,6 +13,10 @@ namespace Precursor.Cache.BuildInfo.Gen3
     public class Halo3BetaInfo : BuildInfoEntry
     {
         public static readonly CacheBuild Build = CacheBuild.Halo3Beta;
+
+        public static readonly CacheVersion Version = CacheVersion.Halo3Beta;
+
+        public static readonly CachePlatform Platform = CachePlatform.Original;
 
         public static readonly CacheGeneration Generation = CacheGeneration.Gen3;
 
@@ -92,7 +97,11 @@ namespace Precursor.Cache.BuildInfo.Gen3
         }
 
         public override CacheBuild GetBuild() => Build;
+        public override CacheVersion GetVersion() => Version;
+        public override CachePlatform GetPlatform() => Platform;
         public override CacheGeneration GetGeneration() => Generation;
+
+        public override string GetResourcePath() => null;
 
         public override List<string> GetBuildStrings() => BuildStrings;
 

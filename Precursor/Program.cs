@@ -1,7 +1,4 @@
-﻿using Precursor.Cache.Resolvers;
-using Precursor.Resolvers;
-using System.Globalization;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using System;
 using Precursor.Common;
@@ -9,6 +6,7 @@ using Precursor.Commands;
 using Precursor.Commands.Context;
 using Precursor.Cache.BuildTable.Handlers;
 using Precursor.Cache.BuildTable;
+using Precursor.Cache.Resolvers.Cache;
 
 namespace Precursor
 {
@@ -21,11 +19,6 @@ namespace Precursor
 
         static void Main(string[] args)
         {
-            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.GetCultureInfo("en-US");
-
-            AssemblyResolver.ResolveManagedAssemblies();
-            AssemblyResolver.ResolveUnmanagedAssemblies();
-
             Console.WriteLine($"Precursor [{Assembly.GetExecutingAssembly().GetName().Version} (Built {GetLinkerTimestampUtc(Assembly.GetExecutingAssembly())} UTC)]\n");
 
             var isNewFile = false;

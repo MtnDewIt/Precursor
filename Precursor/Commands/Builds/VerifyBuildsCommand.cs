@@ -1,6 +1,6 @@
 ﻿using Precursor.Cache.BuildTable;
 using Precursor.Cache.BuildTable.Handlers;
-using Precursor.Cache.Resolvers;
+using Precursor.Cache.Resolvers.Cache;
 using Precursor.Common;
 using System;
 using System.Collections.Generic;
@@ -51,6 +51,8 @@ namespace Precursor.Commands.Builds
                 return new PrecursorError($"Unable to parse file \"{filePath}\"");
             }
 
+            Program.BuildTable.EmptyTable();
+
             foreach (var build in buildProperties?.Builds)
             {
                 Console.WriteLine($"\nVerifying {build.Build} Cache Files...");
@@ -58,8 +60,6 @@ namespace Precursor.Commands.Builds
                 var resolver = CacheResolver.GetResolver(build);
 
                 var buildTableEntry = resolver?.VerifyBuild(build);
-
-                Program.BuildTable.EmptyTable();
 
                 if (buildTableEntry != null)
                 {

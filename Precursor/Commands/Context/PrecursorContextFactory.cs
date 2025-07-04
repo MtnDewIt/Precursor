@@ -1,4 +1,5 @@
-﻿using Precursor.Commands.Builds;
+﻿using Precursor.Commands.BlamFile;
+using Precursor.Commands.Builds;
 using Precursor.Commands.Common;
 using Precursor.Commands.ConvertCache;
 using Precursor.Commands.GenerateCache;
@@ -22,6 +23,7 @@ namespace Precursor.Commands.Context
 
             context.AddCommand(new VerifyBuildsCommand());
             context.AddCommand(new UpdateBuildTableCommand());
+            context.AddCommand(new ValidateBlamFileCommand());
 
             // TODO: Pass the cache into the command contsructor
             context.AddCommand(new ConvertCacheCommand(null, null));
