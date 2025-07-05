@@ -1,12 +1,12 @@
-﻿using System.IO;
-using System.Reflection;
-using System;
-using Precursor.Common;
+﻿using Precursor.Cache.BuildTable;
+using Precursor.Cache.BuildTable.Handlers;
+using Precursor.Cache.Resolvers.Cache;
 using Precursor.Commands;
 using Precursor.Commands.Context;
-using Precursor.Cache.BuildTable.Handlers;
-using Precursor.Cache.BuildTable;
-using Precursor.Cache.Resolvers.Cache;
+using Precursor.Common;
+using System;
+using System.IO;
+using System.Reflection;
 
 namespace Precursor
 {

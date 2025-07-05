@@ -87,7 +87,7 @@ namespace Precursor.Commands.GenerateDonkeyCache
         {
             cache.Version = version;
             cache.TagCacheGenHO.Version = version;
-            cache.TagCacheGenHO.Header.CreationTime = CacheVersionDetection.GetTimestamp(version);
+            cache.TagCacheGenHO.Header.CreationDate = LastModificationDate.CreateFromVersion(version);
             cache.StringTableHaloOnline.Version = version;
             cache.Serializer = new TagSerializer(version, CachePlatform.Original);
             cache.Deserializer = new TagDeserializer(version, CachePlatform.Original);

@@ -115,41 +115,46 @@ namespace Precursor.Cache.BuildInfo.GenHaloOnline
                 using (var stream = fileInfo.OpenRead())
                 using (var reader = new EndianReader(stream))
                 {
-                    var dataContext = new DataSerializationContext(reader);
-                    var deserializer = new TagDeserializer(Version, Platform);
                     var resourceType = GetResourceType(fileInfo.Name);
 
                     if (resourceType == CacheResource.None || resourceType != CacheResource.StringIds && !BuildDateTable.ContainsKey(resourceType))
                     {
-                        new PrecursorWarning($"Invalid Cache File: {fileInfo.Name} - Unsupported or Invalid Cache Type");
+                        new PrecursorWarning($"Invalid File: {fileInfo.Name} - Unsupported or invalid resource type");
                         continue;
                     }
 
-                    if (resourceType == CacheResource.Tags)
+                    if (resourceType != CacheResource.None && resourceType != CacheResource.StringIds)
                     {
-                        TagCacheHaloOnlineHeader tagCacheHeader = null;
+                        CacheFileSectionHeader header = null;
 
                         try
                         {
-                            tagCacheHeader = deserializer.Deserialize<TagCacheHaloOnlineHeader>(dataContext);
+                            header = CacheFileSectionHeader.ReadHeader(reader, Version, Platform);
                         }
                         catch 
                         {
-                            new PrecursorWarning($"Invalid Cache File: {fileInfo.Name} - Failed to deserialize tag cache header");
+                            new PrecursorWarning($"Invalid File: {fileInfo.Name} - Failed to deserialize file section header");
                             continue;
                         }
 
-                        var tagCacheModificationDate = new LastModificationDate(tagCacheHeader.CreationTime);
-                        var tagCacheDate = $"{tagCacheModificationDate.GetModificationDate():yyyy-MM-dd HH:mm:ss.FFFFFFF}";
+                        var timestamp = LastModificationDate.GetTimestamp(header.CreationDate);
 
-                        if (BuildDateTable[resourceType] == tagCacheDate)
+                        if (BuildDateTable[resourceType] == timestamp)
                         {
-                            CurrentCacheFiles.Add(file);
-                            validFiles++;
+                            if (resourceType == CacheResource.Tags)
+                            {
+                                CurrentCacheFiles.Add(file);
+                                validFiles++;
+                            }
+                            else
+                            {
+                                CurrentSharedFiles.Add(file);
+                                validFiles++;
+                            }
                         }
                         else
                         {
-                            new PrecursorWarning($"Invalid Cache Build Date: {fileInfo.Name} - {tagCacheDate} != {BuildDateTable[resourceType]}");
+                            new PrecursorWarning($"Invalid Build Date: {fileInfo.Name} - {timestamp} != {BuildDateTable[resourceType]}");
                             continue;
                         }
                     }
@@ -157,34 +162,6 @@ namespace Precursor.Cache.BuildInfo.GenHaloOnline
                     {
                         CurrentSharedFiles.Add(file);
                         validFiles++;
-                    }
-                    else if (resourceType != CacheResource.None)
-                    {
-                        ResourceCacheHaloOnlineHeader resourceCacheHeader = null;
-
-                        try
-                        {
-                            resourceCacheHeader = deserializer.Deserialize<ResourceCacheHaloOnlineHeader>(dataContext);
-                        }
-                        catch
-                        {
-                            new PrecursorWarning($"Invalid Cache File: {fileInfo.Name} - Failed to deserialize resource cache header");
-                            continue;
-                        }
-
-                        var resourceCacheModificationDate = new LastModificationDate(resourceCacheHeader.CreationTime);
-                        var resourceCacheDate = $"{resourceCacheModificationDate.GetModificationDate():yyyy-MM-dd HH:mm:ss.FFFFFFF}";
-
-                        if (BuildDateTable[resourceType] == resourceCacheDate)
-                        {
-                            CurrentSharedFiles.Add(file);
-                            validFiles++;
-                        }
-                        else 
-                        {
-                            new PrecursorWarning($"Invalid Cache Build Date: {fileInfo.Name} - {resourceCacheDate} != {BuildDateTable[resourceType]}");
-                            continue;
-                        }
                     }
                 }
             }
