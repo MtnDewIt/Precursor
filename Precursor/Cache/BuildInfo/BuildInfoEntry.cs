@@ -3,7 +3,10 @@ using Precursor.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TagTool.BlamFile;
 using TagTool.Cache;
+using TagTool.JSON.Handlers;
+using TagTool.JSON.Objects;
 
 namespace Precursor.Cache.BuildInfo
 {
@@ -71,6 +74,36 @@ namespace Precursor.Cache.BuildInfo
             }
 
             return true;
+        }
+
+        public virtual void GenerateJSON(MapFile mapFile, string fileName, string tempPath) 
+        {
+            var version = GetVersion();
+            var platform = GetPlatform();
+            var path = GetResourcePath().Replace("Resources", "Temp");
+            var mapName = Path.GetFileNameWithoutExtension(fileName);
+
+            var mapObject = new MapObject()
+            {
+                MapName = mapName,
+                MapVersion = mapFile.Version,
+                Header = mapFile.Header,
+                MapFileBlf = mapFile.MapFileBlf,
+                Reports = mapFile.Reports,
+            };
+
+            var handler = new MapObjectHandler(version, platform);
+
+            var jsonData = handler.Serialize(mapObject);
+
+            var fileInfo = new FileInfo(Path.Combine($"{path}", "cache_files", $"{fileName}.json"));
+
+            if (!fileInfo.Directory.Exists)
+            {
+                fileInfo.Directory.Create();
+            }
+
+            File.WriteAllText(fileInfo.FullName, jsonData);
         }
 
         public virtual CacheResource GetResourceType(string fileName)

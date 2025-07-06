@@ -97,6 +97,7 @@ namespace Precursor.Cache.BuildInfo.GenHaloOnline
 
                     if (BuildStrings.Contains(mapFile.Header.GetBuild()))
                     {
+                        GenerateJSON(mapFile, fileInfo.Name, ResourcePath);
                         CurrentCacheFiles.Add(file);
                         validFiles++;
                     }
