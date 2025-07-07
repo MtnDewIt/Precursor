@@ -21,6 +21,8 @@ namespace Precursor.Cache.BuildInfo.GenHaloOnline
         public static readonly CachePlatform Platform = CachePlatform.Original;
 
         public static readonly CacheGeneration Generation = CacheGeneration.GenHaloOnline;
+        
+        public static readonly string ResourcePath = @"Resources\GenHaloOnline\HaloOnline106708";
 
         public static readonly List<string> BuildStrings = new List<string> 
         {
@@ -177,7 +179,7 @@ namespace Precursor.Cache.BuildInfo.GenHaloOnline
         public override CachePlatform GetPlatform() => Platform;
         public override CacheGeneration GetGeneration() => Generation;
 
-        public override string GetResourcePath() => null;
+        public override string GetResourcePath() => ResourcePath;
 
         public override List<string> GetBuildStrings() => BuildStrings;
 

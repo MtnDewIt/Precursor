@@ -19,6 +19,8 @@ namespace Precursor.Cache.BuildInfo.Gen1
         public static readonly CachePlatform Platform = CachePlatform.Original;
 
         public static readonly CacheGeneration Generation = CacheGeneration.Gen1;
+        
+        public static readonly string ResourcePath = @"Resources\Gen1\HaloCustomEdition";
 
         public static readonly List<string> BuildStrings = new List<string> 
         { 
@@ -103,7 +105,7 @@ namespace Precursor.Cache.BuildInfo.Gen1
         public override CachePlatform GetPlatform() => Platform;
         public override CacheGeneration GetGeneration() => Generation;
 
-        public override string GetResourcePath() => null;
+        public override string GetResourcePath() => ResourcePath;
 
         public override List<string> GetBuildStrings() => BuildStrings;
 

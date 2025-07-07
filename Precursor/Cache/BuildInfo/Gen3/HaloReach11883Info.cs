@@ -91,7 +91,7 @@ namespace Precursor.Cache.BuildInfo.Gen3
         public override CachePlatform GetPlatform() => Platform;
         public override CacheGeneration GetGeneration() => Generation;
 
-        public override string GetResourcePath() => null;
+        public override string GetResourcePath() => ResourcePath;
 
         public override List<string> GetBuildStrings() => BuildStrings;
 
