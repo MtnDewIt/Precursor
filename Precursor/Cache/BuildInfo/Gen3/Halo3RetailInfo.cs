@@ -20,7 +20,7 @@ namespace Precursor.Cache.BuildInfo.Gen3
 
         public static readonly CacheGeneration Generation = CacheGeneration.Gen3;
 
-        public static readonly string ResourcePath = @"Resources\Gen3\Halo3MythicRetail";
+        public static readonly string ResourcePath = @"Resources\Gen3\Halo3Retail";
 
         public static readonly List<string> BuildStrings = new List<string> 
         { 
@@ -55,37 +55,55 @@ namespace Precursor.Cache.BuildInfo.Gen3
 
             foreach (var file in files)
             {
-                if (!SharedFiles.Contains(Path.GetFileName(file)))
-                {
-                    var fileInfo = new FileInfo(file);
+                var fileInfo = new FileInfo(file);
 
+                if (!SharedFiles.Contains(fileInfo.Name))
+                {
                     using (var stream = fileInfo.OpenRead())
                     using (var reader = new EndianReader(stream))
                     {
                         var mapFile = new MapFile();
 
-                        mapFile.Read(reader);
+                        try
+                        {
+                            mapFile.Read(reader);
+                        }
+                        catch (Exception ex)
+                        {
+                            new PrecursorWarning($"Failed to parse file \"{fileInfo.Name}\": {ex.Message}");
+                            continue;
+                        }
 
                         if (!mapFile.Header.IsValid())
                         {
-                            new PrecursorWarning($"Invalid Cache File: {Path.GetFileName(file)}");
+                            new PrecursorWarning($"Invalid Cache File: {fileInfo.Name}");
                             continue;
                         }
 
                         if (BuildStrings.Contains(mapFile.Header.GetBuild()))
                         {
+                            try
+                            {
+                                GenerateJSON(mapFile, fileInfo.Name, ResourcePath);
+                            }
+                            catch (Exception ex)
+                            {
+                                new PrecursorWarning($"Failed to serialize JSON \"{fileInfo.Name}\": {ex.Message}");
+                                continue;
+                            }
+
                             CurrentCacheFiles.Add(file);
                             validFiles++;
                         }
                         else
                         {
-                            new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
+                            new PrecursorWarning($"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
                             continue;
                         }
                     }
                 }
 
-                if (SharedFiles.Contains(Path.GetFileName(file)))
+                if (SharedFiles.Contains(fileInfo.Name))
                 {
                     CurrentSharedFiles.Add(file);
                     validFiles++;

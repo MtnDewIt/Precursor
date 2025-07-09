@@ -61,7 +61,7 @@ namespace Precursor.Cache.BuildInfo.Gen3
                     }
                     else
                     {
-                        new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)} - {guid.ToString()} != {BuildStrings.FirstOrDefault()}");
+                        new PrecursorWarning($"Invalid Build String: {fileInfo.Name} - {guid.ToString()} != {BuildStrings.FirstOrDefault()}");
                         continue;
                     }
                 }
@@ -69,14 +69,16 @@ namespace Precursor.Cache.BuildInfo.Gen3
 
             foreach (var blob in blobs) 
             {
-                if (Path.GetFileName(blob).StartsWith("cache_") || Path.GetFileName(blob).StartsWith("tags_") || Path.GetExtension(blob) == null) 
+                var fileInfo = new FileInfo(blob);
+
+                if (fileInfo.Name.StartsWith("cache_") || fileInfo.Name.StartsWith("tags_") || string.IsNullOrEmpty(fileInfo.Extension)) 
                 {
                     CurrentCacheFiles.Add(blob);
                     validFiles++;
                 }
                 else
                 {
-                    new PrecursorWarning($"Invalid Blob File: {Path.GetFileName(blob)}");
+                    new PrecursorWarning($"Invalid Blob File: {fileInfo.Name}");
                     continue;
                 }
             }
@@ -91,7 +93,7 @@ namespace Precursor.Cache.BuildInfo.Gen3
         public override CachePlatform GetPlatform() => Platform;
         public override CacheGeneration GetGeneration() => Generation;
 
-        public override string GetResourcePath() => ResourcePath;
+        public override string GetResourcePath() => null;
 
         public override List<string> GetBuildStrings() => BuildStrings;
 

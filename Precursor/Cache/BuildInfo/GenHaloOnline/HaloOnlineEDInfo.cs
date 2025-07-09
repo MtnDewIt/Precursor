@@ -87,23 +87,40 @@ namespace Precursor.Cache.BuildInfo.GenHaloOnline
                 {
                     var mapFile = new MapFile();
 
-                    mapFile.Read(reader);
+                    try
+                    {
+                        mapFile.Read(reader);
+                    }
+                    catch (Exception ex)
+                    {
+                        new PrecursorWarning($"Failed to parse file \"{fileInfo.Name}\": {ex.Message}");
+                        continue;
+                    }
 
                     if (!mapFile.Header.IsValid())
                     {
-                        new PrecursorWarning($"Invalid Map File: {Path.GetFileName(file)}");
+                        new PrecursorWarning($"Invalid Map File: {fileInfo.Name}");
                         continue;
                     }
 
                     if (BuildStrings.Contains(mapFile.Header.GetBuild()))
                     {
-                        GenerateJSON(mapFile, fileInfo.Name, ResourcePath);
+                        try
+                        {
+                            GenerateJSON(mapFile, fileInfo.Name, ResourcePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            new PrecursorWarning($"Failed to serialize JSON \"{fileInfo.Name}\": {ex.Message}");
+                            continue;
+                        }
+
                         CurrentCacheFiles.Add(file);
                         validFiles++;
                     }
                     else
                     {
-                        new PrecursorWarning($"Invalid Build String: {Path.GetFileName(file)} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
+                        new PrecursorWarning($"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
                         continue;
                     }
                 }
