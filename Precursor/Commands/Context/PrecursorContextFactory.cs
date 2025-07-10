@@ -23,6 +23,9 @@ namespace Precursor.Commands.Context
 
             context.AddCommand(new VerifyBuildsCommand());
             context.AddCommand(new UpdateBuildTableCommand());
+
+            // TODO: Pass the cache into the command contsructor
+            context.AddCommand(new ValidateBitmapsCommand(null, null, contextStack));
             context.AddCommand(new ValidateBlamFileCommand());
 
             // TODO: Pass the cache into the command contsructor
