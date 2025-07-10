@@ -2,7 +2,7 @@
 using Precursor.Cache.BuildInfo.Gen2;
 using Precursor.Cache.BuildTable;
 
-namespace Precursor.Cache.Resolvers.Cache
+namespace Precursor.Cache.Resolvers
 {
     public class CacheGen2Resolver : CacheResolver
     {

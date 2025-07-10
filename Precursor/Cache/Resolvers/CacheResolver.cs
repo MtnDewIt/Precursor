@@ -3,7 +3,7 @@ using Precursor.Cache.BuildTable;
 using Precursor.Common;
 using System.IO;
 
-namespace Precursor.Cache.Resolvers.Cache
+namespace Precursor.Cache.Resolvers
 {
     public abstract class CacheResolver
     {

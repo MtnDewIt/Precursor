@@ -1,10 +1,10 @@
 ﻿using Precursor.Cache.BuildInfo;
-using Precursor.Cache.BuildInfo.Gen4;
+using Precursor.Cache.BuildInfo.Gen3;
 using Precursor.Cache.BuildTable;
 
-namespace Precursor.Cache.Resolvers.Cache
+namespace Precursor.Cache.Resolvers
 {
-    public class CacheGen4Resolver : CacheResolver
+    public class CacheGenMonolithicResolver : CacheResolver
     {
         public override BuildInfoEntry VerifyBuild(BuildTableProperties.BuildTableEntry build)
         {
@@ -12,8 +12,8 @@ namespace Precursor.Cache.Resolvers.Cache
 
             switch (build.Build)
             {
-                case CacheBuild.Halo4Retail:
-                    buildInfo = new Halo4RetailInfo();
+                case CacheBuild.HaloReach11883:
+                    buildInfo = new HaloReach11883Info();
                     break;
             }
 

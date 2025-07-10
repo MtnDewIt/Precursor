@@ -8,7 +8,7 @@ using TagTool.IO;
 using TagTool.JSON.Handlers;
 using TagTool.JSON.Objects;
 
-namespace Precursor.Cache.Resolvers.BlamFile
+namespace Precursor.BlamFile.Resolvers
 {
     public class BlfResolver
     {

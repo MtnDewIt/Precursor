@@ -1,6 +1,6 @@
 ﻿using Precursor.Cache.BuildTable;
 using Precursor.Cache.BuildTable.Handlers;
-using Precursor.Cache.Resolvers.Cache;
+using Precursor.Cache.Resolvers;
 using Precursor.Commands;
 using Precursor.Commands.Context;
 using Precursor.Common;

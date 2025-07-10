@@ -1,6 +1,6 @@
 ﻿using Precursor.Cache.BuildTable;
 using Precursor.Cache.BuildTable.Handlers;
-using Precursor.Cache.Resolvers.Cache;
+using Precursor.Cache.Resolvers;
 using Precursor.Common;
 using System;
 using System.Collections.Generic;

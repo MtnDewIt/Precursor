@@ -1,5 +1,5 @@
-﻿using Precursor.Cache;
-using Precursor.Cache.Resolvers.BlamFile;
+﻿using Precursor.BlamFile.Resolvers;
+using Precursor.Cache;
 using Precursor.Common;
 using System;
 using System.Collections.Generic;
