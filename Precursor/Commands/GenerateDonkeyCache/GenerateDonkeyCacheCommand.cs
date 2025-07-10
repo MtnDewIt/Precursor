@@ -1,6 +1,6 @@
 ﻿using Precursor.Commands.Context;
-using Precursor.Commands.Porting.Gen3;
 using Precursor.Common;
+using Precursor.Porting.Gen3;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

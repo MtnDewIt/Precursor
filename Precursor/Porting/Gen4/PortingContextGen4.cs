@@ -4,18 +4,19 @@ using System.IO;
 using TagTool.Audio;
 using TagTool.Cache;
 using TagTool.Commands.Porting;
+using TagTool.Commands.Porting.Gen4;
 using TagTool.Common;
 
-namespace Precursor.Commands.Porting.Gen1
+namespace Precursor.Porting.Gen4
 {
-    public partial class PortingContextGen1 
+    public partial class PortingContextGen4
     {
-        private PortTagGen1Command PortTagContext;
+        private PortTagGen4Command PortTagContext;
         private Stream CacheStream;
 
-        public PortingContextGen1(GameCacheHaloOnlineBase cacheContext, GameCache blamCache, Stream cacheStream)
+        public PortingContextGen4(GameCacheHaloOnlineBase cacheContext, GameCache blamCache, Stream cacheStream)
         {
-            PortTagContext = new PortTagGen1Command(cacheContext, blamCache as GameCacheGen1);
+            PortTagContext = new PortTagGen4Command(cacheContext, blamCache as GameCacheGen4);
 
             CacheStream = cacheStream;
         }
@@ -24,10 +25,10 @@ namespace Precursor.Commands.Porting.Gen1
         {
             var resourceStreams = new Dictionary<ResourceLocation, Stream>();
 
-            using (var gen1CacheStream = PortTagContext.Gen1Cache.OpenCacheRead())
+            using (var gen4CacheStream = PortTagContext.Gen4Cache.OpenCacheRead())
             {
-                foreach (var gen1Tag in PortTagContext.ParseLegacyTag(tag))
-                    PortTagContext.ConvertTag(CacheStream, gen1CacheStream, resourceStreams, gen1Tag);
+                foreach (var gen4Tag in PortTagContext.ParseLegacyTag(tag))
+                    PortTagContext.ConvertTag(CacheStream, gen4CacheStream, resourceStreams, gen4Tag);
             }
 
             foreach (var pair in resourceStreams)

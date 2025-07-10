@@ -1,41 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TagTool.Audio;
 using TagTool.Cache;
 using TagTool.Commands.Porting;
-using TagTool.Commands.Porting.Gen4;
-using TagTool.Common;
 
-namespace Precursor.Commands.Porting.Gen4
+namespace Precursor.Porting.GenHaloOnline
 {
-    public partial class PortingContextGen4
+    public partial class PortingContextGenHaloOnline
     {
-        private PortTagGen4Command PortTagContext;
+        private PortTagHOCommand PortTagContext;
         private Stream CacheStream;
 
-        public PortingContextGen4(GameCacheHaloOnlineBase cacheContext, GameCache blamCache, Stream cacheStream)
+        public PortingContextGenHaloOnline(GameCacheHaloOnlineBase cacheContext, GameCache blamCache, Stream cacheStream)
         {
-            PortTagContext = new PortTagGen4Command(cacheContext, blamCache as GameCacheGen4);
+            PortTagContext = new PortTagHOCommand(cacheContext, blamCache as GameCacheHaloOnlineBase);
 
             CacheStream = cacheStream;
         }
 
-        public void PortTag(string portingOptions, string tag) 
+        public void PortTag(string portingOptions, string tag)
         {
-            var resourceStreams = new Dictionary<ResourceLocation, Stream>();
+            var portingFlags = portingOptions != "" ? portingOptions.Split(' ').ToList() : new List<string>();
 
-            using (var gen4CacheStream = PortTagContext.Gen4Cache.OpenCacheRead())
+            PortTagContext.ParsePortingFlags(portingFlags, out PortTagContext.Flags);
+
+            using (PortTagContext.DestStream = CacheStream)
+            using (PortTagContext.SrcStream = PortTagContext.SrcCache.OpenCacheRead())
             {
-                foreach (var gen4Tag in PortTagContext.ParseLegacyTag(tag))
-                    PortTagContext.ConvertTag(CacheStream, gen4CacheStream, resourceStreams, gen4Tag);
+                foreach (var srcTag in PortTagContext.ParseLegacyTag(tag))
+                    PortTagContext.ConvertTag(srcTag);
             }
 
-            foreach (var pair in resourceStreams)
-                pair.Value.Close();
-
-            PortTagContext.Cache.SaveStrings();
-            PortTagContext.Cache.SaveTagNames();
+            PortTagContext.DestCache.SaveStrings();
+            PortTagContext.DestCache.SaveTagNames();
         }
 
         public void SetPortingOptions

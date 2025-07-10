@@ -7,7 +7,7 @@ using TagTool.Audio;
 using TagTool.Cache;
 using TagTool.Commands.Porting;
 
-namespace Precursor.Commands.Porting.Gen3
+namespace Precursor.Porting.Gen3
 {
     public partial class PortingContextGen3 
     {
