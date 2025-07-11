@@ -19,7 +19,7 @@ namespace Precursor.Commands
         public ValidateBitmapsCommand(GameCache cache, GameCacheHaloOnlineBase cacheContext, PrecursorContextStack contextStack) : base
         (
             false,
-            "ValidateBitmaps <Build>",
+            "ValidateBitmaps",
             "Validates all bitmap formats in the specified build version.",
 
             "ValidateBitmaps <Build>",
@@ -45,14 +45,40 @@ namespace Precursor.Commands
             {
                 foreach (var buildInfo in buildTable)
                 {
-                    BitmapResolver.ParseFiles(buildInfo);
+                    switch (buildInfo.GetBuild()) 
+                    {
+                        case CacheBuild.Halo3Retail:
+                        case CacheBuild.Halo3MythicRetail:
+                        case CacheBuild.Halo3ODST:
+                        case CacheBuild.HaloReach:
+                        case CacheBuild.Halo3MCC:
+                        case CacheBuild.Halo3ODSTMCC:
+                        case CacheBuild.HaloReachMCC:
+                            BitmapResolver.ParseFiles(buildInfo);
+                            break;
+                        default:
+                            return new PrecursorWarning($"Unsupported build - {buildInfo.GetBuild()}");
+                    }
                 }
             }
             else
             {
                 var buildInfo = buildTable.Where(x => x.GetBuild() == build).FirstOrDefault();
 
-                BitmapResolver.ParseFiles(buildInfo);
+                switch (buildInfo.GetBuild())
+                {
+                    case CacheBuild.Halo3Retail:
+                    case CacheBuild.Halo3MythicRetail:
+                    case CacheBuild.Halo3ODST:
+                    case CacheBuild.HaloReach:
+                    case CacheBuild.Halo3MCC:
+                    case CacheBuild.Halo3ODSTMCC:
+                    case CacheBuild.HaloReachMCC:
+                        BitmapResolver.ParseFiles(buildInfo);
+                        break;
+                    default:
+                        return new PrecursorWarning($"Unsupported build - {buildInfo.GetBuild()}");
+                }
             }
 
             return true;

@@ -4,7 +4,7 @@ using TagTool.JSON.Parsers;
 using TagTool.Tags;
 using HaloShaderGenerator.Globals;
 using TagTool.Tags.Definitions;
-using Precursor.Commands.Porting.Gen3;
+using Precursor.Porting.Gen3;
 
 namespace Precursor.Commands.GenerateDonkeyCache
 {
