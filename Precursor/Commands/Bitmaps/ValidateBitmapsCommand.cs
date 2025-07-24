@@ -1,22 +1,15 @@
 ﻿using Precursor.Bitmaps.Resolvers;
-using Precursor.BlamFile.Resolvers;
 using Precursor.Cache;
-using Precursor.Commands.Context;
 using Precursor.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TagTool.Cache;
 
 namespace Precursor.Commands
 {
     class ValidateBitmapsCommand : PrecursorCommand
     {
-        public GameCache Cache { get; set; }
-        public GameCacheHaloOnlineBase CacheContext { get; set; }
-        public PrecursorContextStack ContextStack { get; set; }
-
-        public ValidateBitmapsCommand(GameCache cache, GameCacheHaloOnlineBase cacheContext, PrecursorContextStack contextStack) : base
+        public ValidateBitmapsCommand() : base
         (
             false,
             "ValidateBitmaps",
@@ -26,9 +19,6 @@ namespace Precursor.Commands
             "Validates all bitmap formats in the specified build version."
         )
         {
-            Cache = cache;
-            CacheContext = cacheContext;
-            ContextStack = contextStack;
         }
 
         public override object Execute(List<string> args)
