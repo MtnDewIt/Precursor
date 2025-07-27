@@ -1,6 +1,7 @@
 ﻿using Precursor.Cache;
 using Precursor.Cache.BuildInfo;
 using Precursor.Common;
+using Precursor.Tags.Definitions.Reports;
 using System;
 using System.IO;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Precursor.Tags.Definitions.Resolvers
         public static void ParseDefinitions(BuildInfoEntry buildInfo)
         {
             var files = buildInfo.GetCurrentCacheFiles();
+
+            var buildReport = new TagDefinitionReport.ReportBuild { Build = buildInfo.GetBuild() };
 
             foreach (var file in files) 
             {
@@ -87,6 +90,8 @@ namespace Precursor.Tags.Definitions.Resolvers
                     continue;
                 }
 
+                var reportCacheFile = new TagDefinitionReport.ReportCacheFile { Name = Path.GetFileName(file) };
+
                 using (var stream = cache.OpenCacheRead()) 
                 {
                     // TODO: Update this to that it loops through each tag group in the target cache.
@@ -96,12 +101,21 @@ namespace Precursor.Tags.Definitions.Resolvers
 
                     foreach (var group in cache.TagCache.TagTable.GroupBy(x => x.Group)) 
                     {
+                        var reportTagGroup = new TagDefinitionReport.ReportTagGroup
+                        {
+                            Signature = group.Key.Tag.ToString(),
+                            Name = "", // TODO: Figure out how to handle this :/
+                        };
+
                         if (cache.TagCache.TagDefinitions == null || !cache.TagCache.TagDefinitions.TagDefinitionExists(group.Key))
-                            new PrecursorWarning($"Tag definition for tag group {group.Key.Tag} not implemented");
+                            //new PrecursorWarning($"Tag definition for tag group {group.Key.Tag} not implemented");
+                            continue;
 
                         foreach (var tag in group.ToList()) 
                         {
                             var validator = new TagDataValidiator(cache, stream);
+
+                            var reportTagInstance = new TagDefinitionReport.ReportTagInstance { Name = tag.Name };
 
                             try 
                             {
@@ -109,23 +123,27 @@ namespace Precursor.Tags.Definitions.Resolvers
                             }
                             catch (Exception ex) 
                             {
-                                new PrecursorWarning($"Failed to validate tag {tag}: {ex.Message}");
+                                reportTagInstance.Errors.Add($"Failed to validate tag {tag}: {ex.Message}");
+                                reportTagGroup.Tags.Add(reportTagInstance);
                                 continue;
                             }
 
-                            if (validator.Problems.Count > 0)
+                            if (validator.Problems.Count > 0) 
                             {
-                                Console.ForegroundColor = ConsoleColor.Yellow;
-                                Console.WriteLine($"{tag}:");
-                                foreach (var problem in validator.Problems)
-                                    Console.WriteLine($"  {problem}");
-                                Console.ResetColor();
-                                Console.WriteLine();
+                                reportTagInstance.Errors.AddRange(validator.Problems);
                             }
+
+                            reportTagGroup.Tags.Add(reportTagInstance);
                         }
+
+                        reportCacheFile.Groups.Add(reportTagGroup);
                     }
                 }
+
+                buildReport.Files.Add(reportCacheFile);
             }
+
+            Program.TagDefinitionReport.AddEntry(buildReport);
         }
     }
 }

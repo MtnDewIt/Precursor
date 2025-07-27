@@ -2,7 +2,6 @@
 using TagTool.Cache;
 using TagTool.Common;
 using TagTool.Tags;
-using static TagTool.Tags.TagFieldFlags;
 
 namespace Precursor.Tags.Definitions.ElDewritoDebug
 {
@@ -14,7 +13,7 @@ namespace Precursor.Tags.Definitions.ElDewritoDebug
         [TagStructure(Size = 0x9C)]
         public class ScreenEffectBlock : TagStructure
         {
-            [TagField(Flags = Label)]
+            [TagField(Flags = TagFieldFlags.Label)]
             public StringId Name;
 
             public TagTool.Tags.Definitions.AreaScreenEffect.ScreenEffectBlock.SefcFlagBits Flags;

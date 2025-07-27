@@ -4,6 +4,7 @@ using Precursor.Cache.Resolvers;
 using Precursor.Commands;
 using Precursor.Commands.Context;
 using Precursor.Common;
+using Precursor.Tags.Definitions.Reports;
 using System;
 using System.IO;
 using System.Reflection;
@@ -15,7 +16,11 @@ namespace Precursor
         public static string PrecursorDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string PrecursorInput = Path.Combine(PrecursorDirectory, "Precursor.json");
 
+        // TODO: Move these elsewhere
         public static BuildTable BuildTable = new BuildTable();
+        // public static CacheBuildReport CacheBuildReport = new CacheFileReport();
+        // public static BlamFileReport BlamFileReport = new BlamFileReport();
+        public static TagDefinitionReport TagDefinitionReport = new TagDefinitionReport();
 
         static void Main(string[] args)
         {
