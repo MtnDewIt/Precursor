@@ -5,6 +5,7 @@ using TagTool.JSON.Parsers;
 
 namespace Precursor.Commands.GenerateDonkeyCache
 {
+    /*
     partial class GenerateDonkeyCacheCommand : PrecursorCommand
     {
         private TagObjectParser TagParser;
@@ -47,4 +48,5 @@ namespace Precursor.Commands.GenerateDonkeyCache
                 BlfParser.ParseFile(file);
         }
     }
+    */
 }

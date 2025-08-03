@@ -12,6 +12,7 @@ using Precursor.Common;
 
 namespace Precursor.Commands.GenerateDonkeyCache
 {
+    /*
     partial class GenerateDonkeyCacheCommand : PrecursorCommand
     {
         public object RebuildCache(string destCacheDirectory)
@@ -110,4 +111,5 @@ namespace Precursor.Commands.GenerateDonkeyCache
             }
         }
     }
+    */
 }

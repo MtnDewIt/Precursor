@@ -4,10 +4,10 @@ using TagTool.JSON.Parsers;
 using TagTool.Tags;
 using HaloShaderGenerator.Globals;
 using TagTool.Tags.Definitions;
-using Precursor.Porting.Gen3;
 
 namespace Precursor.Commands.GenerateDonkeyCache
 {
+    /*
     partial class GenerateDonkeyCacheCommand : PrecursorCommand
     {
         public void PortTagData()
@@ -1225,4 +1225,5 @@ namespace Precursor.Commands.GenerateDonkeyCache
             CacheContext.SaveTagNames();
         }
     }
+    */
 }

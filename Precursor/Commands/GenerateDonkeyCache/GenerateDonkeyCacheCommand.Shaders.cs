@@ -8,6 +8,7 @@ using TagTool.Tags.Definitions;
 
 namespace Precursor.Commands.GenerateDonkeyCache
 {
+    /*
     partial class GenerateDonkeyCacheCommand : PrecursorCommand
     {
         public void GenerateGlobalShader(Stream stream, ShaderType shader, bool applyFixes = true)
@@ -66,4 +67,5 @@ namespace Precursor.Commands.GenerateDonkeyCache
             Cache.Serialize(stream, pixlTag, pixl);
         }
     }
+    */
 }

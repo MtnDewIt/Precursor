@@ -1,6 +1,5 @@
 ﻿using Precursor.Commands.Context;
 using Precursor.Common;
-using Precursor.Porting.Gen3;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,6 +11,7 @@ using TagTool.Cache.HaloOnline;
 
 namespace Precursor.Commands.GenerateDonkeyCache
 {
+    /*
     partial class GenerateDonkeyCacheCommand : PrecursorCommand
     {
         public GameCache Cache { get; set; }
@@ -286,4 +286,5 @@ namespace Precursor.Commands.GenerateDonkeyCache
             return directoryInfo;
         }
     }
+    */
 }
