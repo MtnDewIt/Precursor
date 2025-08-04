@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Precursor.JSON.Handlers;
 using System.Collections.Generic;
 
 namespace Precursor.Cache.BuildTable.Handlers

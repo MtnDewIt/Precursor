@@ -1,10 +1,14 @@
 ﻿using Precursor.Cache;
 using Precursor.Cache.BuildInfo;
+using Precursor.Cache.BuildTable.Handlers;
 using Precursor.Common;
 using Precursor.Tags.Definitions.Reports;
+using Precursor.Tags.Definitions.Reports.Handlers;
+using SimpleJSON;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using TagTool.Cache;
 using TagTool.Cache.HaloOnline;
 using TagTool.Cache.Monolithic;
@@ -18,10 +22,11 @@ namespace Precursor.Tags.Definitions.Resolvers
         {
             var files = buildInfo.GetCurrentCacheFiles();
 
-            var buildReport = new TagDefinitionReport.ReportBuild { Build = buildInfo.GetBuild() };
+            var buildReport = new TagDefinitionReport.ReportBuild(buildInfo.GetBuild());
 
             foreach (var file in files) 
             {
+                var fileName = Path.GetFileNameWithoutExtension(file);
                 var fileInfo = new FileInfo(file);
 
                 GameCache cache = null;
@@ -90,7 +95,7 @@ namespace Precursor.Tags.Definitions.Resolvers
                     continue;
                 }
 
-                var reportCacheFile = new TagDefinitionReport.ReportCacheFile { Name = Path.GetFileName(file) };
+                var reportCacheFile = new TagDefinitionReportCacheFile(fileName);
 
                 using (var stream = cache.OpenCacheRead()) 
                 {
@@ -99,23 +104,28 @@ namespace Precursor.Tags.Definitions.Resolvers
                     // TODO 2: Pull valid tag group tables for Gen1 and Gen2 caches.
                     // TODO 3: Somehow get HO tag groups. No clue if this differs between builds.
 
-                    foreach (var group in cache.TagCache.TagTable.GroupBy(x => x.Group)) 
+                    // TODO: Add handling for null tag instances
+                    foreach (var group in cache.TagCache.NonNull().GroupBy(x => x.Group)) 
                     {
-                        var reportTagGroup = new TagDefinitionReport.ReportTagGroup
-                        {
-                            Signature = group.Key.Tag.ToString(),
-                            Name = "", // TODO: Figure out how to handle this :/
-                        };
+                        if (group.Key == null || group.Key.Tag == "????")
+                            continue; // TODO: Add better handling for this
 
-                        if (cache.TagCache.TagDefinitions == null || !cache.TagCache.TagDefinitions.TagDefinitionExists(group.Key))
-                            //new PrecursorWarning($"Tag definition for tag group {group.Key.Tag} not implemented");
-                            continue;
+                        var tagGroup = $"{group.Key.Tag}";
+                        var filteredGroup = Regex.Replace(tagGroup, @"[<>*\\ /:]", "_");
+
+                        var reportTagGroup = new TagDefinitionReportTagGroup(tagGroup);
 
                         foreach (var tag in group.ToList()) 
                         {
-                            var validator = new TagDataValidiator(cache, stream);
+                            var validator = new TagDefinitionValidator(cache, stream);
 
-                            var reportTagInstance = new TagDefinitionReport.ReportTagInstance { Name = tag.Name };
+                            var reportTagInstance = new TagDefinitionReportTagInstance(tag.Name);
+
+                            if (cache.TagCache.TagDefinitions == null || !cache.TagCache.TagDefinitions.TagDefinitionExists(group.Key))
+                            {
+                                reportTagInstance.Errors.Add($"Tag definition for tag group {group.Key.Tag} not implemented");
+                                continue;
+                            }
 
                             try 
                             {
@@ -136,11 +146,17 @@ namespace Precursor.Tags.Definitions.Resolvers
                             reportTagGroup.Tags.Add(reportTagInstance);
                         }
 
-                        reportCacheFile.Groups.Add(reportTagGroup);
+                        var groupPath = $"Reports\\TagDefinitions\\{buildInfo.GetBuild()}\\{fileName}\\{filteredGroup}\\{filteredGroup}.json";
+
+                        reportCacheFile.Groups.Add(groupPath);
+                        TagDefinitionReportTagGroup.GenerateReportTagGroup(reportTagGroup, groupPath);
                     }
                 }
 
-                buildReport.Files.Add(reportCacheFile);
+                var filePath = $"Reports\\TagDefinitions\\{buildInfo.GetBuild()}\\{fileName}\\{fileName}.json";
+
+                buildReport.Files.Add(filePath);
+                TagDefinitionReportCacheFile.GenerateReportCacheFiles(reportCacheFile, filePath);
             }
 
             Program.TagDefinitionReport.AddEntry(buildReport);

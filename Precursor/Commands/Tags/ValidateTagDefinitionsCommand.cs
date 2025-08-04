@@ -1,5 +1,6 @@
 ﻿using Precursor.Cache;
 using Precursor.Common;
+using Precursor.Tags.Definitions.Reports;
 using Precursor.Tags.Definitions.Resolvers;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,8 @@ namespace Precursor.Commands.Tags
 
                 TagDefinitionResolver.ParseDefinitions(buildInfo);
             }
+
+            TagDefinitionReportProperties.GenerateProperties();
 
             return true;
         }

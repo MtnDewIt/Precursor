@@ -28,7 +28,7 @@ namespace Precursor.Commands.Builds
             if (args.Count > 1)
                 return new PrecursorError($"Incorrect amount of arguments supplied");
 
-            string filePath = args.Count == 1 ? args[0] : Program.PrecursorInput;
+            string filePath = args.Count == 1 ? args[0] : Program.ConfigPath;
 
             if (!File.Exists(filePath))
                 return new PrecursorError($"Unable to locate file \"{filePath}\"");

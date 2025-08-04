@@ -38,7 +38,7 @@ namespace Precursor.Tags.Definitions
             foreach (var line in output.Split('\r', '\n'))
             {
                 var trimmed = line.Trim();
-                if (trimmed.StartsWith("WARNING:") || trimmed.StartsWith("ERROR"))
+                if (trimmed.Contains("[WARNING]:") || trimmed.Contains("[ERROR]:") || trimmed.StartsWith("WARNING") || trimmed.StartsWith("ERROR"))
                     Problems.Add(trimmed);
             }
 

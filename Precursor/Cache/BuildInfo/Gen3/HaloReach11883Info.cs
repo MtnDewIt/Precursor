@@ -26,10 +26,12 @@ namespace Precursor.Cache.BuildInfo.Gen3
         };
 
         public List<string> CurrentCacheFiles;
+        public List<string> CurrentResourceFiles;
 
         public HaloReach11883Info()
         {
             CurrentCacheFiles = new List<string>();
+            CurrentResourceFiles = new List<string>();
         }
 
         public override bool VerifyBuildInfo(BuildTableProperties.BuildTableEntry build)
@@ -73,7 +75,7 @@ namespace Precursor.Cache.BuildInfo.Gen3
 
                 if (fileInfo.Name.StartsWith("cache_") || fileInfo.Name.StartsWith("tags_") || string.IsNullOrEmpty(fileInfo.Extension)) 
                 {
-                    CurrentCacheFiles.Add(blob);
+                    CurrentResourceFiles.Add(blob);
                     validFiles++;
                 }
                 else
@@ -104,6 +106,6 @@ namespace Precursor.Cache.BuildInfo.Gen3
         public override List<string> GetCurrentMapFiles() => null;
         public override List<string> GetCurrentCacheFiles() => CurrentCacheFiles;
         public override List<string> GetCurrentSharedFiles() => null;
-        public override List<string> GetCurrentResourceFiles() => null;
+        public override List<string> GetCurrentResourceFiles() => CurrentResourceFiles;
     }
 }

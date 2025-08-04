@@ -39,7 +39,7 @@ namespace Precursor.Commands.Builds
             if (!Path.Exists(buildPath))
                 return new PrecursorError($"Unable to locate directory \"{buildPath}\"");
 
-            var inputData = File.ReadAllText(Program.PrecursorInput);
+            var inputData = File.ReadAllText(Program.ConfigPath);
 
             // TODO: Add JSON File Verification
             // Try/Catch?? Throws Throwable (Java Joke)
@@ -85,7 +85,7 @@ namespace Precursor.Commands.Builds
 
             var outputData = handler.Serialize(buildProperties);
 
-            File.WriteAllText(Program.PrecursorInput, outputData);
+            File.WriteAllText(Program.ConfigPath, outputData);
 
             Console.WriteLine($"Sucessfully updated path for {build} build");
 

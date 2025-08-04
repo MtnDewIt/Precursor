@@ -115,7 +115,7 @@ namespace Precursor.Cache.BuildInfo.GenHaloOnline
                             continue;
                         }
 
-                        CurrentCacheFiles.Add(file);
+                        CurrentMapFiles.Add(file);
                         validFiles++;
                     }
                     else

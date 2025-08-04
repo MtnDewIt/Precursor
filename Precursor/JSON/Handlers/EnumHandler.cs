@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace Precursor.Cache.BuildTable.Handlers
+namespace Precursor.JSON.Handlers
 {
     public class EnumHandler : JsonConverter<Enum>
     {

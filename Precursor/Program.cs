@@ -14,12 +14,12 @@ namespace Precursor
     public class Program
     {
         public static string PrecursorDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string PrecursorInput = Path.Combine(PrecursorDirectory, "Precursor.json");
+        public static string ConfigPath = Path.Combine(PrecursorDirectory, "Config.json");
 
         // TODO: Move these elsewhere
         public static BuildTable BuildTable = new BuildTable();
-        // public static CacheBuildReport CacheBuildReport = new CacheFileReport();
         // public static BlamFileReport BlamFileReport = new BlamFileReport();
+        // public static CacheBuildReport CacheBuildReport = new CacheFileReport();
         public static TagDefinitionReport TagDefinitionReport = new TagDefinitionReport();
 
         static void Main(string[] args)
@@ -28,17 +28,17 @@ namespace Precursor
 
             var isNewFile = false;
 
-            if (!File.Exists(PrecursorInput))
+            if (!File.Exists(ConfigPath))
             {
                 new PrecursorWarning("Unable to locate Precursor.json");
                 new PrecursorWarning("Generating default data...");
-                BuildTableProperties.GenerateProperties(PrecursorInput);
+                BuildTableProperties.GenerateProperties(ConfigPath);
                 isNewFile = true;
             }
 
             if (!isNewFile)
             {
-                var jsonData = File.ReadAllText(PrecursorInput);
+                var jsonData = File.ReadAllText(ConfigPath);
 
                 var handler = new BuildTablePropertiesHandler();
 
