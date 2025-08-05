@@ -6,6 +6,7 @@ using Precursor.Tags.Definitions.Reports;
 using Precursor.Tags.Definitions.Reports.Handlers;
 using SimpleJSON;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -104,16 +105,22 @@ namespace Precursor.Tags.Definitions.Resolvers
                     // TODO 2: Pull valid tag group tables for Gen1 and Gen2 caches.
                     // TODO 3: Somehow get HO tag groups. No clue if this differs between builds.
 
-                    // TODO: Add handling for null tag instances
-                    foreach (var group in cache.TagCache.NonNull().GroupBy(x => x.Group)) 
+                    var tagGroups = cache.TagCache.NonNull().GroupBy(x => x.Group);
+
+                    foreach (var group in tagGroups) 
                     {
                         if (group.Key == null || group.Key.Tag == "????")
                             continue; // TODO: Add better handling for this
+
+                        if (cache.Version == CacheVersion.Halo4 && cache.Platform == CachePlatform.MCC && group.Key.Tag == "weap")
+                            continue; // Skip until fixed
 
                         var tagGroup = $"{group.Key.Tag}";
                         var filteredGroup = Regex.Replace(tagGroup, @"[<>*\\ /:]", "_");
 
                         var reportTagGroup = new TagDefinitionReportTagGroup(tagGroup);
+
+                        Debug.Write($"Parsing Tag Group {tagGroup}\n");
 
                         foreach (var tag in group.ToList()) 
                         {
@@ -146,14 +153,14 @@ namespace Precursor.Tags.Definitions.Resolvers
                             reportTagGroup.Tags.Add(reportTagInstance);
                         }
 
-                        var groupPath = $"Reports\\TagDefinitions\\{buildInfo.GetBuild()}\\{fileName}\\{filteredGroup}\\{filteredGroup}.json";
+                        var groupPath = $"{buildInfo.GetBuild()}\\{fileName}\\{filteredGroup}\\{filteredGroup}.json";
 
                         reportCacheFile.Groups.Add(groupPath);
                         TagDefinitionReportTagGroup.GenerateReportTagGroup(reportTagGroup, groupPath);
                     }
                 }
 
-                var filePath = $"Reports\\TagDefinitions\\{buildInfo.GetBuild()}\\{fileName}\\{fileName}.json";
+                var filePath = $"{buildInfo.GetBuild()}\\{fileName}\\{fileName}.json";
 
                 buildReport.Files.Add(filePath);
                 TagDefinitionReportCacheFile.GenerateReportCacheFiles(reportCacheFile, filePath);

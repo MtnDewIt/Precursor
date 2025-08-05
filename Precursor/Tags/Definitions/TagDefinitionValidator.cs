@@ -211,14 +211,21 @@ namespace Precursor.Tags.Definitions
 
         public static string CaptureConsoleOutput(Action action)
         {
-            using (var sw = new StringWriter())
+            var originalOut = Console.Out;
+            var sw = new StringWriter();
+
+            try
             {
-                var oldOut = Console.Out;
                 Console.SetOut(sw);
                 action();
-                Console.SetOut(oldOut);
-                return sw.ToString();
+                Console.Out.Flush();
             }
+            finally
+            {
+                Console.SetOut(originalOut);
+            }
+
+            return sw.ToString();
         }
     }
 }

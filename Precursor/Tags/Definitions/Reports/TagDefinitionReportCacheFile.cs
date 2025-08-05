@@ -22,7 +22,7 @@ namespace Precursor.Tags.Definitions.Reports
         {
             var outputObject = JsonConvert.SerializeObject(reportCacheFile, Formatting.Indented);
 
-            var fileInfo = new FileInfo(outputPath);
+            var fileInfo = new FileInfo(Path.Combine($"Reports\\TagDefinitions", outputPath));
 
             if (!fileInfo.Directory.Exists)
             {
