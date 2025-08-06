@@ -96,7 +96,7 @@ namespace Precursor.Tags.Definitions.Resolvers
                     continue;
                 }
 
-                var reportCacheFile = new TagDefinitionReportCacheFile(fileName);
+                var reportCacheFile = new TagDefinitionReportCacheFile(Path.GetFileName(file));
 
                 using (var stream = cache.OpenCacheRead()) 
                 {
