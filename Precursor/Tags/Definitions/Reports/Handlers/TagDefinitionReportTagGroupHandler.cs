@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace Precursor.Tags.Definitions.Reports.Handlers
 {
-    public class TagDefinitionReportPropertiesHandler
+    public class TagDefinitionReportTagGroupHandler
     {
         private static List<JsonConverter> Converters { get; set; }
 
-        public TagDefinitionReportPropertiesHandler()
+        public TagDefinitionReportTagGroupHandler()
         {
             Converters = new List<JsonConverter>
             {
@@ -16,7 +16,7 @@ namespace Precursor.Tags.Definitions.Reports.Handlers
             };
         }
 
-        public string Serialize(TagDefinitionReportProperties input)
+        public string Serialize(TagDefinitionReportTagGroup input)
         {
             var settings = new JsonSerializerSettings
             {
@@ -27,7 +27,7 @@ namespace Precursor.Tags.Definitions.Reports.Handlers
             return JsonConvert.SerializeObject(input, settings);
         }
 
-        public TagDefinitionReportProperties Deserialize(string input)
+        public TagDefinitionReportTagGroup Deserialize(string input)
         {
             var settings = new JsonSerializerSettings
             {
@@ -35,9 +35,9 @@ namespace Precursor.Tags.Definitions.Reports.Handlers
                 Formatting = Formatting.Indented
             };
 
-            var properties = JsonConvert.DeserializeObject<TagDefinitionReportProperties>(input, settings);
+            var tagGroup = JsonConvert.DeserializeObject<TagDefinitionReportTagGroup>(input, settings);
 
-            return properties;
+            return tagGroup;
         }
     }
 }

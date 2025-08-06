@@ -1,10 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using Precursor.Reports;
+using Precursor.Tags.Definitions.Reports.Handlers;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Precursor.Tags.Definitions.Reports
 {
@@ -12,6 +9,8 @@ namespace Precursor.Tags.Definitions.Reports
     {
         public string TagGroup;
         public string GroupName;
+        public ReportErrorLevel ErrorLevel;
+        public int TagErrorCount;
         public List<TagDefinitionReportTagInstance> Tags = [];
 
         public TagDefinitionReportTagGroup(string tagGroup, string groupName = null)
@@ -22,7 +21,9 @@ namespace Precursor.Tags.Definitions.Reports
 
         public static void GenerateReportTagGroup(TagDefinitionReportTagGroup reportTagGroup, string outputPath) 
         {
-            var outputObject = JsonConvert.SerializeObject(reportTagGroup, Formatting.Indented);
+            var handler = new TagDefinitionReportTagGroupHandler();
+
+            var outputObject = handler.Serialize(reportTagGroup);
 
             var fileInfo = new FileInfo(Path.Combine($"Reports\\TagDefinitions", outputPath));
 

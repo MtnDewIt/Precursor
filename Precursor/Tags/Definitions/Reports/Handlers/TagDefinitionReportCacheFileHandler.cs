@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace Precursor.Tags.Definitions.Reports.Handlers
 {
-    public class TagDefinitionReportPropertiesHandler
+    public class TagDefinitionReportCacheFileHandler
     {
         private static List<JsonConverter> Converters { get; set; }
 
-        public TagDefinitionReportPropertiesHandler()
+        public TagDefinitionReportCacheFileHandler()
         {
             Converters = new List<JsonConverter>
             {
@@ -16,18 +16,17 @@ namespace Precursor.Tags.Definitions.Reports.Handlers
             };
         }
 
-        public string Serialize(TagDefinitionReportProperties input)
+        public string Serialize(TagDefinitionReportCacheFile input)
         {
             var settings = new JsonSerializerSettings
             {
                 Converters = Converters,
                 Formatting = Formatting.Indented
             };
-
             return JsonConvert.SerializeObject(input, settings);
         }
 
-        public TagDefinitionReportProperties Deserialize(string input)
+        public TagDefinitionReportCacheFile Deserialize(string input)
         {
             var settings = new JsonSerializerSettings
             {
@@ -35,9 +34,9 @@ namespace Precursor.Tags.Definitions.Reports.Handlers
                 Formatting = Formatting.Indented
             };
 
-            var properties = JsonConvert.DeserializeObject<TagDefinitionReportProperties>(input, settings);
+            var cacheFile = JsonConvert.DeserializeObject<TagDefinitionReportCacheFile>(input, settings);
 
-            return properties;
+            return cacheFile;
         }
     }
 }

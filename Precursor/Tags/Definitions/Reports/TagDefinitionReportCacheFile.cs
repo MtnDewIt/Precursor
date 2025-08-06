@@ -1,16 +1,15 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using Precursor.Reports;
+using Precursor.Tags.Definitions.Reports.Handlers;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Precursor.Tags.Definitions.Reports
 {
     public class TagDefinitionReportCacheFile
     {
         public string FileName;
+        public ReportErrorLevel ErrorLevel;
+        public int GroupErrorCount;
         public List<string> Groups = [];
 
         public TagDefinitionReportCacheFile(string fileName) 
@@ -20,7 +19,9 @@ namespace Precursor.Tags.Definitions.Reports
 
         public static void GenerateReportCacheFiles(TagDefinitionReportCacheFile reportCacheFile, string outputPath) 
         {
-            var outputObject = JsonConvert.SerializeObject(reportCacheFile, Formatting.Indented);
+            var handler = new TagDefinitionReportCacheFileHandler();
+
+            var outputObject = handler.Serialize(reportCacheFile);
 
             var fileInfo = new FileInfo(Path.Combine($"Reports\\TagDefinitions", outputPath));
 

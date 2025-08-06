@@ -1,12 +1,8 @@
 ﻿using Precursor.Cache;
-using Precursor.Cache.BuildTable;
+using Precursor.Reports;
 using Precursor.Tags.Definitions.Reports.Handlers;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Precursor.Tags.Definitions.Reports
 {
@@ -22,11 +18,15 @@ namespace Precursor.Tags.Definitions.Reports
         public class ReportBuildEntry
         {
             public CacheBuild Build;
+            public ReportErrorLevel ErrorLevel;
+            public int FileErrorCount;
             public List<string> Files = [];
 
-            public ReportBuildEntry(CacheBuild build, List<string> files)
+            public ReportBuildEntry(CacheBuild build, ReportErrorLevel errorLevel, int errorCount, List<string> files)
             {
                 Build = build;
+                ErrorLevel = errorLevel;
+                FileErrorCount = errorCount;
                 Files = files;
             }
         }
@@ -37,7 +37,7 @@ namespace Precursor.Tags.Definitions.Reports
 
             foreach (var build in Program.TagDefinitionReport.GetBuildTable())
             {
-                properties.Builds.Add(new ReportBuildEntry(build.Build, build.Files));
+                properties.Builds.Add(new ReportBuildEntry(build.Build, build.ErrorLevel, build.FileErrorCount, build.Files));
             }
 
             var handler = new TagDefinitionReportPropertiesHandler();

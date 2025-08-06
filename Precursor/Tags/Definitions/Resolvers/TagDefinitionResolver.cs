@@ -2,6 +2,7 @@
 using Precursor.Cache.BuildInfo;
 using Precursor.Cache.BuildTable.Handlers;
 using Precursor.Common;
+using Precursor.Reports;
 using Precursor.Tags.Definitions.Reports;
 using Precursor.Tags.Definitions.Reports.Handlers;
 using SimpleJSON;
@@ -150,8 +151,20 @@ namespace Precursor.Tags.Definitions.Resolvers
                                 reportTagInstance.Errors.AddRange(validator.Problems);
                             }
 
+                            if (reportTagInstance.Errors.Count > 0)
+                            {
+                                reportTagGroup.TagErrorCount++;
+                            }
+
                             reportTagGroup.Tags.Add(reportTagInstance);
                         }
+
+                        if (reportTagGroup.TagErrorCount > 0) 
+                        {
+                            reportCacheFile.GroupErrorCount++;
+                        }
+
+                        reportTagGroup.ErrorLevel = ParseErrorLevel(reportTagGroup.TagErrorCount, reportTagGroup.Tags.Count);
 
                         var groupPath = $"{buildInfo.GetBuild()}\\{fileName}\\{filteredGroup}\\{filteredGroup}.json";
 
@@ -160,13 +173,36 @@ namespace Precursor.Tags.Definitions.Resolvers
                     }
                 }
 
+                if (reportCacheFile.GroupErrorCount > 0) 
+                {
+                    buildReport.FileErrorCount++;
+                }
+
+                reportCacheFile.ErrorLevel = ParseErrorLevel(reportCacheFile.GroupErrorCount, reportCacheFile.Groups.Count);
+
                 var filePath = $"{buildInfo.GetBuild()}\\{fileName}\\{fileName}.json";
 
                 buildReport.Files.Add(filePath);
                 TagDefinitionReportCacheFile.GenerateReportCacheFiles(reportCacheFile, filePath);
             }
 
+            buildReport.ErrorLevel = ParseErrorLevel(buildReport.FileErrorCount, buildReport.Files.Count);
+
             Program.TagDefinitionReport.AddEntry(buildReport);
+        }
+
+        public static ReportErrorLevel ParseErrorLevel(int currentCount, int totalCount) 
+        {
+            if (currentCount == 0)
+                return ReportErrorLevel.None;
+
+            if (currentCount > 0 && currentCount < totalCount)
+                return ReportErrorLevel.Intermediate;
+
+            if (currentCount == totalCount)
+                return ReportErrorLevel.All;
+
+            return ReportErrorLevel.All;
         }
     }
 }

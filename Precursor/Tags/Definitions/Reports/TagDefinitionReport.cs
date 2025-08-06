@@ -1,4 +1,5 @@
 ﻿using Precursor.Cache;
+using Precursor.Reports;
 using System.Collections.Generic;
 
 namespace Precursor.Tags.Definitions.Reports
@@ -15,6 +16,8 @@ namespace Precursor.Tags.Definitions.Reports
         public class ReportBuild
         {
             public CacheBuild Build;
+            public ReportErrorLevel ErrorLevel;
+            public int FileErrorCount;
             public List<string> Files = [];
 
             public ReportBuild(CacheBuild build)
