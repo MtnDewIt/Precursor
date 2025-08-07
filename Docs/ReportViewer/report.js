@@ -1,14 +1,12 @@
-// Configuration (This is kinda bad :/)
+// (This is kinda bad :/)
 const ROOT_FILE_PATH = 'Reports/TagDefinitions/Reports.json';
 
-// State
 let database = null;
 let currentBuild = null;
 let currentFile = null;
 let currentGroup = null;
 let currentTag = null;
 
-// DOM elements
 const statusDiv = document.getElementById('status');
 const buildsDiv = document.getElementById('builds');
 const filesDiv = document.getElementById('files');
@@ -16,7 +14,6 @@ const groupsDiv = document.getElementById('groups');
 const tagsDiv = document.getElementById('tags');
 const errorsDiv = document.getElementById('errors');
 
-// Auto-load database when page loads
 document.addEventListener('DOMContentLoaded', loadDatabase);
 
 async function loadDatabase() 
@@ -25,7 +22,6 @@ async function loadDatabase()
     {
         showStatus('Loading database...', 'info');
 
-        // Load the root file from the static path
         const rootData = await loadJsonFile(ROOT_FILE_PATH);
 
         if (!rootData) 
@@ -38,10 +34,6 @@ async function loadDatabase()
             throw new Error('Invalid root file format. Expected Builds array.');
         }
 
-        // Get the base path from the root file path
-        const rootPath = ROOT_FILE_PATH.substring(0, ROOT_FILE_PATH.lastIndexOf('/') + 1);
-
-        // Load the complete database structure
         database = await loadCompleteDatabase(rootData);
 
         if (database && database.Builds && database.Builds.length > 0) 
@@ -74,6 +66,8 @@ async function loadCompleteDatabase(rootData)
         const buildEntry = 
         {
             Build: build.Build,
+            ErrorLevel : build.ErrorLevel,
+            FileErrorCount : build.FileErrorCount,
             Files: []
         };
 
@@ -89,6 +83,8 @@ async function loadCompleteDatabase(rootData)
                 const fileEntry = 
                 {
                     FileName: fileData.FileName || filePath.split('/').pop(),
+                    ErrorLevel: fileData.ErrorLevel,
+                    GroupErrorCount: fileData.GroupErrorCount,
                     Groups: []
                 };
 
@@ -105,6 +101,8 @@ async function loadCompleteDatabase(rootData)
                         {
                             TagGroup: groupData.TagGroup,
                             GroupName: groupData.GroupName,
+                            ErrorLevel: groupData.ErrorLevel,
+                            TagErrorCount: groupData.TagErrorCount,
                             Tags: groupData.Tags || []
                         };
 
@@ -115,6 +113,7 @@ async function loadCompleteDatabase(rootData)
                         console.warn(`Failed to load group file: ${groupPath}`, error);
                     }
                 }
+
                 buildEntry.Files.push(fileEntry);
             } 
             catch (error) 
@@ -122,8 +121,10 @@ async function loadCompleteDatabase(rootData)
                 console.warn(`Failed to load file: ${filePath}`, error);
             }
         }
+
         result.Builds.push(buildEntry);
     }
+
     return result;
 }
 
@@ -187,6 +188,8 @@ function displayBuilds()
         item.className = 'list-item';
         item.innerHTML = `${build.Build}<span class="tag-count"> (${build.Files.length} files)</span>`;
 
+        errorLevel(build.ErrorLevel, item);
+
         item.addEventListener('click', () => selectBuild(index, item));
         buildsDiv.appendChild(item);
     });
@@ -219,6 +222,8 @@ function displayFiles()
         item.className = 'list-item';
         item.innerHTML = `${file.FileName}<span class="tag-count"> (${file.Groups.length} groups)</span>`;
 
+        errorLevel(file.ErrorLevel, item);
+
         item.addEventListener('click', () => selectFile(index, item));
         filesDiv.appendChild(item);
     });
@@ -250,6 +255,8 @@ function displayGroups()
         const item = document.createElement('div');
         item.className = 'list-item';
         item.innerHTML = `<strong>${group.TagGroup}</strong><span class="tag-count"> (${group.Tags.length} tags)</span><br><small>${group.GroupName}</small>`;
+
+        errorLevel(group.ErrorLevel, item);
 
         item.addEventListener('click', () => selectGroup(index, item));
         groupsDiv.appendChild(item);
@@ -329,6 +336,21 @@ function displayErrors()
         item.textContent = error;
         errorsDiv.appendChild(item);
     });
+}
+
+function errorLevel(errorLevel, element)
+{
+    switch (errorLevel)
+    {
+        case "None":
+            element.classList.add('none');
+            break;
+        case "Intermediate":
+            element.classList.add('intermediate');
+            break;
+        case "All":
+            element.classList.add('all');
+    }
 }
 
 function clearSelection(columnType) 

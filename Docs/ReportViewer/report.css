@@ -74,17 +74,17 @@ body
 
 .list-item.none
 {
-    background: #59a63a;
+    background: #d4edda;
 }
 
 .list-item.intermediate
 {
-    background: #e07c23;
+    background: #ffebbf;
 }
 
 .list-item.all
 {
-    background: #e8182d;
+    background: #ffe6e6;
 }
 
 .list-item.selected 
