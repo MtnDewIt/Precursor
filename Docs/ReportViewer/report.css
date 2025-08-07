@@ -72,10 +72,28 @@ body
     background: #f0f0f0;
 }
 
+.list-item.none
+{
+    background: #59a63a;
+}
+
+.list-item.intermediate
+{
+    background: #e07c23;
+}
+
+.list-item.all
+{
+    background: #e8182d;
+}
+
 .list-item.selected 
 {
+    border: 5px solid #007cba;
+    /*
     background: #007cba;
     color: white;
+    */
 }
 
 .error-item 

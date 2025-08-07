@@ -185,7 +185,7 @@ function displayBuilds()
     {
         const item = document.createElement('div');
         item.className = 'list-item';
-        item.innerHTML = `${build.Build}<span class="tag-count">(${build.Files.length} files)</span>`;
+        item.innerHTML = `${build.Build}<span class="tag-count"> (${build.Files.length} files)</span>`;
 
         item.addEventListener('click', () => selectBuild(index, item));
         buildsDiv.appendChild(item);
@@ -217,7 +217,7 @@ function displayFiles()
     {
         const item = document.createElement('div');
         item.className = 'list-item';
-        item.innerHTML = `${file.FileName}<span class="tag-count">(${file.Groups.length} groups)</span>`;
+        item.innerHTML = `${file.FileName}<span class="tag-count"> (${file.Groups.length} groups)</span>`;
 
         item.addEventListener('click', () => selectFile(index, item));
         filesDiv.appendChild(item);
@@ -249,7 +249,7 @@ function displayGroups()
     {
         const item = document.createElement('div');
         item.className = 'list-item';
-        item.innerHTML = `<strong>${group.TagGroup}</strong><br><small>${group.GroupName}</small><span class="tag-count">(${group.Tags.length} tags)</span>`;
+        item.innerHTML = `<strong>${group.TagGroup}</strong><span class="tag-count"> (${group.Tags.length} tags)</span><br><small>${group.GroupName}</small>`;
 
         item.addEventListener('click', () => selectGroup(index, item));
         groupsDiv.appendChild(item);
@@ -281,7 +281,16 @@ function displayTags()
     {
         const item = document.createElement('div');
         item.className = 'list-item';
-        item.innerHTML = `${tag.TagName}<span class="tag-count">(${tag.Errors.length} errors)</span>`;
+        item.innerHTML = `${tag.TagName}<span class="tag-count"> (${tag.Errors.length} errors)</span>`;
+
+        if (tag.Errors.length > 0)
+        {
+            item.classList.add('all');
+        }
+        else if (!tag.Errors.length)
+        {
+            item.classList.add("none");
+        }
 
         item.addEventListener('click', () => selectTag(index, item));
         tagsDiv.appendChild(item);
