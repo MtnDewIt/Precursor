@@ -143,6 +143,7 @@ namespace Precursor.Tags.Definitions.Resolvers
                             {
                                 reportTagInstance.Errors.Add($"Failed to validate tag {tag}: {ex.Message}");
                                 reportTagGroup.Tags.Add(reportTagInstance);
+                                reportTagGroup.TagErrorCount++;
                                 continue;
                             }
 
