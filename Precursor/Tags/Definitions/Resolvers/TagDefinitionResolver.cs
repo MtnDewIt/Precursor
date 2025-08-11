@@ -121,7 +121,7 @@ namespace Precursor.Tags.Definitions.Resolvers
 
                         var reportTagGroup = new TagDefinitionReportTagGroup(tagGroup);
 
-                        Debug.Write($"Parsing Tag Group {tagGroup}\n");
+                        Debug.Write($"{fileInfo.Name}: Parsing Tag Group {tagGroup}\n");
 
                         foreach (var tag in group.ToList()) 
                         {
