@@ -14,7 +14,7 @@ namespace Precursor.Cache.BuildInfo.Gen2
     {
         public static readonly CacheBuild Build = CacheBuild.Halo2Vista;
 
-        public static readonly CacheVersion Version = CacheVersion.Halo2Vista;
+        public static readonly CacheVersion Version = CacheVersion.Halo2PC;
 
         public static readonly CachePlatform Platform = CachePlatform.Original;
 

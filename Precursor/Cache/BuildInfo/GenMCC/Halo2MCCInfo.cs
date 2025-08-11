@@ -14,7 +14,7 @@ namespace Precursor.Cache.BuildInfo.GenMCC
     {
         public static readonly CacheBuild Build = CacheBuild.Halo2MCC;
 
-        public static readonly CacheVersion Version = CacheVersion.Halo2Retail;
+        public static readonly CacheVersion Version = CacheVersion.Halo2PC;
 
         public static readonly CachePlatform Platform = CachePlatform.MCC;
 
