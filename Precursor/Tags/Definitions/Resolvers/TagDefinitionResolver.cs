@@ -1,11 +1,9 @@
-﻿using Precursor.Cache;
+﻿using Newtonsoft.Json;
+using Precursor.Cache;
 using Precursor.Cache.BuildInfo;
-using Precursor.Cache.BuildTable.Handlers;
 using Precursor.Common;
 using Precursor.Reports;
 using Precursor.Tags.Definitions.Reports;
-using Precursor.Tags.Definitions.Reports.Handlers;
-using SimpleJSON;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -14,7 +12,6 @@ using System.Text.RegularExpressions;
 using TagTool.Cache;
 using TagTool.Cache.HaloOnline;
 using TagTool.Cache.Monolithic;
-using TagTool.Commands.Tags;
 
 namespace Precursor.Tags.Definitions.Resolvers
 {
@@ -23,13 +20,21 @@ namespace Precursor.Tags.Definitions.Resolvers
         public static void ParseDefinitions(BuildInfoEntry buildInfo)
         {
             var files = buildInfo.GetCurrentCacheFiles();
+            var build = buildInfo.GetBuild();
 
-            var buildReport = new TagDefinitionReport.ReportBuild(buildInfo.GetBuild());
+            var buildReport = new TagDefinitionReport.TagDefinitionReportBuild(build);
 
             foreach (var file in files) 
             {
                 var fileName = Path.GetFileNameWithoutExtension(file);
+                var filePath = $"{build}\\{fileName}\\{fileName}.json";
                 var fileInfo = new FileInfo(file);
+                var outputFileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\TagDefinitions\\{filePath}");
+
+                if (!outputFileInfo.Directory.Exists)
+                {
+                    outputFileInfo.Directory.Create();
+                }
 
                 GameCache cache = null;
 
@@ -97,7 +102,22 @@ namespace Precursor.Tags.Definitions.Resolvers
                     continue;
                 }
 
-                var reportCacheFile = new TagDefinitionReportCacheFile(Path.GetFileName(file));
+                using var fileStream = new StreamWriter(outputFileInfo.FullName);
+                using var fileWriter = new JsonTextWriter(fileStream)
+                {
+                    Formatting = Formatting.Indented,
+                };
+
+                fileWriter.WriteStartObject();
+                fileWriter.WritePropertyName("FileName");
+                fileWriter.WriteValue(Path.GetFileName(file));
+
+                fileWriter.WritePropertyName("Groups");
+                fileWriter.WriteStartArray();
+
+                var tagGroups = cache.TagCache.NonNull().GroupBy(x => x.Group);
+                var tagGroupCount = tagGroups.Count();
+                var tagGroupErrorCount = 0;
 
                 using (var stream = cache.OpenCacheRead()) 
                 {
@@ -105,8 +125,6 @@ namespace Precursor.Tags.Definitions.Resolvers
                     // This is only possible with Gen3 and Gen4 caches.
                     // TODO 2: Pull valid tag group tables for Gen1 and Gen2 caches.
                     // TODO 3: Somehow get HO tag groups. No clue if this differs between builds.
-
-                    var tagGroups = cache.TagCache.NonNull().GroupBy(x => x.Group);
 
                     foreach (var group in tagGroups) 
                     {
@@ -118,20 +136,53 @@ namespace Precursor.Tags.Definitions.Resolvers
 
                         var tagGroup = $"{group.Key.Tag}";
                         var filteredGroup = Regex.Replace(tagGroup, @"[<>*\\ /:]", "_");
+                        var tagCount = group.Count();
+                        var tagErrorCount = 0;
+                        var groupPath = $"{buildInfo.GetBuild()}\\{fileName}\\{filteredGroup}\\{filteredGroup}.json";
+                        var groupOutputInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\TagDefinitions\\{groupPath}");
 
-                        var reportTagGroup = new TagDefinitionReportTagGroup(tagGroup);
+                        if (!groupOutputInfo.Directory.Exists)
+                        {
+                            groupOutputInfo.Directory.Create();
+                        }
 
                         Debug.Write($"{fileInfo.Name}: Parsing Tag Group {tagGroup}\n");
+
+                        using var groupStream = new StreamWriter(groupOutputInfo.FullName);
+                        using var groupWriter = new JsonTextWriter(groupStream)
+                        {
+                            Formatting = Formatting.Indented,
+                        };
+
+                        groupWriter.WriteStartObject();
+                        groupWriter.WritePropertyName("TagGroup");
+                        groupWriter.WriteValue(tagGroup);
+
+                        groupWriter.WritePropertyName("GroupName");
+                        groupWriter.WriteValue("");
+
+                        groupWriter.WritePropertyName("Tags");
+                        groupWriter.WriteStartArray();
 
                         foreach (var tag in group.ToList()) 
                         {
                             var validator = new TagDefinitionValidator(cache, stream);
 
-                            var reportTagInstance = new TagDefinitionReportTagInstance(tag.Name);
+                            var errorCount = 0;
+
+                            groupWriter.WriteStartObject();
+                            groupWriter.WritePropertyName("TagName");
+                            groupWriter.WriteValue(tag.Name);
+
+                            groupWriter.WritePropertyName("Errors");
+                            groupWriter.WriteStartArray();
 
                             if (cache.TagCache.TagDefinitions == null || !cache.TagCache.TagDefinitions.TagDefinitionExists(group.Key))
                             {
-                                reportTagInstance.Errors.Add($"Tag definition for tag group {group.Key.Tag} not implemented");
+                                groupWriter.WriteValue($"Tag definition for tag group {group.Key.Tag} not implemented");
+                                groupWriter.WriteEndArray();
+                                groupWriter.WriteEndObject();
+                                tagErrorCount++;
                                 continue;
                             }
 
@@ -141,50 +192,67 @@ namespace Precursor.Tags.Definitions.Resolvers
                             }
                             catch (Exception ex) 
                             {
-                                reportTagInstance.Errors.Add($"Failed to validate tag {tag}: {ex.Message}");
-                                reportTagGroup.Tags.Add(reportTagInstance);
-                                reportTagGroup.TagErrorCount++;
+                                groupWriter.WriteValue($"Failed to validate tag {tag}: {ex.Message}");
+                                groupWriter.WriteEndArray();
+                                groupWriter.WriteEndObject();
+                                tagErrorCount++;
                                 continue;
                             }
 
                             if (validator.Problems.Count > 0) 
                             {
-                                reportTagInstance.Errors.AddRange(validator.Problems);
+                                foreach (var problem in validator.Problems) 
+                                {
+                                    groupWriter.WriteValue(problem);
+                                    errorCount++;
+                                }
                             }
 
-                            if (reportTagInstance.Errors.Count > 0)
+                            groupWriter.WriteEndArray();
+
+                            groupWriter.WriteEndObject();
+
+                            if (errorCount > 0)
                             {
-                                reportTagGroup.TagErrorCount++;
+                                tagErrorCount++;
                             }
-
-                            reportTagGroup.Tags.Add(reportTagInstance);
                         }
 
-                        if (reportTagGroup.TagErrorCount > 0) 
+                        groupWriter.WriteEndArray();
+
+                        groupWriter.WritePropertyName("ErrorLevel");
+                        groupWriter.WriteValue(ParseErrorLevel(tagErrorCount, tagCount).ToString());
+
+                        groupWriter.WritePropertyName("TagErrorCount");
+                        groupWriter.WriteValue(tagErrorCount);
+
+                        groupWriter.WriteEndObject();
+
+                        if (tagErrorCount > 0)
                         {
-                            reportCacheFile.GroupErrorCount++;
+                            tagGroupErrorCount++;
                         }
 
-                        reportTagGroup.ErrorLevel = ParseErrorLevel(reportTagGroup.TagErrorCount, reportTagGroup.Tags.Count);
-
-                        var groupPath = $"{buildInfo.GetBuild()}\\{fileName}\\{filteredGroup}\\{filteredGroup}.json";
-
-                        reportCacheFile.Groups.Add(groupPath);
-                        TagDefinitionReportTagGroup.GenerateReportTagGroup(reportTagGroup, groupPath);
+                        fileWriter.WriteValue(groupPath);
                     }
                 }
 
-                if (reportCacheFile.GroupErrorCount > 0) 
+                fileWriter.WriteEndArray();
+
+                fileWriter.WritePropertyName("ErrorLevel");
+                fileWriter.WriteValue(ParseErrorLevel(tagGroupErrorCount, tagGroupCount).ToString());
+
+                fileWriter.WritePropertyName("GroupErrorCount");
+                fileWriter.WriteValue(tagGroupErrorCount);
+
+                fileWriter.WriteEndObject();
+
+                if (tagGroupErrorCount > 0) 
                 {
                     buildReport.FileErrorCount++;
                 }
 
-                reportCacheFile.ErrorLevel = ParseErrorLevel(reportCacheFile.GroupErrorCount, reportCacheFile.Groups.Count);
-
-                var filePath = $"{buildInfo.GetBuild()}\\{fileName}\\{fileName}.json";
-
                 buildReport.Files.Add(filePath);
-                TagDefinitionReportCacheFile.GenerateReportCacheFiles(reportCacheFile, filePath);
             }
 
             buildReport.ErrorLevel = ParseErrorLevel(buildReport.FileErrorCount, buildReport.Files.Count);

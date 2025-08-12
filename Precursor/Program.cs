@@ -30,7 +30,7 @@ namespace Precursor
 
             if (!File.Exists(ConfigPath))
             {
-                new PrecursorWarning("Unable to locate Precursor.json");
+                new PrecursorWarning("Unable to locate Config.json");
                 new PrecursorWarning("Generating default data...");
                 BuildTableProperties.GenerateProperties(ConfigPath);
                 isNewFile = true;
