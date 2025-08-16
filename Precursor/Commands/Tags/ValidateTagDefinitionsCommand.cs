@@ -3,6 +3,7 @@ using Precursor.Common;
 using Precursor.Tags.Definitions.Resolvers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Precursor.Commands.Tags
@@ -35,14 +36,14 @@ namespace Precursor.Commands.Tags
             {
                 foreach (var buildInfo in buildTable)
                 {
-                    TagDefinitionResolver.ParseDefinitions(buildInfo);
+                    TagDefinitionResolver.ParseDefinitionsAsync(buildInfo);
                 }
             }
             else
             {
                 var buildInfo = buildTable.Where(x => x.GetBuild() == build).FirstOrDefault();
 
-                TagDefinitionResolver.ParseDefinitions(buildInfo);
+                TagDefinitionResolver.ParseDefinitionsAsync(buildInfo);
             }
 
             Program.TagDefinitionReport.GenerateProperties();

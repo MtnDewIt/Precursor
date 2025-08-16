@@ -36,8 +36,12 @@ namespace Precursor.Tags.Definitions.Reports
 
         public void GenerateProperties()
         {
-            var filePath = $"{Program.PrecursorDirectory}\\Reports\\TagDefinitions\\Reports.json";
-            var fileInfo = new FileInfo(filePath);
+            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\TagDefinitions\\Reports.json");
+
+            if (!fileInfo.Directory.Exists)
+            {
+                fileInfo.Directory.Create();
+            }
 
             using var sw = new StreamWriter(fileInfo.FullName);
             using var writer = new JsonTextWriter(sw) 

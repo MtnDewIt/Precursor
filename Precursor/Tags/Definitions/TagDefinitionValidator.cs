@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Precursor.Serialization;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TagTool.Cache;
 using TagTool.Common;
 using TagTool.Tags;
@@ -32,16 +31,13 @@ namespace Precursor.Tags.Definitions
 
         public void VerifyTag(CachedTag tag)
         {
-            object data = null;
+            var deserializer = new Deserializer(Cache.Version, Cache.Platform);
 
-            var output = CaptureConsoleOutput(() => data = Cache.Deserialize(Stream, tag));
-            foreach (var line in output.Split('\r', '\n'))
-            {
-                var trimmed = line.Trim();
-                if (trimmed.Contains("[WARNING]:") || trimmed.Contains("[ERROR]:") || trimmed.StartsWith("WARNING") || trimmed.StartsWith("ERROR"))
-                    Problems.Add(trimmed);
-            }
+            object data = deserializer.DeserializeTagInstance(Cache, Stream, tag);
 
+            Problems.AddRange(deserializer.ErrorLog);
+
+            // TODO: Inline into deserializer (Reduces time complexity, as currently we iterate through the structure twice, once to read, and once it validate)
             VerifyData(data);
         }
 
@@ -207,25 +203,6 @@ namespace Precursor.Tags.Definitions
                 case TypeCode.UInt64: return (ulong)value;
                 default: throw new ArgumentOutOfRangeException(nameof(value));
             }
-        }
-
-        public static string CaptureConsoleOutput(Action action)
-        {
-            var originalOut = Console.Out;
-            var sw = new StringWriter();
-
-            try
-            {
-                Console.SetOut(sw);
-                action();
-                Console.Out.Flush();
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-            }
-
-            return sw.ToString();
         }
     }
 }

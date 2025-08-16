@@ -18,7 +18,7 @@ namespace Precursor.Commands.Builds
 
             "UpdateBuildTable <Build> <Path>",
             "Updates the specified entry in the precursor build table properties\n" + 
-            "Updating any entires in the build table properties will require the\n" + 
+            "Updating any entries in the build table properties will require the\n" + 
             "build table to be reverified. See \"VerifyBuilds\" for more information.\n" +
             "Verifying the build table using an external file will override any\n" +
             "modifications to the build table made using this command." 
@@ -87,7 +87,7 @@ namespace Precursor.Commands.Builds
 
             File.WriteAllText(Program.ConfigPath, outputData);
 
-            Console.WriteLine($"Sucessfully updated path for {build} build");
+            Console.WriteLine($"Successfully updated path for {build} build");
 
             return true;
         }
