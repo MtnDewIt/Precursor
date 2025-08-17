@@ -33,7 +33,7 @@ namespace Precursor.Tags.Definitions.Resolvers
 
             var parallelOptions = new ParallelOptions
             {
-                MaxDegreeOfParallelism = -1
+                MaxDegreeOfParallelism = Environment.ProcessorCount
             };
 
             Parallel.ForEach(files, parallelOptions, file =>
@@ -172,7 +172,7 @@ namespace Precursor.Tags.Definitions.Resolvers
 
             var parallelOptions = new ParallelOptions
             {
-                MaxDegreeOfParallelism = -1
+                MaxDegreeOfParallelism = Environment.ProcessorCount
             };
 
             Parallel.ForEach(tagGroups, parallelOptions, group => 

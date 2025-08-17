@@ -22,16 +22,20 @@ namespace Precursor.Serialization
 {
     public class Deserializer
     {
-        private CacheVersion Version { get; set; }
-        private CachePlatform Platform { get; set; }
+        private readonly CacheVersion Version;
+        private readonly CachePlatform Platform;
+        private readonly Stack<string> PathStack;
 
-        public List<string> ErrorLog { get; set; }
+        public readonly List<string> Problems;
+
+        public string CurrentFieldPath => string.Join(".", PathStack.Reverse());
 
         public Deserializer(CacheVersion version, CachePlatform platform) 
         {
             Version = version;
             Platform = platform;
-            ErrorLog = new List<string>();
+            PathStack = new Stack<string>();
+            Problems = new List<string>();
         }
 
         public object DeserializeTagInstance(GameCache cache, Stream stream, CachedTag instance)
@@ -74,25 +78,25 @@ namespace Precursor.Serialization
             if (reader.Length == 0)
                 return null;
 
-            var result = DeserializeObjectStruct(reader, context, info);
+            var result = DeserializeObjectStruct(cache, reader, context, info);
 
             context.EndDeserialize(info, result);
 
             return result;
         }
 
-        public object DeserializeObjectStruct(EndianReader reader, ISerializationContext context, TagStructureInfo info) 
+        public object DeserializeObjectStruct(GameCache cache, EndianReader reader, ISerializationContext context, TagStructureInfo info) 
         {
             var baseOffset = reader.BaseStream.Position;
             var instance = Activator.CreateInstance(info.Types[0]);
 
             var fieldEnumerable = ObjectStructure.GetObjectFieldEnumerable(info.Types[0], info.Version, info.CachePlatform);
 
-            if (fieldEnumerable.ErrorLog.Count > 0)
-                ErrorLog.AddRange(fieldEnumerable.ErrorLog);
+            if (fieldEnumerable.Problems.Count > 0)
+                Problems.AddRange(fieldEnumerable.Problems);
 
             foreach (var tagFieldInfo in fieldEnumerable)
-                DeserializeObjectProperty(reader, context, instance, tagFieldInfo, baseOffset);
+                DeserializeObjectProperty(cache, reader, context, instance, tagFieldInfo, baseOffset);
 
             if (info.TotalSize > 0)
                 reader.BaseStream.Position = baseOffset + info.TotalSize;
@@ -100,7 +104,7 @@ namespace Precursor.Serialization
             return instance;
         }
 
-        public void DeserializeObjectProperty(EndianReader reader, ISerializationContext context, object instance, TagFieldInfo tagFieldInfo, long baseOffset)
+        public void DeserializeObjectProperty(GameCache cache, EndianReader reader, ISerializationContext context, object instance, TagFieldInfo tagFieldInfo, long baseOffset)
         {
             var attr = tagFieldInfo.Attribute;
 
@@ -131,33 +135,38 @@ namespace Precursor.Serialization
                 {
                     if (b != 0)
                     {
-                        ErrorLog.Add($"Non-zero padding found in {tagFieldInfo.FieldInfo.DeclaringType.FullName}.{tagFieldInfo.FieldInfo.Name} = {b}");
+                        Problems.Add($"Non-zero padding found in {tagFieldInfo.FieldInfo.DeclaringType.FullName}.{tagFieldInfo.FieldInfo.Name} = {b}");
                         break;
                     }
                 }
             }
             else
             {
-                var value = DeserializeObjectValue(reader, context, attr, tagFieldInfo.FieldType);
+                PathStack.Push(tagFieldInfo.FieldInfo.Name);
+
+                var value = DeserializeObjectValue(cache, reader, context, attr, tagFieldInfo.FieldType);
 
                 tagFieldInfo.SetValue(instance, value);
+
+                PathStack.Pop();
             }
         }
 
-        public object DeserializeObjectValue(EndianReader reader, ISerializationContext context, TagFieldAttribute valueInfo, Type valueType) 
+        public object DeserializeObjectValue(GameCache cache, EndianReader reader, ISerializationContext context, TagFieldAttribute valueInfo, Type valueType) 
         {
             if (valueType.IsPrimitive)
                 return DeserializeObjectPrimitiveValue(reader, valueType);
 
-            return DeserializeObjectComplexValue(reader, context, valueInfo, valueType);
+            return DeserializeObjectComplexValue(cache, reader, context, valueInfo, valueType);
         }
 
-        public static object DeserializeObjectPrimitiveValue(EndianReader reader, Type valueType) 
+        public object DeserializeObjectPrimitiveValue(EndianReader reader, Type valueType) 
         {
             switch (Type.GetTypeCode(valueType))
             {
                 case TypeCode.Single:
-                    return PrimitiveValueCache.For(reader.ReadSingle());
+                    float value = DeserializeObjectSingle(reader);
+                    return PrimitiveValueCache.For(value);
                 case TypeCode.Byte:
                     return PrimitiveValueCache.For(reader.ReadByte());
                 case TypeCode.Int16:
@@ -183,12 +192,24 @@ namespace Precursor.Serialization
             }
         }
 
-        public object DeserializeObjectComplexValue(EndianReader reader, ISerializationContext context, TagFieldAttribute valueInfo, Type valueType) 
+        public float DeserializeObjectSingle(EndianReader reader) 
+        {
+            var value = reader.ReadSingle();
+
+            if (float.IsInfinity(value) && float.IsNaN(value)) 
+            {
+                Problems.Add($"Invalid float value: {CurrentFieldPath} = {value}");
+            }
+
+            return value;
+        }
+
+        public object DeserializeObjectComplexValue(GameCache cache, EndianReader reader, ISerializationContext context, TagFieldAttribute valueInfo, Type valueType) 
         {
             // Indirect objects
             // TODO: Remove ResourceReference hax, the Indirect flag wasn't available when I generated the tag structures
             if (valueInfo != null && (valueInfo.Flags & TagFieldFlags.Pointer) != 0)
-                return DeserializeObjectIndirectValue(reader, context, valueType);
+                return DeserializeObjectIndirectValue(cache, reader, context, valueType);
 
             var compression = TagFieldCompression.None;
 
@@ -208,7 +229,7 @@ namespace Precursor.Serialization
 
             // TagInstance = Tag reference
             if (valueType == typeof(CachedTag))
-                return DeserializeObjectTagReference(reader, context, valueInfo);
+                return DeserializeObjectTagReference(cache, reader, context, valueInfo);
 
             // ResourceAddress = Resource address
             if (valueType == typeof(CacheAddress))
@@ -276,7 +297,7 @@ namespace Precursor.Serialization
             if (valueType == typeof(RealPlane2d))
                 return new RealPlane2d(reader.ReadSingle(compression), reader.ReadSingle(compression), reader.ReadSingle(compression));
             if (valueType == typeof(RealPlane3d))
-                return new RealPlane3d(reader.ReadSingle(compression), reader.ReadSingle(compression), reader.ReadSingle(compression), reader.ReadSingle(compression));
+                return DeserializeObjectRealPlane3d(reader, compression);
             if (valueType == typeof(RealMatrix4x3))
                 return new RealMatrix4x3(
                     reader.ReadSingle(compression), reader.ReadSingle(compression), reader.ReadSingle(compression),
@@ -292,12 +313,11 @@ namespace Precursor.Serialization
 
             // StringID
             if (valueType == typeof(StringId))
-                return new StringId(reader.ReadUInt32());
+                return DeserializeObjectStringId(cache, reader);
 
             // Angle (radians)
             if (valueType == typeof(Angle))
                 return Angle.FromRadians(reader.ReadSingle(compression));
-
 
             if (valueType == typeof(DatumHandle))
                 return new DatumHandle(reader.ReadUInt32());
@@ -305,31 +325,31 @@ namespace Precursor.Serialization
             // Non-byte array = Inline array
             // TODO: Define more clearly in general what constitutes a data reference and what doesn't
             if (valueType.IsArray)
-                return DeserializeObjectInlineArray(reader, context, valueInfo, valueType);
+                return DeserializeObjectInlineArray(cache, reader, context, valueInfo, valueType);
 
             // List = Tag block
             if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(List<>))
-                return DeserializeObjectTagBlockAsList(reader, context, valueType);
+                return DeserializeObjectTagBlockAsList(cache, reader, context, valueType);
 
             // actual tag blocks, used in resource definitions
             if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(TagBlock<>))
-                return DeserializeObjectTagBlock(reader, context, valueType);
+                return DeserializeObjectTagBlock(cache, reader, context, valueType);
 
             if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(D3DStructure<>))
-                return DeserializeObjectD3DStructure(reader, context, valueType);
+                return DeserializeObjectD3DStructure(cache, reader, context, valueType);
 
             // Ranges
             if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(Bounds<>))
-                return DeserializeObjectRange(reader, context, valueType);
+                return DeserializeObjectRange(cache, reader, context, valueType);
 
             if (valueType == typeof(ComputeShaderReference))
-                return DeserializeObjectComputeShaderReference(reader, context);
+                return DeserializeObjectComputeShaderReference(cache, reader, context);
 
             if (valueType == typeof(VertexShaderReference))
-                return DeserializeObjectVertexShaderReference(reader, context);
+                return DeserializeObjectVertexShaderReference(cache, reader, context);
 
             if (valueType == typeof(PixelShaderReference))
-                return DeserializeObjectPixelShaderReference(reader, context);
+                return DeserializeObjectPixelShaderReference(cache, reader, context);
 
             if (valueType == typeof(PlatformUnsignedValue))
                 return DeserializeObjectPlatfornUnsignedValue(reader);
@@ -347,7 +367,50 @@ namespace Precursor.Serialization
                 return DeserializeObjectFlagBits(reader, valueInfo, valueType);
 
             // Assume the value is a structure
-            return DeserializeObjectStruct(reader, context, TagStructure.GetTagStructureInfo(valueType, Version, Platform));
+            return DeserializeObjectStruct(cache, reader, context, TagStructure.GetTagStructureInfo(valueType, Version, Platform));
+        }
+
+        public object DeserializeObjectRealPlane3d(EndianReader reader, TagFieldCompression compression) 
+        {
+            var value = new RealPlane3d(reader.ReadSingle(compression), reader.ReadSingle(compression), reader.ReadSingle(compression), reader.ReadSingle(compression));
+
+            if (!IsValidNormal3d(value.Normal)) 
+            {
+                Problems.Add($"Invalid plane normal: {CurrentFieldPath} = {value}");
+            }
+
+            return value;
+        }
+
+        public static bool IsValidNormal3d(RealVector3d normal)
+        {
+            float magnitude = RealVector3d.Magnitude(normal);
+
+            if (float.IsNaN(magnitude) && float.IsInfinity(magnitude))
+            {
+                return false;
+            }
+
+            return magnitude < 0.0001f || Math.Abs(magnitude - 1.0f) < 0.0001f;
+        }
+
+        public object DeserializeObjectStringId(GameCache cache, EndianReader reader) 
+        {
+            var value = new StringId(reader.ReadUInt32());
+
+            if (value != StringId.Invalid || value.Value != 0xFFFFFFFF) 
+            {
+                try
+                {
+                    cache.StringTable.GetString(value);
+                }
+                catch
+                {
+                    Problems.Add($"Invalid stringId: {CurrentFieldPath} {value}");
+                }
+            }
+
+            return value;
         }
 
         public object DeserializeObjectFlagBits(EndianReader reader, TagFieldAttribute valueInfo, Type valueType) 
@@ -373,8 +436,15 @@ namespace Precursor.Serialization
             }
             else
             {
-                if (valueInfo.EnumType != null)
+                if (valueInfo.EnumType != null) 
+                {
                     value = CastObjectEnumValue(valueType, valueInfo.EnumType, value);
+                }
+
+                if (!ObjectEnumHelper.IsEnumDefined(valueType, value))
+                {
+                    Problems.Add($"Enum out of range: {CurrentFieldPath} = {value}");
+                }
 
                 return value;
             }
@@ -388,7 +458,7 @@ namespace Precursor.Serialization
             }
             catch (ArgumentOutOfRangeException)
             {
-                ErrorLog.Add($"Enum value out of range {enumInfo.Type.FullName} = {value}");
+                Problems.Add($"Enum out of range for version {Version}:{Platform}: {CurrentFieldPath} = {value}");
 
                 return CastObjectEnumValue(enumInfo.Type, valueInfo.EnumType, value);
             }
@@ -415,7 +485,7 @@ namespace Precursor.Serialization
             }
         }
 
-        public object DeserializeObjectTagBlockAsList(EndianReader reader, ISerializationContext context, Type valueType) 
+        public object DeserializeObjectTagBlockAsList(GameCache cache, EndianReader reader, ISerializationContext context, Type valueType) 
         {
             var result = Activator.CreateInstance(valueType);
             var elementType = valueType.GenericTypeArguments[0];
@@ -436,7 +506,7 @@ namespace Precursor.Serialization
 
             for (var i = 0; i < count; i++)
             {
-                var element = DeserializeObjectValue(reader, context, null, elementType);
+                var element = DeserializeObjectValue(cache,reader, context, null, elementType);
 
                 addMethod.Invoke(result, new[] { element });
             }
@@ -446,7 +516,7 @@ namespace Precursor.Serialization
             return result;
         }
 
-        public object DeserializeObjectTagBlock(EndianReader reader, ISerializationContext context, Type valueType) 
+        public object DeserializeObjectTagBlock(GameCache cache, EndianReader reader, ISerializationContext context, Type valueType) 
         {
             var result = Activator.CreateInstance(valueType);
             var elementType = valueType.GenericTypeArguments[0];
@@ -468,7 +538,7 @@ namespace Precursor.Serialization
 
             for (var i = 0; i < count; i++)
             {
-                valuesToAdd[i] = DeserializeObjectValue(reader, context, null, elementType);
+                valuesToAdd[i] = DeserializeObjectValue(cache, reader, context, null, elementType);
             }
 
             ReflectionHelpers.GetAddRangeBoxedDelegate(valueType)(result, valuesToAdd);
@@ -479,7 +549,7 @@ namespace Precursor.Serialization
             return result;
         }
 
-        public object DeserializeObjectD3DStructure(EndianReader reader, ISerializationContext context, Type valueType) 
+        public object DeserializeObjectD3DStructure(GameCache cache, EndianReader reader, ISerializationContext context, Type valueType) 
         {
             var result = Activator.CreateInstance(valueType);
             var elementType = valueType.GenericTypeArguments[0];
@@ -489,14 +559,14 @@ namespace Precursor.Serialization
 
             reader.BaseStream.Position = context.AddressToOffset((uint)startOffset + 4, pointer);
 
-            var definition = DeserializeObjectValue(reader, context, null, elementType);
+            var definition = DeserializeObjectValue(cache,reader, context, null, elementType);
             valueType.GetField("Definition").SetValue(result, definition);
 
             reader.BaseStream.Position = startOffset + 0xC;
             return result;
         }
 
-        public object DeserializeObjectIndirectValue(EndianReader reader, ISerializationContext context, Type valueType) 
+        public object DeserializeObjectIndirectValue(GameCache cache, EndianReader reader, ISerializationContext context, Type valueType) 
         {
             var pointer = reader.ReadUInt32();
 
@@ -506,13 +576,13 @@ namespace Precursor.Serialization
             var nextOffset = reader.BaseStream.Position;
             reader.BaseStream.Position = context.AddressToOffset((uint)nextOffset - 4, pointer);
 
-            var result = DeserializeObjectValue(reader, context, null, valueType);
+            var result = DeserializeObjectValue(cache, reader, context, null, valueType);
             reader.BaseStream.Position = nextOffset;
 
             return result;
         }
 
-        public CachedTag DeserializeObjectTagReference(EndianReader reader, ISerializationContext context, TagFieldAttribute valueInfo) 
+        public CachedTag DeserializeObjectTagReference(GameCache cache, EndianReader reader, ISerializationContext context, TagFieldAttribute valueInfo) 
         {
             Tag group = Tag.Null;
 
@@ -534,9 +604,14 @@ namespace Precursor.Serialization
                     {
                         var groups = string.Join(", ", valueInfo.ValidTags);
 
-                        ErrorLog.Add($"Tag reference with invalid group found during deserialization:"
+                        Problems.Add($"Tag reference with invalid group found during deserialization:"
                             + $"\n - {result.Name}.{result.Group.Tag}"
                             + $"\n - valid groups: {groups}");
+                    }
+
+                    if (!cache.TagCache.TagDefinitions.TagDefinitionExists(result.Group.Tag) || (cache is not GameCacheHaloOnlineBase && !cache.TagCache.IsTagIndexValid((int)(result.ID & 0xFFFF))))
+                    {
+                        Problems.Add($"Invalid tag reference: {CurrentFieldPath} = {result}");
                     }
                 }
 
@@ -607,14 +682,14 @@ namespace Precursor.Serialization
             return tagData;
         }
 
-        public Array DeserializeObjectInlineArray(EndianReader reader, ISerializationContext context, TagFieldAttribute valueInfo, Type valueType) 
+        public Array DeserializeObjectInlineArray(GameCache cache,EndianReader reader, ISerializationContext context, TagFieldAttribute valueInfo, Type valueType) 
         {
             var elementCount = valueInfo.Length;
             var elementType = valueType.GetElementType();
             var result = Array.CreateInstance(elementType, elementCount);
 
             for (var i = 0; i < elementCount; i++)
-                result.SetValue(DeserializeObjectValue(reader, context, null, elementType), i);
+                result.SetValue(DeserializeObjectValue(cache,reader, context, null, elementType), i);
 
             return result;
         }
@@ -634,11 +709,11 @@ namespace Precursor.Serialization
             }
         }
 
-        public object DeserializeObjectRange(EndianReader reader, ISerializationContext context, Type rangeType) 
+        public object DeserializeObjectRange(GameCache cache, EndianReader reader, ISerializationContext context, Type rangeType) 
         {
             var boundsType = rangeType.GenericTypeArguments[0];
-            var min = DeserializeObjectValue(reader, context, null, boundsType);
-            var max = DeserializeObjectValue(reader, context, null, boundsType);
+            var min = DeserializeObjectValue(cache, reader, context, null, boundsType);
+            var max = DeserializeObjectValue(cache, reader, context, null, boundsType);
 
             return Activator.CreateInstance(rangeType, min, max);
         }
@@ -699,12 +774,12 @@ namespace Precursor.Serialization
             }
         }
 
-        public ComputeShaderReference DeserializeObjectComputeShaderReference(EndianReader reader, ISerializationContext context) 
+        public ComputeShaderReference DeserializeObjectComputeShaderReference(GameCache cache, EndianReader reader, ISerializationContext context) 
         {
             return null;
         }
 
-        public PixelShaderReference DeserializeObjectPixelShaderReference(EndianReader reader, ISerializationContext context) 
+        public PixelShaderReference DeserializeObjectPixelShaderReference(GameCache cache, EndianReader reader, ISerializationContext context) 
         {
             var endPosition = reader.BaseStream.Position + 0x04;
 
@@ -716,13 +791,13 @@ namespace Precursor.Serialization
             var headerOffset = context.AddressToOffset((uint)(reader.BaseStream.Position - 4), headerAddress);
             reader.SeekTo(headerOffset);
 
-            var header = (PixelShaderHeader)DeserializeObjectStruct(reader, context, ObjectStructure.GetObjectStructureInfo(typeof(PixelShaderHeader), Version, Platform));
+            var header = (PixelShaderHeader)DeserializeObjectStruct(cache, reader, context, ObjectStructure.GetObjectStructureInfo(typeof(PixelShaderHeader), Version, Platform));
 
             if (header.ShaderDataAddress == 0)
                 return null;
 
             var debugHeaderOffset = reader.Position;
-            var debugHeader = (ShaderDebugHeader)DeserializeObjectStruct(reader, context, ObjectStructure.GetObjectStructureInfo(typeof(ShaderDebugHeader), Version, Platform));
+            var debugHeader = (ShaderDebugHeader)DeserializeObjectStruct(cache, reader, context, ObjectStructure.GetObjectStructureInfo(typeof(ShaderDebugHeader), Version, Platform));
 
             if ((debugHeader.Magic >> 16) != 0x102A)
                 return null;
@@ -788,7 +863,7 @@ namespace Precursor.Serialization
             };
         }
 
-        public VertexShaderReference DeserializeObjectVertexShaderReference(EndianReader reader, ISerializationContext context) 
+        public VertexShaderReference DeserializeObjectVertexShaderReference(GameCache cache, EndianReader reader, ISerializationContext context) 
         {
             var endPosition = reader.BaseStream.Position + 0x04;
 
@@ -800,13 +875,13 @@ namespace Precursor.Serialization
             var headerOffset = context.AddressToOffset((uint)(reader.BaseStream.Position - 4), headerAddress);
             reader.SeekTo(headerOffset);
 
-            var header = (VertexShaderHeader)DeserializeObjectStruct(reader, context, ObjectStructure.GetObjectStructureInfo(typeof(VertexShaderHeader), Version, Platform));
+            var header = (VertexShaderHeader)DeserializeObjectStruct(cache, reader, context, ObjectStructure.GetObjectStructureInfo(typeof(VertexShaderHeader), Version, Platform));
 
             if (header.ShaderDataAddress == 0)
                 return null;
 
             var debugHeaderOffset = reader.Position;
-            var debugHeader = (ShaderDebugHeader)DeserializeObjectStruct(reader, context, ObjectStructure.GetObjectStructureInfo(typeof(ShaderDebugHeader), Version, Platform));
+            var debugHeader = (ShaderDebugHeader)DeserializeObjectStruct(cache, reader, context, ObjectStructure.GetObjectStructureInfo(typeof(ShaderDebugHeader), Version, Platform));
 
             if ((debugHeader.Magic >> 16) != 0x102A)
                 return null;

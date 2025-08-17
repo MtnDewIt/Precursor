@@ -14,7 +14,7 @@ namespace Precursor.Serialization
     {
         private readonly List<TagFieldInfo> TagFieldInfos = new List<TagFieldInfo> { };
 
-        public List<string> ErrorLog { get; set; }
+        public List<string> Problems { get; set; }
 
         public TagStructureInfo Info { get; set; }
 
@@ -48,7 +48,7 @@ namespace Precursor.Serialization
         public ObjectFieldEnumerable(TagStructureInfo info) 
         {
             Info = info;
-            ErrorLog = new List<string>();
+            Problems = new List<string>();
             ParseFieldEnumerable();
         }
 
@@ -125,7 +125,7 @@ namespace Precursor.Serialization
             var typename = Info.Types[0].FullName.Replace("TagTool.", "").Replace("Tags.Definitions.", "");
 
             if (offset != expectedSize)
-                ErrorLog.Add($"Bad Size. Version: {Info.Version}:{Info.CachePlatform}, Type: '{typename}', Expected: 0x{expectedSize:X}, Actual: 0x{offset:X}");
+                Problems.Add($"Bad Size. Version: {Info.Version}:{Info.CachePlatform}, Type: '{typename}', Expected: 0x{expectedSize:X}, Actual: 0x{offset:X}");
         }
     }
 }

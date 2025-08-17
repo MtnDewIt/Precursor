@@ -32,6 +32,9 @@ namespace Precursor.Commands.Tags
 
             var buildTable = Program.BuildTable.GetEntryTable();
 
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             if (build == CacheBuild.All)
             {
                 foreach (var buildInfo in buildTable)
@@ -47,6 +50,9 @@ namespace Precursor.Commands.Tags
             }
 
             Program.TagDefinitionReport.GenerateProperties();
+
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.Elapsed);
 
             return true;
         }
