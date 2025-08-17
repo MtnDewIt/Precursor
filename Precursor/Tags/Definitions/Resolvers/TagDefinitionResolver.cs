@@ -14,8 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using TagTool.Cache;
-using TagTool.Cache.HaloOnline;
-using TagTool.Cache.Monolithic;
+using TagTool.Common;
 using TagTool.Tags;
 
 namespace Precursor.Tags.Definitions.Resolvers
@@ -71,70 +70,18 @@ namespace Precursor.Tags.Definitions.Resolvers
                 outputFileInfo.Directory.Create();
             }
 
-            GameCache cache = null;
+            GameCache cache;
 
             try
             {
-                cache = GameCache.Open(file);
-
-                switch (build)
-                {
-                    case CacheBuild.HaloXbox:
-                    case CacheBuild.HaloPC:
-                    case CacheBuild.HaloCustomEdition:
-                    case CacheBuild.Halo1MCC:
-                        var cacheGen1 = cache as GameCacheGen1;
-                        break;
-                    case CacheBuild.Halo2Alpha:
-                    case CacheBuild.Halo2Beta:
-                    case CacheBuild.Halo2Xbox:
-                    case CacheBuild.Halo2Vista:
-                    case CacheBuild.Halo2MCC:
-                        var cacheGen2 = cache as GameCacheGen2;
-                        break;
-                    case CacheBuild.Halo3Beta:
-                    case CacheBuild.Halo3Retail:
-                    case CacheBuild.Halo3MythicRetail:
-                    case CacheBuild.Halo3ODST:
-                    case CacheBuild.HaloReach:
-                    case CacheBuild.Halo3MCC:
-                    case CacheBuild.Halo3ODSTMCC:
-                    case CacheBuild.HaloReachMCC:
-                        var cacheGen3 = cache as GameCacheGen3;
-                        break;
-                    case CacheBuild.HaloReach11883:
-                        var cacheGenMonolithic = cache as GameCacheMonolithic;
-                        break;
-                    case CacheBuild.HaloOnlineED:
-                    case CacheBuild.HaloOnline106708:
-                    case CacheBuild.HaloOnline235640:
-                    case CacheBuild.HaloOnline301003:
-                    case CacheBuild.HaloOnline327043:
-                    case CacheBuild.HaloOnline372731:
-                    case CacheBuild.HaloOnline416097:
-                    case CacheBuild.HaloOnline430475:
-                    case CacheBuild.HaloOnline454665:
-                    case CacheBuild.HaloOnline449175:
-                    case CacheBuild.HaloOnline498295:
-                    case CacheBuild.HaloOnline530605:
-                    case CacheBuild.HaloOnline532911:
-                    case CacheBuild.HaloOnline554482:
-                    case CacheBuild.HaloOnline571627:
-                    case CacheBuild.HaloOnline604673:
-                    case CacheBuild.HaloOnline700123:
-                        var cacheGenHaloOnline = cache as GameCacheHaloOnline;
-                        break;
-                    case CacheBuild.Halo4Retail:
-                    case CacheBuild.Halo4MCC:
-                    case CacheBuild.Halo2AMPMCC:
-                        var cacheGen4 = cache as GameCacheGen4;
-                        break;
-                }
+                cache = GameCache.Open(fileInfo);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                new PrecursorWarning($"Failed to open cache file \"{fileInfo.Name}\": {ex.Message}");
-                return new FileProcessResult { HasErrors = true };
+                return new FileProcessResult 
+                { 
+                    HasErrors = true 
+                };
             }
 
             var hasGroupErrors = ProcessCacheFileAsync(cache, file, outputFileInfo, build, fileName);
@@ -316,6 +263,60 @@ namespace Precursor.Tags.Definitions.Resolvers
             {
                 GroupPath = groupPath,
                 HasErrors = tagErrorCount > 0
+            };
+        }
+
+        public static Dictionary<Tag, string> GetTagGroups(GameCache cache, CacheBuild build) 
+        {
+            // Might need to store supported groups as static tables until full support is implemented.
+
+            return build switch
+            {
+                CacheBuild.HaloXbox or
+                CacheBuild.HaloPC or
+                CacheBuild.HaloCustomEdition or
+                CacheBuild.Halo1MCC => null,
+
+                CacheBuild.Halo2Alpha or
+                CacheBuild.Halo2Beta or
+                CacheBuild.Halo2Xbox or
+                CacheBuild.Halo2Vista or
+                CacheBuild.Halo2MCC => null,
+
+                CacheBuild.Halo3Beta or
+                CacheBuild.Halo3Retail or
+                CacheBuild.Halo3MythicRetail or
+                CacheBuild.Halo3ODST or
+                CacheBuild.HaloReach or
+                CacheBuild.Halo3MCC or
+                CacheBuild.Halo3ODSTMCC or
+                CacheBuild.HaloReachMCC => (cache as GameCacheGen3).TagCacheGen3.Groups.ToDictionary(g => g.Tag, g => g.Name),
+
+                CacheBuild.HaloReach11883 => null,
+
+                CacheBuild.HaloOnlineED or
+                CacheBuild.HaloOnline106708 or
+                CacheBuild.HaloOnline235640 or
+                CacheBuild.HaloOnline301003 or
+                CacheBuild.HaloOnline327043 or
+                CacheBuild.HaloOnline372731 or
+                CacheBuild.HaloOnline416097 or
+                CacheBuild.HaloOnline430475 or
+                CacheBuild.HaloOnline454665 or
+                CacheBuild.HaloOnline449175 or
+                CacheBuild.HaloOnline498295 or
+                CacheBuild.HaloOnline530605 or
+                CacheBuild.HaloOnline532911 or
+                CacheBuild.HaloOnline554482 or
+                CacheBuild.HaloOnline571627 or
+                CacheBuild.HaloOnline604673 or
+                CacheBuild.HaloOnline700123 => null,
+
+                CacheBuild.Halo4Retail or
+                CacheBuild.Halo4MCC or
+                CacheBuild.Halo2AMPMCC => (cache as GameCacheGen4).TagCacheGen4.Groups.ToDictionary(g => g.Tag, g => g.Name),
+
+                _ => null,
             };
         }
 
