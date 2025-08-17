@@ -3,6 +3,7 @@ using Precursor.Cache;
 using Precursor.Cache.BuildInfo;
 using Precursor.Common;
 using Precursor.Reports;
+using Precursor.Serialization;
 using Precursor.Tags.Definitions.Reports;
 using System;
 using System.Collections.Concurrent;
@@ -147,6 +148,8 @@ namespace Precursor.Tags.Definitions.Resolvers
 
         private static bool ProcessCacheFileAsync(GameCache cache, string file, FileInfo outputFileInfo, CacheBuild build, string fileName) 
         {
+            var deserializer = new Deserializer(cache.Version, cache.Platform);
+
             using var fileStream = new StreamWriter(outputFileInfo.FullName);
             using var fileWriter = new JsonTextWriter(fileStream)
             {
@@ -185,7 +188,7 @@ namespace Precursor.Tags.Definitions.Resolvers
 
                 using (var stream = cache.OpenCacheRead())
                 {
-                    var result = ProcessTagGroupAsync(cache, stream, group, build, fileName);
+                    var result = ProcessTagGroupAsync(cache, stream, deserializer, group, build, fileName);
 
                     if (result != null)
                     {
@@ -217,7 +220,7 @@ namespace Precursor.Tags.Definitions.Resolvers
             return tagGroupErrorCount > 0;
         }
 
-        private static TagGroupProcessResult ProcessTagGroupAsync(GameCache cache, Stream stream, IGrouping<TagGroup, CachedTag> group, CacheBuild build, string fileName) 
+        private static TagGroupProcessResult ProcessTagGroupAsync(GameCache cache, Stream stream, Deserializer deserializer, IGrouping<TagGroup, CachedTag> group, CacheBuild build, string fileName) 
         {
             var tagGroup = $"{group.Key.Tag}";
             var filteredGroup = Regex.Replace(tagGroup, @"[<>*\\ /:]", "_");
@@ -249,8 +252,6 @@ namespace Precursor.Tags.Definitions.Resolvers
 
             foreach (var tag in group.ToList())
             {
-                var validator = new TagDefinitionValidator(cache, stream);
-
                 var errorCount = 0;
 
                 groupWriter.WriteStartObject();
@@ -271,7 +272,7 @@ namespace Precursor.Tags.Definitions.Resolvers
 
                 try
                 {
-                    validator.VerifyTag(tag);
+                    deserializer.DeserializeTagInstance(cache, stream, tag);
                 }
                 catch (Exception ex)
                 {
@@ -282,9 +283,9 @@ namespace Precursor.Tags.Definitions.Resolvers
                     continue;
                 }
 
-                if (validator.Problems.Count > 0)
+                if (deserializer.Problems.Count > 0)
                 {
-                    foreach (var problem in validator.Problems)
+                    foreach (var problem in deserializer.Problems)
                     {
                         groupWriter.WriteValue(problem);
                         errorCount++;
