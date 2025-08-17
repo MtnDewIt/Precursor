@@ -148,8 +148,6 @@ namespace Precursor.Tags.Definitions.Resolvers
 
         private static bool ProcessCacheFileAsync(GameCache cache, string file, FileInfo outputFileInfo, CacheBuild build, string fileName) 
         {
-            var deserializer = new Deserializer(cache.Version, cache.Platform);
-
             using var fileStream = new StreamWriter(outputFileInfo.FullName);
             using var fileWriter = new JsonTextWriter(fileStream)
             {
@@ -188,7 +186,7 @@ namespace Precursor.Tags.Definitions.Resolvers
 
                 using (var stream = cache.OpenCacheRead())
                 {
-                    var result = ProcessTagGroupAsync(cache, stream, deserializer, group, build, fileName);
+                    var result = ProcessTagGroupAsync(cache, stream, group, build, fileName);
 
                     if (result != null)
                     {
@@ -220,7 +218,7 @@ namespace Precursor.Tags.Definitions.Resolvers
             return tagGroupErrorCount > 0;
         }
 
-        private static TagGroupProcessResult ProcessTagGroupAsync(GameCache cache, Stream stream, Deserializer deserializer, IGrouping<TagGroup, CachedTag> group, CacheBuild build, string fileName) 
+        private static TagGroupProcessResult ProcessTagGroupAsync(GameCache cache, Stream stream, IGrouping<TagGroup, CachedTag> group, CacheBuild build, string fileName) 
         {
             var tagGroup = $"{group.Key.Tag}";
             var filteredGroup = Regex.Replace(tagGroup, @"[<>*\\ /:]", "_");
@@ -252,6 +250,8 @@ namespace Precursor.Tags.Definitions.Resolvers
 
             foreach (var tag in group.ToList())
             {
+                var deserializer = new Deserializer(cache.Version, cache.Platform);
+
                 var errorCount = 0;
 
                 groupWriter.WriteStartObject();

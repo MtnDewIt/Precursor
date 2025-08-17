@@ -129,15 +129,13 @@ namespace Precursor.Serialization
                     return;
                 }
 
-                var unused = reader.ReadBytes(attr.Length);
-
-                foreach (var b in unused)
+                var unused = reader.ReadBytes(attr.Length).AsSpan();
+                
+                int index = unused.IndexOfAnyExcept((byte)0);
+                
+                if (index != 0) 
                 {
-                    if (b != 0)
-                    {
-                        Problems.Add($"Non-zero padding found in {tagFieldInfo.FieldInfo.DeclaringType.FullName}.{tagFieldInfo.FieldInfo.Name} = {b}");
-                        break;
-                    }
+                    Problems.Add($"Non-zero padding found in {tagFieldInfo.FieldInfo.DeclaringType.FullName}.{tagFieldInfo.FieldInfo.Name} = {index}");
                 }
             }
             else
@@ -406,7 +404,7 @@ namespace Precursor.Serialization
                 }
                 catch
                 {
-                    Problems.Add($"Invalid stringId: {CurrentFieldPath} {value}");
+                    Problems.Add($"Invalid stringId: {CurrentFieldPath} = {value}");
                 }
             }
 
