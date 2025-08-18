@@ -95,6 +95,12 @@ namespace Precursor.Tags.Definitions.Resolvers
 
         private static bool ProcessCacheFileAsync(GameCache cache, string file, FileInfo outputFileInfo, CacheBuild build, string fileName) 
         {
+            var tagGroups = GetTagGroups(cache, build);
+
+            // TODO: Resolve Gen 1, Gen 2, Monolithic and Halo Online tag groups.
+            if (tagGroups == null)
+                return true;
+
             using var fileStream = new StreamWriter(outputFileInfo.FullName);
             using var fileWriter = new JsonTextWriter(fileStream)
             {
@@ -108,15 +114,9 @@ namespace Precursor.Tags.Definitions.Resolvers
             fileWriter.WritePropertyName("Groups");
             fileWriter.WriteStartArray();
 
-            var tagGroups = cache.TagCache.NonNull().GroupBy(x => x.Group);
-            var tagGroupCount = tagGroups.Count();
+            var tagGroupCount = tagGroups.Count;
             var tagGroupErrorCount = 0;
             var groupPaths = new List<string>();
-
-            // TODO: Update this to that it loops through each tag group in the target cache.
-            // This is only possible with Gen3 and Gen4 caches.
-            // TODO 2: Pull valid tag group tables for Gen1 and Gen2 caches.
-            // TODO 3: Somehow get HO tag groups. No clue if this differs between builds.
 
             var parallelOptions = new ParallelOptions
             {
@@ -125,12 +125,6 @@ namespace Precursor.Tags.Definitions.Resolvers
 
             Parallel.ForEach(tagGroups, parallelOptions, group => 
             {
-                if (group.Key == null || group.Key.Tag == "????")
-                    return; // TODO: Add better handling for this
-
-                if (cache.Version == CacheVersion.Halo4 && cache.Platform == CachePlatform.MCC && group.Key.Tag == "weap")
-                    return; // Skip until fixed
-
                 using (var stream = cache.OpenCacheRead())
                 {
                     var result = ProcessTagGroupAsync(cache, stream, group, build, fileName);
@@ -165,11 +159,9 @@ namespace Precursor.Tags.Definitions.Resolvers
             return tagGroupErrorCount > 0;
         }
 
-        private static TagGroupProcessResult ProcessTagGroupAsync(GameCache cache, Stream stream, IGrouping<TagGroup, CachedTag> group, CacheBuild build, string fileName) 
+        private static TagGroupProcessResult ProcessTagGroupAsync(GameCache cache, Stream stream, KeyValuePair<Tag, string> group, CacheBuild build, string fileName) 
         {
-            var tagGroup = $"{group.Key.Tag}";
-            var filteredGroup = Regex.Replace(tagGroup, @"[<>*\\ /:]", "_");
-            var tagCount = group.Count();
+            var filteredGroup = Regex.Replace($"{group.Key}", @"[<>*\\ /:]", "_");
             var tagErrorCount = 0;
             var groupPath = $"{build}\\{fileName}\\{filteredGroup}\\{filteredGroup}.json";
             var groupOutputInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\TagDefinitions\\{groupPath}");
@@ -187,16 +179,21 @@ namespace Precursor.Tags.Definitions.Resolvers
 
             groupWriter.WriteStartObject();
             groupWriter.WritePropertyName("TagGroup");
-            groupWriter.WriteValue(tagGroup);
+            groupWriter.WriteValue($"{group.Key}");
 
             groupWriter.WritePropertyName("GroupName");
-            groupWriter.WriteValue("");
+            groupWriter.WriteValue($"{group.Value}");
 
             groupWriter.WritePropertyName("Tags");
             groupWriter.WriteStartArray();
 
-            foreach (var tag in group.ToList())
+            var tags = cache.TagCache.FindAllInGroup(group.Key);
+
+            foreach (var tag in tags)
             {
+                if (tag.IsInGroup("obje") && cache.Version == CacheVersion.Halo4 && cache.Platform == CachePlatform.MCC)
+                    continue;
+
                 var deserializer = new Deserializer(cache.Version, cache.Platform);
 
                 var errorCount = 0;
@@ -210,7 +207,7 @@ namespace Precursor.Tags.Definitions.Resolvers
 
                 if (cache.TagCache.TagDefinitions == null || !cache.TagCache.TagDefinitions.TagDefinitionExists(group.Key))
                 {
-                    groupWriter.WriteValue($"Tag definition for tag group {group.Key.Tag} not implemented");
+                    groupWriter.WriteValue($"Tag definition for tag group {group.Key} not implemented");
                     groupWriter.WriteEndArray();
                     groupWriter.WriteEndObject();
                     tagErrorCount++;
@@ -252,7 +249,7 @@ namespace Precursor.Tags.Definitions.Resolvers
             groupWriter.WriteEndArray();
 
             groupWriter.WritePropertyName("ErrorLevel");
-            groupWriter.WriteValue(ParseErrorLevel(tagErrorCount, tagCount).ToString());
+            groupWriter.WriteValue(ParseErrorLevel(tagErrorCount, tags.Count()).ToString());
 
             groupWriter.WritePropertyName("TagErrorCount");
             groupWriter.WriteValue(tagErrorCount);
@@ -268,8 +265,6 @@ namespace Precursor.Tags.Definitions.Resolvers
 
         public static Dictionary<Tag, string> GetTagGroups(GameCache cache, CacheBuild build) 
         {
-            // Might need to store supported groups as static tables until full support is implemented.
-
             return build switch
             {
                 CacheBuild.HaloXbox or
