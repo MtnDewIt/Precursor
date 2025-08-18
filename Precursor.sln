@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Precursor", "Precursor\Precursor.csproj", "{D107C22E-F288-4BDA-AEDB-459B57E7D755}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrecursorShell", "PrecursorShell\PrecursorShell.csproj", "{D107C22E-F288-4BDA-AEDB-459B57E7D755}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagTool", "TagTool-NET\TagTool\TagTool.csproj", "{42814DEE-5A94-4901-BDA9-28AFD2D4F5AC}"
 EndProject
