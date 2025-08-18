@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Precursor.Cache;
 using Precursor.Cache.BuildInfo;
-using Precursor.Common;
 using Precursor.Reports;
 using Precursor.Serialization;
 using Precursor.Tags.Definitions.Reports;
@@ -15,7 +14,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using TagTool.Cache;
 using TagTool.Common;
-using TagTool.Tags;
 
 namespace Precursor.Tags.Definitions.Resolvers
 {
@@ -191,9 +189,6 @@ namespace Precursor.Tags.Definitions.Resolvers
 
             foreach (var tag in tags)
             {
-                if (tag.IsInGroup("obje") && cache.Version == CacheVersion.Halo4 && cache.Platform == CachePlatform.MCC)
-                    continue;
-
                 var deserializer = new Deserializer(cache.Version, cache.Platform);
 
                 var errorCount = 0;
