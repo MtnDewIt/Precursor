@@ -26,9 +26,9 @@ namespace PrecursorShell.Serialization
         private readonly CachePlatform Platform;
         private readonly Stack<string> PathStack;
 
-        public readonly List<string> Problems;
+        private string CurrentFieldPath => string.Join(".", PathStack.Reverse());
 
-        public string CurrentFieldPath => string.Join(".", PathStack.Reverse());
+        public readonly List<string> Problems;
 
         public Deserializer(CacheVersion version, CachePlatform platform) 
         {
