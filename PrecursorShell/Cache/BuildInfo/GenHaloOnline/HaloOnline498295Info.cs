@@ -12,7 +12,7 @@ using TagTool.Serialization;
 
 namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
 {
-    public class HaloOnline498295Info : BuildInfoEntry
+    public class HaloOnline498295Info : BuildTableEntry
     {
         public static readonly CacheBuild Build = CacheBuild.HaloOnline498295;
 
@@ -69,7 +69,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
             CurrentSharedFiles = new List<string>();
         }
 
-        public override bool VerifyBuildInfo(BuildTableProperties.BuildTableEntry build)
+        public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
             var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
             var sharedFiles = Directory.EnumerateFiles(build.Path, "*.dat", SearchOption.AllDirectories).ToList();

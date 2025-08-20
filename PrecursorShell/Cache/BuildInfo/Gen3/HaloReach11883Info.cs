@@ -10,7 +10,7 @@ using TagTool.IO;
 
 namespace PrecursorShell.Cache.BuildInfo.Gen3
 {
-    public class HaloReach11883Info : BuildInfoEntry
+    public class HaloReach11883Info : BuildTableEntry
     {
         public static readonly CacheBuild Build = CacheBuild.HaloReach11883;
 
@@ -34,7 +34,7 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
             CurrentResourceFiles = new List<string>();
         }
 
-        public override bool VerifyBuildInfo(BuildTableProperties.BuildTableEntry build)
+        public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
             var files = Directory.EnumerateFiles(build.Path, "blob_index.dat", SearchOption.AllDirectories).ToList();
             var blobs = Directory.EnumerateFiles($@"{build.Path}\blobs", "*.", SearchOption.AllDirectories).ToList();

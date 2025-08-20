@@ -10,7 +10,7 @@ using TagTool.IO;
 
 namespace PrecursorShell.Cache.BuildInfo.Gen1
 {
-    public class HaloXboxInfo : BuildInfoEntry
+    public class HaloXboxInfo : BuildTableEntry
     {
         public static readonly CacheBuild Build = CacheBuild.HaloXbox;
 
@@ -34,7 +34,7 @@ namespace PrecursorShell.Cache.BuildInfo.Gen1
             CurrentCacheFiles = new List<string>();
         }
 
-        public override bool VerifyBuildInfo(BuildTableProperties.BuildTableEntry build)
+        public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
             var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
 

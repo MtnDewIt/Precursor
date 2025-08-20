@@ -34,7 +34,7 @@ namespace PrecursorShell.Tags.Definitions.Reports
 
         public void RemoveEntry(TagDefinitionReportBuild build) => _builds.Remove(build);
 
-        public void GenerateProperties()
+        public void GenerateReport()
         {
             var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\TagDefinitions\\Reports.json");
 

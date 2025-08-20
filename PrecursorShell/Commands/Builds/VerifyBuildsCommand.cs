@@ -1,6 +1,5 @@
-﻿using PrecursorShell.Cache.BuildTable;
-using PrecursorShell.Cache.BuildTable.Handlers;
-using PrecursorShell.Cache.Resolvers;
+﻿using PrecursorShell.Cache.BuildInfo;
+using PrecursorShell.Cache.BuildTable;
 using PrecursorShell.Common;
 using System;
 using System.Collections.Generic;
@@ -28,23 +27,19 @@ namespace PrecursorShell.Commands.Builds
             if (args.Count > 1)
                 return new PrecursorError($"Incorrect amount of arguments supplied");
 
-            string filePath = args.Count == 1 ? args[0] : Program.ConfigPath;
+            string filePath = args.Count == 1 ? args[0] : null;
 
-            if (!File.Exists(filePath))
-                return new PrecursorError($"Unable to locate file \"{filePath}\"");
+            if (args.Count == 1) 
+            {
+                if (!File.Exists(filePath))
+                    return new PrecursorError($"Unable to locate file \"{filePath}\"");
+            }
 
-            var jsonData = File.ReadAllText(filePath);
-
-            BuildTableProperties buildProperties;
+            BuildTableConfig buildTable;
 
             try
             {
-                var handler = new BuildTablePropertiesHandler();
-
-                buildProperties = handler.Deserialize(jsonData);
-
-                // TODO: Throw exception is invalid JSON format
-                // Either do this in the command or in the handler
+                buildTable = BuildTableConfig.ParseConfig(filePath);
             }
             catch (Exception)
             {
@@ -53,13 +48,11 @@ namespace PrecursorShell.Commands.Builds
 
             Program.BuildTable.EmptyTable();
 
-            foreach (var build in buildProperties?.Builds)
+            foreach (var build in buildTable?.Builds)
             {
                 Console.WriteLine($"\nVerifying {build.Build} Cache Files...");
 
-                var resolver = CacheResolver.GetResolver(build);
-
-                var buildTableEntry = resolver?.VerifyBuild(build);
+                var buildTableEntry = BuildTableEntry.GetBuildEntry(build);
 
                 if (buildTableEntry != null)
                 {

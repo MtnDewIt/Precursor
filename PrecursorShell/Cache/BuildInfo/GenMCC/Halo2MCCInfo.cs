@@ -10,7 +10,7 @@ using TagTool.IO;
 
 namespace PrecursorShell.Cache.BuildInfo.GenMCC
 {
-    public class Halo2MCCInfo : BuildInfoEntry
+    public class Halo2MCCInfo : BuildTableEntry
     {
         public static readonly CacheBuild Build = CacheBuild.Halo2MCC;
 
@@ -60,7 +60,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
             CurrentResourceFiles = new List<string>();
         }
 
-        public override bool VerifyBuildInfo(BuildTableProperties.BuildTableEntry build)
+        public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
             var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
             var resourceFiles = Directory.EnumerateFiles(build.Path, "*.dat", SearchOption.AllDirectories).ToList();

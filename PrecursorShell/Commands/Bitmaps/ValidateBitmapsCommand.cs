@@ -29,7 +29,7 @@ namespace PrecursorShell.Commands
             if (!Enum.TryParse(args[0], true, out CacheBuild build))
                 return new PrecursorError($"Invalid build");
 
-            var buildTable = Program.BuildTable.GetEntryTable();
+            var buildTable = Program.BuildTable.BuildInfo;
 
             if (build == CacheBuild.All)
             {

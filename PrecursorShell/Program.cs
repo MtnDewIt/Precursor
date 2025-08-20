@@ -1,6 +1,5 @@
-﻿using PrecursorShell.Cache.BuildTable;
-using PrecursorShell.Cache.BuildTable.Handlers;
-using PrecursorShell.Cache.Resolvers;
+﻿using PrecursorShell.Cache.BuildInfo;
+using PrecursorShell.Cache.BuildTable;
 using PrecursorShell.Commands;
 using PrecursorShell.Commands.Context;
 using PrecursorShell.Common;
@@ -30,27 +29,20 @@ namespace PrecursorShell
 
             if (!File.Exists(ConfigPath))
             {
-                new PrecursorWarning("Unable to locate Config.json");
-                new PrecursorWarning("Generating default data...");
-                BuildTableProperties.GenerateProperties(ConfigPath);
+                new PrecursorWarning("Unable to locate Config.json. Generating default data...");
+                BuildTableConfig.GenerateEmptyConfig();
                 isNewFile = true;
             }
 
             if (!isNewFile)
             {
-                var jsonData = File.ReadAllText(ConfigPath);
+                var buildTable = BuildTableConfig.ParseConfig();
 
-                var handler = new BuildTablePropertiesHandler();
-
-                var cacheObject = handler.Deserialize(jsonData);
-
-                foreach (var build in cacheObject.Builds) 
+                foreach (var build in buildTable.Builds) 
                 {
                     Console.WriteLine($"Verifying {build.Build} Cache Files...");
 
-                    var resolver = CacheResolver.GetResolver(build);
-
-                    var buildTableEntry = resolver?.VerifyBuild(build);
+                    var buildTableEntry = BuildTableEntry.GetBuildEntry(build);
 
                     if (buildTableEntry != null) 
                     {

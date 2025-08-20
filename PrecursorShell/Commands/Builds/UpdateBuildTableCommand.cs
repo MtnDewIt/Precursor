@@ -1,10 +1,9 @@
 ﻿using PrecursorShell.Cache;
-using PrecursorShell.Cache.BuildTable.Handlers;
+using PrecursorShell.Cache.BuildTable;
 using PrecursorShell.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace PrecursorShell.Commands.Builds
 {
@@ -39,16 +38,9 @@ namespace PrecursorShell.Commands.Builds
             if (!Path.Exists(buildPath))
                 return new PrecursorError($"Unable to locate directory \"{buildPath}\"");
 
-            var inputData = File.ReadAllText(Program.ConfigPath);
+            var buildTable = BuildTableConfig.ParseConfig();
 
-            // TODO: Add JSON File Verification
-            // Try/Catch?? Throws Throwable (Java Joke)
-
-            var handler = new BuildTablePropertiesHandler();
-
-            var buildProperties = handler.Deserialize(inputData);
-
-            foreach (var buildEntry in buildProperties.Builds) 
+            foreach (var buildEntry in buildTable.Builds) 
             {
                 if (build == CacheBuild.MCCRetail)
                 {
@@ -83,9 +75,7 @@ namespace PrecursorShell.Commands.Builds
                 }
             }
 
-            var outputData = handler.Serialize(buildProperties);
-
-            File.WriteAllText(Program.ConfigPath, outputData);
+            buildTable.GenerateConfig();
 
             Console.WriteLine($"Successfully updated path for {build} build");
 

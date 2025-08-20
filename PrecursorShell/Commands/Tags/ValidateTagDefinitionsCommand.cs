@@ -30,26 +30,24 @@ namespace PrecursorShell.Commands.Tags
             if (!Enum.TryParse(args[0], true, out CacheBuild build))
                 return new PrecursorError($"Invalid build");
 
-            var buildTable = Program.BuildTable.GetEntryTable();
-
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 
             if (build == CacheBuild.All)
             {
-                foreach (var buildInfo in buildTable)
+                foreach (var buildInfo in Program.BuildTable.BuildInfo)
                 {
                     TagDefinitionResolver.ParseDefinitionsAsync(buildInfo);
                 }
             }
             else
             {
-                var buildInfo = buildTable.Where(x => x.GetBuild() == build).FirstOrDefault();
+                var buildInfo = Program.BuildTable.BuildInfo.Where(x => x.GetBuild() == build).FirstOrDefault();
 
                 TagDefinitionResolver.ParseDefinitionsAsync(buildInfo);
             }
 
-            Program.TagDefinitionReport.GenerateProperties();
+            Program.TagDefinitionReport.GenerateReport();
 
             stopwatch.Stop();
             Console.WriteLine(stopwatch.Elapsed);

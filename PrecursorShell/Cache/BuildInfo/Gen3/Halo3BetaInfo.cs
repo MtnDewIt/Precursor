@@ -10,7 +10,7 @@ using TagTool.IO;
 
 namespace PrecursorShell.Cache.BuildInfo.Gen3
 {
-    public class Halo3BetaInfo : BuildInfoEntry
+    public class Halo3BetaInfo : BuildTableEntry
     {
         public static readonly CacheBuild Build = CacheBuild.Halo3Beta;
 
@@ -41,7 +41,7 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
             CurrentSharedFiles = new List<string>();
         }
 
-        public override bool VerifyBuildInfo(BuildTableProperties.BuildTableEntry build)
+        public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
             var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
 

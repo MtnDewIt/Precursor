@@ -1,0 +1,286 @@
+﻿using PrecursorShell.Cache.BuildInfo.Gen1;
+using PrecursorShell.Cache.BuildInfo.Gen2;
+using PrecursorShell.Cache.BuildInfo.Gen3;
+using PrecursorShell.Cache.BuildInfo.Gen4;
+using PrecursorShell.Cache.BuildInfo.GenHaloOnline;
+using PrecursorShell.Cache.BuildInfo.GenMCC;
+using PrecursorShell.Cache.BuildTable;
+using PrecursorShell.Common;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using TagTool.BlamFile;
+using TagTool.Cache;
+using TagTool.JSON.Handlers;
+using TagTool.JSON.Objects;
+
+namespace PrecursorShell.Cache.BuildInfo
+{
+    public abstract class BuildTableEntry
+    {
+        public abstract CacheBuild GetBuild();
+        public abstract CacheVersion GetVersion();
+        public abstract CachePlatform GetPlatform();
+        public abstract CacheGeneration GetGeneration();
+
+        public abstract string GetResourcePath();
+
+        public abstract List<string> GetBuildStrings();
+
+        public abstract List<string> GetCacheFiles();
+        public abstract List<string> GetSharedFiles();
+        public abstract List<string> GetResourceFiles();
+
+        public abstract List<string> GetCurrentMapFiles();
+        public abstract List<string> GetCurrentCacheFiles();
+        public abstract List<string> GetCurrentSharedFiles();
+        public abstract List<string> GetCurrentResourceFiles();
+
+        public abstract bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build);
+
+        public virtual void ParseCacheFiles()
+        {
+            foreach (var file in GetCacheFiles())
+            {
+                if (!GetCurrentCacheFiles().Any(x => Path.GetFileName(x) == file))
+                {
+                    new PrecursorWarning($"Missing Cache File: {file}");
+                }
+            }
+        }
+
+        public virtual void ParseSharedFiles()
+        {
+            foreach (var file in GetSharedFiles()) 
+            {
+                if (!GetCurrentSharedFiles().Any(x => Path.GetFileName(x) == file)) 
+                {
+                    new PrecursorWarning($"Missing Shared File: {file}");
+                }
+            }
+        }
+
+        public virtual void ParseResourceFiles()
+        {
+            foreach (var file in GetResourceFiles())
+            {
+                if (!GetCurrentResourceFiles().Any(x => Path.GetFileName(x) == file))
+                {
+                    new PrecursorWarning($"Missing Resource File: {file}");
+                }
+            }
+        }
+
+        public virtual bool ParseFileCount(int count) 
+        {
+            if (count == 0) 
+            {
+                new PrecursorWarning("No Valid Files Found in Directory, Skipping Verification...\n");
+                return false;
+            }
+
+            return true;
+        }
+
+        public virtual void GenerateJSON(MapFile mapFile, string fileName, string tempPath) 
+        {
+            var version = GetVersion();
+            var platform = GetPlatform();
+            var path = GetResourcePath().Replace("Resources", "Temp");
+            var mapName = Path.GetFileNameWithoutExtension(fileName);
+
+            var mapObject = new MapObject()
+            {
+                MapName = mapName,
+                MapVersion = mapFile.Version,
+                Header = mapFile.Header,
+                MapFileBlf = mapFile.MapFileBlf,
+                Reports = mapFile.Reports,
+            };
+
+            var handler = new MapObjectHandler(version, platform);
+
+            var jsonData = handler.Serialize(mapObject);
+
+            var fileInfo = new FileInfo(Path.Combine($"{path}", "cache_files", $"{fileName}.json"));
+
+            if (!fileInfo.Directory.Exists)
+            {
+                fileInfo.Directory.Create();
+            }
+
+            File.WriteAllText(fileInfo.FullName, jsonData);
+        }
+
+        public virtual CacheResource GetResourceType(string fileName)
+        {
+            switch (fileName)
+            {
+                case "tags.dat":
+                    return CacheResource.Tags;
+                case "string_ids.dat":
+                    return CacheResource.StringIds;
+                case "audio.dat":
+                    return CacheResource.Audio;
+                case "lightmaps.dat":
+                    return CacheResource.Lightmaps;
+                case "render_models.dat":
+                    return CacheResource.RenderModels;
+                case "resources.dat":
+                    return CacheResource.Resources;
+                case "resources_b.dat":
+                    return CacheResource.ResourcesB;
+                case "textures.dat":
+                    return CacheResource.Textures;
+                case "textures_b.dat":
+                    return CacheResource.TexturesB;
+                case "video.dat":
+                    return CacheResource.Video;
+                default:
+                    return CacheResource.None;
+            }
+        }
+
+        // TODO: MAKE NOT ASS
+        // TODO: MOVE SOMEWHERE ELSE
+        public static BuildTableEntry GetBuildEntry(BuildTableConfig.BuildTableEntry build)
+        {
+            if (string.IsNullOrEmpty(build.Path) || !Path.Exists(build.Path))
+            {
+                new PrecursorWarning("Invalid or Missing Path, Skipping Verification...\n");
+                return null;
+            }
+
+            BuildTableEntry buildInfo = null;
+
+            // TODO: Maybe rework the base BuildInfoEntry class so this isn't necessary
+            switch (build.Build)
+            {
+                case CacheBuild.HaloXbox:
+                    buildInfo = new HaloXboxInfo();
+                    break;
+                case CacheBuild.HaloPC:
+                    buildInfo = new HaloPCInfo();
+                    break;
+                case CacheBuild.HaloCustomEdition:
+                    buildInfo = new HaloCustomEditionInfo();
+                    break;
+                case CacheBuild.Halo2Alpha:
+                    buildInfo = new Halo2AlphaInfo();
+                    break;
+                case CacheBuild.Halo2Beta:
+                    buildInfo = new Halo2BetaInfo();
+                    break;
+                case CacheBuild.Halo2Xbox:
+                    buildInfo = new Halo2XboxInfo();
+                    break;
+                case CacheBuild.Halo2Vista:
+                    buildInfo = new Halo2VistaInfo();
+                    break;
+                case CacheBuild.Halo3Beta:
+                    buildInfo = new Halo3BetaInfo();
+                    break;
+                case CacheBuild.Halo3Retail:
+                    buildInfo = new Halo3RetailInfo();
+                    break;
+                case CacheBuild.Halo3MythicRetail:
+                    buildInfo = new Halo3MythicRetailInfo();
+                    break;
+                case CacheBuild.Halo3ODST:
+                    buildInfo = new Halo3ODSTInfo();
+                    break;
+                case CacheBuild.HaloReach:
+                    buildInfo = new HaloReachInfo();
+                    break;
+                case CacheBuild.HaloReach11883:
+                    buildInfo = new HaloReach11883Info();
+                    break;
+                case CacheBuild.Halo4Retail:
+                    buildInfo = new Halo4RetailInfo();
+                    break;
+                case CacheBuild.HaloOnlineED:
+                    buildInfo = new HaloOnlineEDInfo();
+                    break;
+                case CacheBuild.HaloOnline106708:
+                    buildInfo = new HaloOnline106708Info();
+                    break;
+                case CacheBuild.HaloOnline235640:
+                    buildInfo = new HaloOnline235640Info();
+                    break;
+                case CacheBuild.HaloOnline301003:
+                    buildInfo = new HaloOnline301003Info();
+                    break;
+                case CacheBuild.HaloOnline327043:
+                    buildInfo = new HaloOnline327043Info();
+                    break;
+                case CacheBuild.HaloOnline372731:
+                    buildInfo = new HaloOnline372731Info();
+                    break;
+                case CacheBuild.HaloOnline416097:
+                    buildInfo = new HaloOnline416097Info();
+                    break;
+                case CacheBuild.HaloOnline430475:
+                    buildInfo = new HaloOnline430475Info();
+                    break;
+                case CacheBuild.HaloOnline454665:
+                    buildInfo = new HaloOnline454665Info();
+                    break;
+                case CacheBuild.HaloOnline449175:
+                    buildInfo = new HaloOnline449175Info();
+                    break;
+                case CacheBuild.HaloOnline498295:
+                    buildInfo = new HaloOnline498295Info();
+                    break;
+                case CacheBuild.HaloOnline530605:
+                    buildInfo = new HaloOnline530605Info();
+                    break;
+                case CacheBuild.HaloOnline532911:
+                    buildInfo = new HaloOnline532911Info();
+                    break;
+                case CacheBuild.HaloOnline554482:
+                    buildInfo = new HaloOnline554482Info();
+                    break;
+                case CacheBuild.HaloOnline571627:
+                    buildInfo = new HaloOnline571627Info();
+                    break;
+                case CacheBuild.HaloOnline604673:
+                    buildInfo = new HaloOnline604673Info();
+                    break;
+                case CacheBuild.HaloOnline700123:
+                    buildInfo = new HaloOnline700123Info();
+                    break;
+                case CacheBuild.Halo1MCC:
+                    buildInfo = new Halo1MCCInfo();
+                    break;
+                case CacheBuild.Halo2MCC:
+                    buildInfo = new Halo2MCCInfo();
+                    break;
+                case CacheBuild.Halo3MCC:
+                    buildInfo = new Halo3MCCInfo();
+                    break;
+                case CacheBuild.Halo3ODSTMCC:
+                    buildInfo = new Halo3ODSTMCCInfo();
+                    break;
+                case CacheBuild.HaloReachMCC:
+                    buildInfo = new HaloReachMCCInfo();
+                    break;
+                case CacheBuild.Halo4MCC:
+                    buildInfo = new Halo4MCCInfo();
+                    break;
+                case CacheBuild.Halo2AMPMCC:
+                    buildInfo = new Halo2AMPMCCInfo();
+                    break;
+            }
+
+            if (buildInfo != null)
+            {
+                if (buildInfo.VerifyBuildInfo(build))
+                {
+                    return buildInfo;
+                }
+            }
+
+            return null;
+        }
+    }
+}

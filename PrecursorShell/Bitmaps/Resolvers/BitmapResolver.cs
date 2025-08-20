@@ -11,7 +11,7 @@ namespace PrecursorShell.Bitmaps.Resolvers
 {
     public class BitmapResolver
     {
-        public static void ParseFiles(BuildInfoEntry buildInfo) 
+        public static void ParseFiles(BuildTableEntry buildInfo) 
         {
             var files = buildInfo.GetCurrentCacheFiles();
 

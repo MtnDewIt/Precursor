@@ -12,7 +12,7 @@ namespace PrecursorShell.BlamFile.Resolvers
 {
     public class BlfResolver
     {
-        public static void ParseFiles(BuildInfoEntry buildInfo)
+        public static void ParseFiles(BuildTableEntry buildInfo)
         {
             var path = buildInfo.GetResourcePath();
             var version = buildInfo.GetVersion();

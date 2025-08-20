@@ -85,6 +85,12 @@ namespace PrecursorShell.Serialization
             return result;
         }
 
+        public object DeserializeStructure() 
+        {
+            // TODO: Implement;
+            return null;
+        }
+
         public object DeserializeObjectStruct(GameCache cache, EndianReader reader, ISerializationContext context, TagStructureInfo info) 
         {
             var baseOffset = reader.BaseStream.Position;
