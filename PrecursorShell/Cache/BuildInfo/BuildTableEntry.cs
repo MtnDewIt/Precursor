@@ -18,31 +18,31 @@ namespace PrecursorShell.Cache.BuildInfo
 {
     public abstract class BuildTableEntry
     {
-        public abstract CacheBuild GetBuild();
-        public abstract CacheVersion GetVersion();
-        public abstract CachePlatform GetPlatform();
-        public abstract CacheGeneration GetGeneration();
+        public abstract CacheBuild Build { get; }
+        public abstract CacheVersion Version { get; }
+        public abstract CachePlatform Platform { get; }
+        public abstract CacheGeneration Generation { get; }
 
-        public abstract string GetResourcePath();
+        public abstract string ResourcePath { get; }
 
-        public abstract List<string> GetBuildStrings();
+        public abstract List<string> BuildStrings { get; }
 
-        public abstract List<string> GetCacheFiles();
-        public abstract List<string> GetSharedFiles();
-        public abstract List<string> GetResourceFiles();
+        public abstract List<string> CacheFiles { get; }
+        public abstract List<string> SharedFiles { get; }
+        public abstract List<string> ResourceFiles { get; }
 
-        public abstract List<string> GetCurrentMapFiles();
-        public abstract List<string> GetCurrentCacheFiles();
-        public abstract List<string> GetCurrentSharedFiles();
-        public abstract List<string> GetCurrentResourceFiles();
+        public abstract List<string> CurrentMapFiles { get; }
+        public abstract List<string> CurrentCacheFiles { get;}
+        public abstract List<string> CurrentSharedFiles { get; }
+        public abstract List<string> CurrentResourceFiles { get; }
 
         public abstract bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build);
 
         public virtual void ParseCacheFiles()
         {
-            foreach (var file in GetCacheFiles())
+            foreach (var file in CacheFiles)
             {
-                if (!GetCurrentCacheFiles().Any(x => Path.GetFileName(x) == file))
+                if (!CurrentCacheFiles.Any(x => Path.GetFileName(x) == file))
                 {
                     new PrecursorWarning($"Missing Cache File: {file}");
                 }
@@ -51,9 +51,9 @@ namespace PrecursorShell.Cache.BuildInfo
 
         public virtual void ParseSharedFiles()
         {
-            foreach (var file in GetSharedFiles()) 
+            foreach (var file in SharedFiles) 
             {
-                if (!GetCurrentSharedFiles().Any(x => Path.GetFileName(x) == file)) 
+                if (!CurrentSharedFiles.Any(x => Path.GetFileName(x) == file)) 
                 {
                     new PrecursorWarning($"Missing Shared File: {file}");
                 }
@@ -62,9 +62,9 @@ namespace PrecursorShell.Cache.BuildInfo
 
         public virtual void ParseResourceFiles()
         {
-            foreach (var file in GetResourceFiles())
+            foreach (var file in ResourceFiles)
             {
-                if (!GetCurrentResourceFiles().Any(x => Path.GetFileName(x) == file))
+                if (!CurrentResourceFiles.Any(x => Path.GetFileName(x) == file))
                 {
                     new PrecursorWarning($"Missing Resource File: {file}");
                 }
@@ -84,9 +84,7 @@ namespace PrecursorShell.Cache.BuildInfo
 
         public virtual void GenerateJSON(MapFile mapFile, string fileName, string tempPath) 
         {
-            var version = GetVersion();
-            var platform = GetPlatform();
-            var path = GetResourcePath().Replace("Resources", "Temp");
+            var path = ResourcePath.Replace("Resources", "Temp");
             var mapName = Path.GetFileNameWithoutExtension(fileName);
 
             var mapObject = new MapObject()
@@ -98,7 +96,7 @@ namespace PrecursorShell.Cache.BuildInfo
                 Reports = mapFile.Reports,
             };
 
-            var handler = new MapObjectHandler(version, platform);
+            var handler = new MapObjectHandler(Version, Platform);
 
             var jsonData = handler.Serialize(mapObject);
 
@@ -114,31 +112,20 @@ namespace PrecursorShell.Cache.BuildInfo
 
         public virtual CacheResource GetResourceType(string fileName)
         {
-            switch (fileName)
+            return (fileName) switch 
             {
-                case "tags.dat":
-                    return CacheResource.Tags;
-                case "string_ids.dat":
-                    return CacheResource.StringIds;
-                case "audio.dat":
-                    return CacheResource.Audio;
-                case "lightmaps.dat":
-                    return CacheResource.Lightmaps;
-                case "render_models.dat":
-                    return CacheResource.RenderModels;
-                case "resources.dat":
-                    return CacheResource.Resources;
-                case "resources_b.dat":
-                    return CacheResource.ResourcesB;
-                case "textures.dat":
-                    return CacheResource.Textures;
-                case "textures_b.dat":
-                    return CacheResource.TexturesB;
-                case "video.dat":
-                    return CacheResource.Video;
-                default:
-                    return CacheResource.None;
-            }
+                "tags.dat" => CacheResource.Tags,
+                "string_ids.dat" => CacheResource.StringIds,
+                "audio.dat" => CacheResource.Audio,
+                "lightmaps.dat" => CacheResource.Lightmaps,
+                "render_models.dat" => CacheResource.RenderModels,
+                "resources.dat" => CacheResource.Resources,
+                "resources_b.dat" => CacheResource.ResourcesB,
+                "textures.dat" => CacheResource.Textures,
+                "textures_b.dat" => CacheResource.TexturesB,
+                "video.dat" => CacheResource.Video,
+                _ => CacheResource.None,
+            };
         }
 
         // TODO: MAKE NOT ASS

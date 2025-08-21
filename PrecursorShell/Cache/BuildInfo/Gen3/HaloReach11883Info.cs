@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.IO;
 
@@ -12,27 +11,26 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
 {
     public class HaloReach11883Info : BuildTableEntry
     {
-        public static readonly CacheBuild Build = CacheBuild.HaloReach11883;
+        public override CacheBuild Build => CacheBuild.HaloReach11883;
+        public override CacheVersion Version => CacheVersion.HaloReach11883;
+        public override CachePlatform Platform => CachePlatform.Original;
+        public override CacheGeneration Generation => CacheGeneration.Gen3;
 
-        public static readonly CacheVersion Version = CacheVersion.HaloReach11883;
+        public override string ResourcePath => null;
 
-        public static readonly CachePlatform Platform = CachePlatform.Original;
-
-        public static readonly CacheGeneration Generation = CacheGeneration.Gen3;
-
-        public static readonly List<string> BuildStrings = new List<string> 
+        public override List<string> BuildStrings => new List<string> 
         { 
             "0237d057-1e3c-4390-9cfc-6108a911de01" 
         };
 
-        public List<string> CurrentCacheFiles;
-        public List<string> CurrentResourceFiles;
+        public override List<string> CacheFiles => null;
+        public override List<string> SharedFiles => null;
+        public override List<string> ResourceFiles => null;
 
-        public HaloReach11883Info()
-        {
-            CurrentCacheFiles = new List<string>();
-            CurrentResourceFiles = new List<string>();
-        }
+        public override List<string> CurrentMapFiles => null;
+        public override List<string> CurrentCacheFiles => new List<string>();
+        public override List<string> CurrentSharedFiles => null;
+        public override List<string> CurrentResourceFiles => new List<string>();
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
@@ -89,23 +87,5 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
 
             return true;
         }
-
-        public override CacheBuild GetBuild() => Build;
-        public override CacheVersion GetVersion() => Version;
-        public override CachePlatform GetPlatform() => Platform;
-        public override CacheGeneration GetGeneration() => Generation;
-
-        public override string GetResourcePath() => null;
-
-        public override List<string> GetBuildStrings() => BuildStrings;
-
-        public override List<string> GetCacheFiles() => null;
-        public override List<string> GetSharedFiles() => null;
-        public override List<string> GetResourceFiles() => null;
-
-        public override List<string> GetCurrentMapFiles() => null;
-        public override List<string> GetCurrentCacheFiles() => CurrentCacheFiles;
-        public override List<string> GetCurrentSharedFiles() => null;
-        public override List<string> GetCurrentResourceFiles() => CurrentResourceFiles;
     }
 }

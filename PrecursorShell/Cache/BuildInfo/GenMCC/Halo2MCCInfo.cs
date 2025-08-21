@@ -12,29 +12,26 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
 {
     public class Halo2MCCInfo : BuildTableEntry
     {
-        public static readonly CacheBuild Build = CacheBuild.Halo2MCC;
+        public override CacheBuild Build => CacheBuild.Halo2MCC;
+        public override CacheVersion Version => CacheVersion.Halo2PC;
+        public override CachePlatform Platform => CachePlatform.MCC;
+        public override CacheGeneration Generation => CacheGeneration.GenMCC;
 
-        public static readonly CacheVersion Version = CacheVersion.Halo2PC;
+        public override string ResourcePath => @"Resources\GenMCC\Halo2MCC";
 
-        public static readonly CachePlatform Platform = CachePlatform.MCC;
-
-        public static readonly CacheGeneration Generation = CacheGeneration.GenMCC;
-
-        public static readonly string ResourcePath = @"Resources\GenMCC\Halo2MCC";
-
-        public static readonly List<string> BuildStrings = new List<string>
+        public override List<string> BuildStrings => new List<string>
         {
             // No build string, srsly 343?
             ""
         };
 
-        public static readonly List<string> SharedFiles = new List<string>
+        public override List<string> CacheFiles => null;
+        public override List<string> SharedFiles => new List<string>
         {
             "shared.map",
             "single_player_shared.map"
         };
-
-        public static readonly List<string> ResourceFiles = new List<string> 
+        public override List<string> ResourceFiles => new List<string> 
         {
             "sounds_cht.dat",
             "sounds_de.dat",
@@ -49,16 +46,10 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
             "textures.dat"
         };
 
-        public List<string> CurrentCacheFiles;
-        public List<string> CurrentSharedFiles;
-        public List<string> CurrentResourceFiles;
-
-        public Halo2MCCInfo()
-        {
-            CurrentCacheFiles = new List<string>();
-            CurrentSharedFiles = new List<string>();
-            CurrentResourceFiles = new List<string>();
-        }
+        public override List<string> CurrentMapFiles => null;
+        public override List<string> CurrentCacheFiles => new List<string>();
+        public override List<string> CurrentSharedFiles => new List<string>();
+        public override List<string> CurrentResourceFiles => new List<string>();
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
@@ -143,23 +134,5 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
 
             return true;
         }
-
-        public override CacheBuild GetBuild() => Build;
-        public override CacheVersion GetVersion() => Version;
-        public override CachePlatform GetPlatform() => Platform;
-        public override CacheGeneration GetGeneration() => Generation;
-
-        public override string GetResourcePath() => ResourcePath;
-
-        public override List<string> GetBuildStrings() => BuildStrings;
-
-        public override List<string> GetCacheFiles() => null;
-        public override List<string> GetSharedFiles() => SharedFiles;
-        public override List<string> GetResourceFiles() => ResourceFiles;
-
-        public override List<string> GetCurrentMapFiles() => null;
-        public override List<string> GetCurrentCacheFiles() => CurrentCacheFiles;
-        public override List<string> GetCurrentSharedFiles() => CurrentSharedFiles;
-        public override List<string> GetCurrentResourceFiles() => CurrentResourceFiles;
     }
 }

@@ -12,27 +12,26 @@ namespace PrecursorShell.Cache.BuildInfo.Gen1
 {
     public class HaloXboxInfo : BuildTableEntry
     {
-        public static readonly CacheBuild Build = CacheBuild.HaloXbox;
+        public override CacheBuild Build => CacheBuild.HaloXbox;
+        public override CacheVersion Version => CacheVersion.HaloXbox;
+        public override CachePlatform Platform => CachePlatform.Original;
+        public override CacheGeneration Generation => CacheGeneration.Gen1;
 
-        public static readonly CacheVersion Version = CacheVersion.HaloXbox;
+        public override string ResourcePath => @"Resources\Gen1\HaloXbox";
 
-        public static readonly CachePlatform Platform = CachePlatform.Original;
-
-        public static readonly CacheGeneration Generation = CacheGeneration.Gen1;
-        
-        public static readonly string ResourcePath = @"Resources\Gen1\HaloXbox";
-
-        public static readonly List<string> BuildStrings = new List<string> 
+        public override List<string> BuildStrings => new List<string> 
         { 
             "01.10.12.2276" 
         };
 
-        public List<string> CurrentCacheFiles;
+        public override List<string> CacheFiles => null;
+        public override List<string> SharedFiles => null;
+        public override List<string> ResourceFiles => null;
 
-        public HaloXboxInfo()
-        {
-            CurrentCacheFiles = new List<string>();
-        }
+        public override List<string> CurrentMapFiles => null;
+        public override List<string> CurrentCacheFiles => new List<string>();
+        public override List<string> CurrentSharedFiles => new List<string>();
+        public override List<string> CurrentResourceFiles => null;
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
@@ -97,23 +96,5 @@ namespace PrecursorShell.Cache.BuildInfo.Gen1
 
             return true;
         }
-
-        public override CacheBuild GetBuild() => Build;
-        public override CacheVersion GetVersion() => Version;
-        public override CachePlatform GetPlatform() => Platform;
-        public override CacheGeneration GetGeneration() => Generation;
-
-        public override string GetResourcePath() => ResourcePath;
-
-        public override List<string> GetBuildStrings() => BuildStrings;
-
-        public override List<string> GetCacheFiles() => null;
-        public override List<string> GetSharedFiles() => null;
-        public override List<string> GetResourceFiles() => null;
-
-        public override List<string> GetCurrentMapFiles() => null;
-        public override List<string> GetCurrentCacheFiles() => CurrentCacheFiles;
-        public override List<string> GetCurrentSharedFiles() => null;
-        public override List<string> GetCurrentResourceFiles() => null;
     }
 }

@@ -14,9 +14,9 @@ namespace PrecursorShell.BlamFile.Resolvers
     {
         public static void ParseFiles(BuildTableEntry buildInfo)
         {
-            var path = buildInfo.GetResourcePath();
-            var version = buildInfo.GetVersion();
-            var platform = buildInfo.GetPlatform();
+            var path = buildInfo.ResourcePath;
+            var version = buildInfo.Version;
+            var platform = buildInfo.Platform;
             var files = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories);
 
             foreach (var filePath in files)

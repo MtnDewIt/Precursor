@@ -13,7 +13,7 @@ namespace PrecursorShell.Bitmaps.Resolvers
     {
         public static void ParseFiles(BuildTableEntry buildInfo) 
         {
-            var files = buildInfo.GetCurrentCacheFiles();
+            var files = buildInfo.CurrentCacheFiles;
 
             var bitmapCount = 0;
 

@@ -173,7 +173,7 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
             if (OutputDirectoryInfo.FullName == Cache.Directory.FullName)
                 return new PrecursorError("Output path cannot be the same as the current working directory");
 
-            GetCacheFiles();
+            CacheFiles;
 
             StopWatch.Start();
 
@@ -200,7 +200,7 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
             return true;
         }
 
-        public void GetCacheFiles()
+        public void CacheFiles
         {
             haloOnlineDirectoryInfo = GetDirectoryInfo(haloOnlineDirectoryInfo, "Halo Online MS23");
 

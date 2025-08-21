@@ -35,7 +35,7 @@ namespace PrecursorShell.Commands.BlamFile
             {
                 foreach (var buildInfo in buildTable) 
                 {
-                    if (buildInfo.GetResourcePath() != null) 
+                    if (buildInfo.ResourcePath != null) 
                     {
                         BlfResolver.ParseFiles(buildInfo);
                     }
@@ -43,9 +43,9 @@ namespace PrecursorShell.Commands.BlamFile
             }
             else 
             {
-                var buildInfo = buildTable.Where(x => x.GetBuild() == build).FirstOrDefault();
+                var buildInfo = buildTable.Where(x => x.Build == build).FirstOrDefault();
 
-                if (buildInfo.GetResourcePath() != null)
+                if (buildInfo.ResourcePath != null)
                 {
                     BlfResolver.ParseFiles(buildInfo);
                 }

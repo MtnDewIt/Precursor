@@ -42,7 +42,7 @@ namespace PrecursorShell.Commands.Tags
             }
             else
             {
-                var buildInfo = Program.BuildTable.BuildInfo.Where(x => x.GetBuild() == build).FirstOrDefault();
+                var buildInfo = Program.BuildTable.BuildInfo.Where(x => x.Build == build).FirstOrDefault();
 
                 TagDefinitionResolver.ParseDefinitionsAsync(buildInfo);
             }

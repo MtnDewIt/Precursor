@@ -21,8 +21,8 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
     {
         public static void ParseDefinitionsAsync(BuildTableEntry buildInfo) 
         {
-            var files = buildInfo.GetCurrentCacheFiles();
-            var build = buildInfo.GetBuild();
+            var files = buildInfo.CurrentCacheFiles;
+            var build = buildInfo.Build;
 
             var buildReport = new TagDefinitionReport.TagDefinitionReportBuild(build);
 

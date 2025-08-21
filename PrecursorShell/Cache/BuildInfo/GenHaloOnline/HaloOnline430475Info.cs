@@ -8,33 +8,28 @@ using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.Cache.HaloOnline;
 using TagTool.IO;
-using TagTool.Serialization;
 
 namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
 {
     public class HaloOnline430475Info : BuildTableEntry
     {
-        public static readonly CacheBuild Build = CacheBuild.HaloOnline430475;
+        public override CacheBuild Build => CacheBuild.HaloOnline430475;
+        public override CacheVersion Version => CacheVersion.HaloOnline430475;
+        public override CachePlatform Platform => CachePlatform.Original;
+        public override CacheGeneration Generation => CacheGeneration.GenHaloOnline;
 
-        public static readonly CacheVersion Version = CacheVersion.HaloOnline430475;
+        public override string ResourcePath => @"Resources\GenHaloOnline\HaloOnline430475";
 
-        public static readonly CachePlatform Platform = CachePlatform.Original;
-
-        public static readonly CacheGeneration Generation = CacheGeneration.GenHaloOnline;
-
-        public static readonly string ResourcePath = @"Resources\GenHaloOnline\HaloOnline430475";
-
-        public static readonly List<string> BuildStrings = new List<string>
+        public override List<string> BuildStrings => new List<string>
         {
             "10.1.430475 Live"
         };
 
-        public static readonly List<string> CacheFiles = new List<string>
+        public override List<string> CacheFiles => new List<string>
         {
             "tags.dat",
         };
-
-        public static readonly List<string> SharedFiles = new List<string>
+        public override List<string> SharedFiles => new List<string>
         {
             "audio.dat",
             "lightmaps.dat",
@@ -45,6 +40,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
             "textures_b.dat",
             "video.dat"
         };
+        public override List<string> ResourceFiles => null;
 
         public static readonly Dictionary<CacheResource, string> BuildDateTable = new Dictionary<CacheResource, string>
         {
@@ -58,16 +54,10 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
             { CacheResource.Video, "2015-08-07 13:56:43.6539845" },
         };
 
-        public List<string> CurrentMapFiles;
-        public List<string> CurrentCacheFiles;
-        public List<string> CurrentSharedFiles;
-
-        public HaloOnline430475Info()
-        {
-            CurrentMapFiles = new List<string>();
-            CurrentCacheFiles = new List<string>();
-            CurrentSharedFiles = new List<string>();
-        }
+        public override List<string> CurrentMapFiles => new List<string>();
+        public override List<string> CurrentCacheFiles => new List<string>();
+        public override List<string> CurrentSharedFiles => new List<string>();
+        public override List<string> CurrentResourceFiles => null;
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
@@ -195,23 +185,5 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
 
             return true;
         }
-
-        public override CacheBuild GetBuild() => Build;
-        public override CacheVersion GetVersion() => Version;
-        public override CachePlatform GetPlatform() => Platform;
-        public override CacheGeneration GetGeneration() => Generation;
-
-        public override string GetResourcePath() => ResourcePath;
-
-        public override List<string> GetBuildStrings() => BuildStrings;
-
-        public override List<string> GetCacheFiles() => CacheFiles;
-        public override List<string> GetSharedFiles() => SharedFiles;
-        public override List<string> GetResourceFiles() => null;
-
-        public override List<string> GetCurrentMapFiles() => CurrentMapFiles;
-        public override List<string> GetCurrentCacheFiles() => CurrentCacheFiles;
-        public override List<string> GetCurrentSharedFiles() => CurrentSharedFiles;
-        public override List<string> GetCurrentResourceFiles() => null;
     }
 }

@@ -35,7 +35,7 @@ namespace PrecursorShell.Commands
             {
                 foreach (var buildInfo in buildTable)
                 {
-                    switch (buildInfo.GetBuild()) 
+                    switch (buildInfo.Build) 
                     {
                         case CacheBuild.Halo3Retail:
                         case CacheBuild.Halo3MythicRetail:
@@ -47,15 +47,15 @@ namespace PrecursorShell.Commands
                             BitmapResolver.ParseFiles(buildInfo);
                             break;
                         default:
-                            return new PrecursorWarning($"Unsupported build - {buildInfo.GetBuild()}");
+                            return new PrecursorWarning($"Unsupported build - {buildInfo.Build}");
                     }
                 }
             }
             else
             {
-                var buildInfo = buildTable.Where(x => x.GetBuild() == build).FirstOrDefault();
+                var buildInfo = buildTable.Where(x => x.Build == build).FirstOrDefault();
 
-                switch (buildInfo.GetBuild())
+                switch (buildInfo.Build)
                 {
                     case CacheBuild.Halo3Retail:
                     case CacheBuild.Halo3MythicRetail:
@@ -67,7 +67,7 @@ namespace PrecursorShell.Commands
                         BitmapResolver.ParseFiles(buildInfo);
                         break;
                     default:
-                        return new PrecursorWarning($"Unsupported build - {buildInfo.GetBuild()}");
+                        return new PrecursorWarning($"Unsupported build - {buildInfo.Build}");
                 }
             }
 
