@@ -6,9 +6,11 @@ using PrecursorShell.Cache.BuildInfo.GenHaloOnline;
 using PrecursorShell.Cache.BuildInfo.GenMCC;
 using PrecursorShell.Cache.BuildTable;
 using PrecursorShell.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.JSON.Handlers;
@@ -38,7 +40,7 @@ namespace PrecursorShell.Cache.BuildInfo
 
         public abstract bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build);
 
-        public virtual void ParseCacheFiles()
+        public void ParseCacheFiles()
         {
             foreach (var file in CacheFiles)
             {
@@ -49,7 +51,7 @@ namespace PrecursorShell.Cache.BuildInfo
             }
         }
 
-        public virtual void ParseSharedFiles()
+        public void ParseSharedFiles()
         {
             foreach (var file in SharedFiles) 
             {
@@ -60,7 +62,7 @@ namespace PrecursorShell.Cache.BuildInfo
             }
         }
 
-        public virtual void ParseResourceFiles()
+        public void ParseResourceFiles()
         {
             foreach (var file in ResourceFiles)
             {
@@ -71,7 +73,7 @@ namespace PrecursorShell.Cache.BuildInfo
             }
         }
 
-        public virtual bool ParseFileCount(int count) 
+        public static bool ParseFileCount(int count) 
         {
             if (count == 0) 
             {
@@ -82,7 +84,7 @@ namespace PrecursorShell.Cache.BuildInfo
             return true;
         }
 
-        public virtual void GenerateJSON(MapFile mapFile, string fileName, string tempPath) 
+        public void GenerateJSON(MapFile mapFile, string fileName, string tempPath) 
         {
             var path = ResourcePath.Replace("Resources", "Temp");
             var mapName = Path.GetFileNameWithoutExtension(fileName);
@@ -110,7 +112,7 @@ namespace PrecursorShell.Cache.BuildInfo
             File.WriteAllText(fileInfo.FullName, jsonData);
         }
 
-        public virtual CacheResource GetResourceType(string fileName)
+        public static CacheResource GetResourceType(string fileName)
         {
             return (fileName) switch 
             {
