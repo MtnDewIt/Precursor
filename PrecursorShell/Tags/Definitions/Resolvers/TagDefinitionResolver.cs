@@ -19,6 +19,11 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
 {
     public class TagDefinitionResolver
     {
+        private static readonly ParallelOptions Options = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Environment.ProcessorCount
+        };
+
         public static void ParseDefinitionsAsync(BuildTableEntry buildInfo) 
         {
             var files = buildInfo.CurrentCacheFiles;
@@ -29,12 +34,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             var processedFiles = new ConcurrentBag<string>();
             var fileErrorCount = 0;
 
-            var parallelOptions = new ParallelOptions
-            {
-                MaxDegreeOfParallelism = Environment.ProcessorCount
-            };
-
-            Parallel.ForEach(files, parallelOptions, file =>
+            Parallel.ForEach(files, Options, file =>
             {
                 var result = ProcessFileAsync(file, build);
 
@@ -116,12 +116,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             var tagGroupErrorCount = 0;
             var groupPaths = new List<string>();
 
-            var parallelOptions = new ParallelOptions
-            {
-                MaxDegreeOfParallelism = Environment.ProcessorCount
-            };
-
-            Parallel.ForEach(tagGroups, parallelOptions, group => 
+            Parallel.ForEach(tagGroups, Options, group => 
             {
                 using (var stream = cache.OpenCacheRead())
                 {
