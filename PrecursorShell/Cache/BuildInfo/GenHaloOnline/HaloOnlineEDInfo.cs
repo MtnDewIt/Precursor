@@ -20,9 +20,9 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
 
         public override string ResourcePath => @"Resources\GenHaloOnline\HaloOnlineED07";
 
-        public override List<string> BuildStrings => new List<string> 
-        { 
-            "eldewrito" 
+        public override List<string> BuildStrings => new List<string>
+        {
+            "eldewrito"
         };
 
         public override List<string> CacheFiles => new List<string>
@@ -50,10 +50,17 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
             { CacheResource.TexturesB, "2021-07-05 14:06:23.1101597" },
         };
 
-        public override List<string> CurrentMapFiles => new List<string>();
-        public override List<string> CurrentCacheFiles => new List<string>();
-        public override List<string> CurrentSharedFiles => new List<string>();
-        public override List<string> CurrentResourceFiles => null;
+        public override List<string> CurrentMapFiles { get; set; }
+        public override List<string> CurrentCacheFiles { get; set; }
+        public override List<string> CurrentSharedFiles { get; set; }
+        public override List<string> CurrentResourceFiles { get; set; }
+
+        public HaloOnlineEDInfo()
+        {
+            CurrentMapFiles = [];
+            CurrentCacheFiles = [];
+            CurrentSharedFiles = [];
+        }
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {

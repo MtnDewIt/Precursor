@@ -54,10 +54,17 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
             { CacheResource.Video, "2015-10-01 16:02:13.4074294" },
         };
 
-        public override List<string> CurrentMapFiles => new List<string>();
-        public override List<string> CurrentCacheFiles => new List<string>();
-        public override List<string> CurrentSharedFiles => new List<string>();
-        public override List<string> CurrentResourceFiles => null;
+        public override List<string> CurrentMapFiles { get; set; }
+        public override List<string> CurrentCacheFiles { get; set; }
+        public override List<string> CurrentSharedFiles { get; set; }
+        public override List<string> CurrentResourceFiles { get; set; }
+
+        public HaloOnline571627Info()
+        {
+            CurrentMapFiles = [];
+            CurrentCacheFiles = [];
+            CurrentSharedFiles = [];
+        }
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {

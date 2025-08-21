@@ -31,10 +31,10 @@ namespace PrecursorShell.Cache.BuildInfo
         public abstract List<string> SharedFiles { get; }
         public abstract List<string> ResourceFiles { get; }
 
-        public abstract List<string> CurrentMapFiles { get; }
-        public abstract List<string> CurrentCacheFiles { get;}
-        public abstract List<string> CurrentSharedFiles { get; }
-        public abstract List<string> CurrentResourceFiles { get; }
+        public abstract List<string> CurrentMapFiles { get; set; }
+        public abstract List<string> CurrentCacheFiles { get; set; }
+        public abstract List<string> CurrentSharedFiles { get; set; }
+        public abstract List<string> CurrentResourceFiles { get; set; }
 
         public abstract bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build);
 

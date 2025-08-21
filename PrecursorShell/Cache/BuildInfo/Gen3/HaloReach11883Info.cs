@@ -27,10 +27,16 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
         public override List<string> SharedFiles => null;
         public override List<string> ResourceFiles => null;
 
-        public override List<string> CurrentMapFiles => null;
-        public override List<string> CurrentCacheFiles => new List<string>();
-        public override List<string> CurrentSharedFiles => null;
-        public override List<string> CurrentResourceFiles => new List<string>();
+        public override List<string> CurrentMapFiles { get; set; }
+        public override List<string> CurrentCacheFiles { get; set; }
+        public override List<string> CurrentSharedFiles { get; set; }
+        public override List<string> CurrentResourceFiles { get; set; }
+
+        public HaloReach11883Info() 
+        {
+            CurrentCacheFiles = [];
+            CurrentResourceFiles = [];
+        }
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
