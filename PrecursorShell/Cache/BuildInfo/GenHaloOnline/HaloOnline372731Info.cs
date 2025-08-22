@@ -1,9 +1,12 @@
 using PrecursorShell.Cache.BuildTable;
 using PrecursorShell.Common;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.Cache.HaloOnline;
@@ -56,125 +59,222 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
-            var files = Directory.EnumerateFiles(build.Path, "*.*", SearchOption.AllDirectories).Where(x => x.EndsWith(".map") || x.EndsWith(".dat"));
+            var files = Directory.EnumerateFiles(build.Path, "*.*", SearchOption.AllDirectories).Where(x => x.EndsWith(".map") || x.EndsWith(".dat")).ToArray();
 
-            if (!ParseFileCount(files.Count()))
+            if (!ParseFileCount(files.Length))
             {
                 return false;
             }
 
-            var validFiles = 0;
+            var (validCount, errors) = Task.Run(async () => await VerifyFilesAsync(files)).GetAwaiter().GetResult();
 
-            foreach (var file in files)
+            if (errors.Count > 0)
             {
-                var fileInfo = new FileInfo(file);
-
-                using (var stream = fileInfo.OpenRead())
-                using (var reader = new EndianReader(stream))
+                foreach (var error in errors)
                 {
-                    if (!CacheFiles.Contains(fileInfo.Name) && !SharedFiles.Contains(fileInfo.Name))
-                    {
-                        var mapFile = new MapFile();
-
-                        try
-                        {
-                            mapFile.Read(reader);
-                        }
-                        catch (Exception ex)
-                        {
-                            new PrecursorWarning($"Failed to parse file \"{fileInfo.Name}\": {ex.Message}");
-                            continue;
-                        }
-
-                        if (!mapFile.Header.IsValid())
-                        {
-                            new PrecursorWarning($"Invalid Map File: {fileInfo.Name}");
-                            continue;
-                        }
-
-                        if (BuildStrings.Contains(mapFile.Header.GetBuild()))
-                        {
-                            try
-                            {
-                                GenerateJSON(mapFile, fileInfo.Name, ResourcePath);
-                            }
-                            catch (Exception ex)
-                            {
-                                new PrecursorWarning($"Failed to serialize JSON \"{fileInfo.Name}\": {ex.Message}");
-                                continue;
-                            }
-
-                            CurrentMapFiles.Add(file);
-                            validFiles++;
-                        }
-                        else
-                        {
-                            new PrecursorWarning($"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
-                            continue;
-                        }
-                    }
-
-                    if (CacheFiles.Contains(fileInfo.Name) || SharedFiles.Contains(fileInfo.Name))
-                    {
-                        var resourceType = GetResourceType(fileInfo.Name);
-
-                        if (resourceType == CacheResource.None || resourceType != CacheResource.StringIds && !BuildDateTable.ContainsKey(resourceType))
-                        {
-                            new PrecursorWarning($"Invalid File: {fileInfo.Name} - Unsupported or invalid resource type");
-                            continue;
-                        }
-
-                        if (resourceType != CacheResource.None && resourceType != CacheResource.StringIds)
-                        {
-                            CacheFileSectionHeader header = null;
-
-                            try
-                            {
-                                header = CacheFileSectionHeader.ReadHeader(reader, Version, Platform);
-                            }
-                            catch
-                            {
-                                new PrecursorWarning($"Invalid File: {fileInfo.Name} - Failed to deserialize file section header");
-                                continue;
-                            }
-
-                            var timestamp = LastModificationDate.GetTimestamp(header.CreationDate);
-
-                            if (BuildDateTable[resourceType] == timestamp)
-                            {
-                                if (resourceType == CacheResource.Tags)
-                                {
-                                    CurrentCacheFiles.Add(file);
-                                    validFiles++;
-                                }
-                                else
-                                {
-                                    CurrentSharedFiles.Add(file);
-                                    validFiles++;
-                                }
-                            }
-                            else
-                            {
-                                new PrecursorWarning($"Invalid Build Date: {fileInfo.Name} - {timestamp} != {BuildDateTable[resourceType]}");
-                                continue;
-                            }
-                        }
-
-                        if (resourceType == CacheResource.StringIds)
-                        {
-                            CurrentSharedFiles.Add(file);
-                            validFiles++;
-                        }
-                    }
+                    new PrecursorWarning(error);
                 }
+
+                return false;
             }
 
             ParseFiles(CacheFiles, CurrentCacheFiles);
             ParseFiles(SharedFiles, CurrentSharedFiles);
 
-            Console.WriteLine($"Successfully Verified {validFiles}/{files.Count()} Files\n");
+            Console.WriteLine($"Successfully Verified {validCount}/{files.Length} Files\n");
 
             return true;
+        }
+
+        private async Task<(int ValidCount, List<string> Errors)> VerifyFilesAsync(string[] files)
+        {
+            var validMapFiles = new ConcurrentBag<string>();
+            var validCacheFiles = new ConcurrentBag<string>();
+            var validSharedFiles = new ConcurrentBag<string>();
+            var errors = new ConcurrentBag<string>();
+
+            using var semaphore = new SemaphoreSlim(MaxConcurrency);
+
+            var tasks = files.Select(async file =>
+            {
+                await semaphore.WaitAsync().ConfigureAwait(false);
+
+                try
+                {
+                    return ValidateFileAsync(file);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            return ProcessResult(results, validMapFiles, validCacheFiles, validSharedFiles, errors);
+        }
+
+        private FileValidationResult ValidateFileAsync(string filePath)
+        {
+            var fileInfo = new FileInfo(filePath);
+            var fileName = fileInfo.Name;
+
+            using (var stream = fileInfo.OpenRead())
+            using (var reader = new EndianReader(stream))
+            {
+                if (CacheFiles.Contains(fileName) || SharedFiles.Contains(fileName))
+                {
+                    return ValidateCacheFileAsync(reader, fileName, filePath);
+                }
+                else
+                {
+                    return ValidateMapFileAsync(reader, fileName, filePath);
+                }
+            }
+        }
+
+        private FileValidationResult ValidateMapFileAsync(EndianReader reader, string fileName, string filePath)
+        {
+            var mapFile = new MapFile();
+
+            try
+            {
+                mapFile.Read(reader);
+            }
+            catch (Exception ex)
+            {
+                return new FileValidationResult(false, $"Failed to parse file \"{fileName}\": {ex.Message}");
+            }
+
+            if (!mapFile.Header.IsValid())
+            {
+                return new FileValidationResult(false, $"Invalid Map File: {fileName}");
+            }
+
+            var buildString = mapFile.Header.GetBuild();
+
+            if (!BuildStrings.Contains(buildString))
+            {
+                return new FileValidationResult(false, $"Invalid Build String: {fileName} - {buildString} != {BuildStrings.FirstOrDefault()}");
+            }
+
+            try
+            {
+                GenerateJSON(mapFile, fileName, ResourcePath);
+            }
+            catch (Exception ex)
+            {
+                return new FileValidationResult(false, $"Failed to serialize JSON \"{fileName}\": {ex.Message}");
+            }
+
+            return new FileValidationResult(true, filePath, FileType.Map);
+        }
+
+        private FileValidationResult ValidateCacheFileAsync(EndianReader reader, string fileName, string filePath)
+        {
+            var resourceType = GetResourceType(fileName);
+
+            if (resourceType == CacheResource.StringIds)
+            {
+                return new FileValidationResult(true, filePath, FileType.Shared);
+            }
+
+            if (resourceType == CacheResource.None || !BuildDateTable.TryGetValue(resourceType, out string buildDate))
+            {
+                return new FileValidationResult(false, $"Invalid File: {fileName} - Unsupported or invalid resource type");
+            }
+
+            CacheFileSectionHeader header;
+
+            try
+            {
+                header = CacheFileSectionHeader.ReadHeader(reader, Version, Platform);
+            }
+            catch
+            {
+                return new FileValidationResult(false, $"Invalid File: {fileName} - Failed to deserialize file section header");
+            }
+
+            var timestamp = LastModificationDate.GetTimestamp(header.CreationDate);
+
+            if (BuildDateTable.TryGetValue(resourceType, out var expectedTimestamp) && expectedTimestamp != timestamp)
+            {
+                return new FileValidationResult(false, $"Invalid Build Date: {fileName} - {timestamp} != {buildDate}");
+            }
+
+            var category = resourceType == CacheResource.Tags ? FileType.Cache : FileType.Shared;
+
+            return new FileValidationResult(true, filePath, category);
+        }
+
+        private (int ValidCount, List<string> Errors) ProcessResult(FileValidationResult[] results, ConcurrentBag<string> validMapFiles, ConcurrentBag<string> validCacheFiles, ConcurrentBag<string> validSharedFiles, ConcurrentBag<string> errors)
+        {
+            var validCount = 0;
+
+            foreach (var result in results)
+            {
+                if (result.IsValid)
+                {
+                    validCount++;
+
+                    switch (result.Type)
+                    {
+                        case FileType.Map:
+                            validMapFiles.Add(result.FilePath);
+                            break;
+                        case FileType.Cache:
+                            validCacheFiles.Add(result.FilePath);
+                            break;
+                        case FileType.Shared:
+                            validSharedFiles.Add(result.FilePath);
+                            break;
+                    }
+                }
+                else if (result.ErrorMessage != null)
+                {
+                    errors.Add(result.ErrorMessage);
+                }
+            }
+
+            UpdateFileTable(validMapFiles, validCacheFiles, validSharedFiles);
+
+            return (validCount, errors.ToList());
+        }
+
+        private void UpdateFileTable(ConcurrentBag<string> validMapFiles, ConcurrentBag<string> validCacheFiles, ConcurrentBag<string> validSharedFiles)
+        {
+            if (!validMapFiles.IsEmpty)
+            {
+                lock (CurrentMapFiles)
+                {
+                    foreach (var file in validMapFiles)
+                    {
+                        CurrentMapFiles.Add(file);
+                    }
+                }
+            }
+
+            if (!validCacheFiles.IsEmpty)
+            {
+                lock (CurrentCacheFiles)
+                {
+                    foreach (var file in validCacheFiles)
+                    {
+                        CurrentCacheFiles.Add(file);
+                    }
+                }
+            }
+
+            if (!validSharedFiles.IsEmpty)
+            {
+                lock (CurrentSharedFiles)
+                {
+                    foreach (var file in validSharedFiles)
+                    {
+                        CurrentSharedFiles.Add(file);
+                    }
+                }
+            }
         }
     }
 }

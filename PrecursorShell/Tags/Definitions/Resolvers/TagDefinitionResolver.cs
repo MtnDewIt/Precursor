@@ -21,7 +21,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
     {
         private static readonly ParallelOptions Options = new ParallelOptions
         {
-            MaxDegreeOfParallelism = Environment.ProcessorCount
+            MaxDegreeOfParallelism = Environment.ProcessorCount * 2
         };
 
         public static void ParseDefinitionsAsync(BuildTableEntry buildInfo) 

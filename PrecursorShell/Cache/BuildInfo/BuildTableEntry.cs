@@ -19,6 +19,8 @@ namespace PrecursorShell.Cache.BuildInfo
 {
     public abstract class BuildTableEntry
     {
+        public static readonly int MaxConcurrency = Environment.ProcessorCount * 2;
+
         public abstract CacheBuild Build { get; }
         public abstract CacheVersion Version { get; }
         public abstract CachePlatform Platform { get; }
@@ -246,6 +248,37 @@ namespace PrecursorShell.Cache.BuildInfo
             }
 
             return null;
+        }
+
+        public readonly struct FileValidationResult
+        {
+            public readonly bool IsValid;
+            public readonly string FilePath;
+            public readonly string ErrorMessage;
+            public readonly FileType Type;
+
+            public FileValidationResult(bool isValid, string errorMessage = null) 
+            {
+                IsValid = isValid;
+                ErrorMessage = errorMessage;
+            }
+
+            public FileValidationResult(bool isValid, string filePath, FileType type, string errorMessage = null)
+            {
+                IsValid = isValid;
+                FilePath = filePath;
+                Type = type;
+                ErrorMessage = errorMessage;
+            }
+        }
+
+        public enum FileType
+        {
+            None,
+            Map,
+            Cache,
+            Shared,
+            Resource,
         }
     }
 }

@@ -1,10 +1,12 @@
 using PrecursorShell.Cache.BuildTable;
 using PrecursorShell.Common;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
+using System.Threading;
+using System.Threading.Tasks;
 using TagTool.Cache;
 using TagTool.IO;
 
@@ -33,56 +35,147 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
-            var files = Directory.EnumerateFiles(build.Path, "*.*", SearchOption.AllDirectories).Where(x => x.EndsWith(".dat") || x.StartsWith($@"{build.Path}\blobs"));
+            var files = Directory.EnumerateFiles(build.Path, "*.*", SearchOption.AllDirectories).Where(x => x.EndsWith(".dat") || x.StartsWith($@"{build.Path}\blobs")).ToArray();
 
-            if (!ParseFileCount(files.Count()))
+            if (!ParseFileCount(files.Length))
             {
                 return false;
             }
 
-            var validFiles = 0;
+            var (validCount, errors) = Task.Run(async () => await VerifyFilesAsync(files)).GetAwaiter().GetResult();
 
-            foreach (var file in files) 
+            if (errors.Count > 0)
             {
-                var fileInfo = new FileInfo(file);
-
-                using (var stream = fileInfo.OpenRead())
-                using (var reader = new EndianReader(stream))
+                foreach (var error in errors)
                 {
-                    if (CacheFiles.Contains(fileInfo.Name))
-                    {
-                        var guid = new Guid(reader.ReadBytes(16));
+                    new PrecursorWarning(error);
+                }
 
-                        if (BuildStrings.Contains(guid.ToString()))
-                        {
-                            CurrentCacheFiles.Add(file);
-                            validFiles++;
-                        }
-                        else
-                        {
-                            new PrecursorWarning($"Invalid Build String: {fileInfo.Name} - {guid.ToString()} != {BuildStrings.FirstOrDefault()}");
-                            continue;
-                        }
-                    }
-                    else 
+                return false;
+            }
+
+            ParseFiles(CacheFiles, CurrentCacheFiles);
+
+            Console.WriteLine($"Successfully Verified {validCount}/{files.Length} Files\n");
+
+            return true;
+        }
+
+        private async Task<(int ValidCount, List<string> Errors)> VerifyFilesAsync(string[] files)
+        {
+            var validCacheFiles = new ConcurrentBag<string>();
+            var validResourceFiles = new ConcurrentBag<string>();
+            var errors = new ConcurrentBag<string>();
+
+            using var semaphore = new SemaphoreSlim(MaxConcurrency);
+
+            var tasks = files.Select(async file =>
+            {
+                await semaphore.WaitAsync().ConfigureAwait(false);
+
+                try
+                {
+                    return ValidateFileAsync(file);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            return ProcessResult(results, validCacheFiles, validResourceFiles, errors);
+        }
+
+        private FileValidationResult ValidateFileAsync(string filePath) 
+        {
+            var fileInfo = new FileInfo(filePath);
+
+            using (var stream = fileInfo.OpenRead())
+            using (var reader = new EndianReader(stream)) 
+            {
+                if (CacheFiles.Contains(fileInfo.Name))
+                {
+                    var guid = new Guid(reader.ReadBytes(16));
+
+                    if (BuildStrings.Contains(guid.ToString()))
                     {
-                        if (fileInfo.Name.StartsWith("cache_") || fileInfo.Name.StartsWith("tags_") || string.IsNullOrEmpty(fileInfo.Extension))
-                        {
-                            CurrentResourceFiles.Add(file);
-                            validFiles++;
-                        }
-                        else
-                        {
-                            new PrecursorWarning($"Invalid Blob File: {fileInfo.Name}");
-                            continue;
-                        }
+                        return new FileValidationResult(true, filePath, FileType.Cache);
+                    }
+                    else
+                    {
+                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {guid} != {BuildStrings.FirstOrDefault()}");
+                    }
+                }
+                else
+                {
+                    if (fileInfo.Name.StartsWith("cache_") || fileInfo.Name.StartsWith("tags_") || string.IsNullOrEmpty(fileInfo.Extension))
+                    {
+                        return new FileValidationResult(true, filePath, FileType.Resource);
+                    }
+                    else
+                    {
+                        return new FileValidationResult(false, $"Invalid Blob File: {fileInfo.Name}");
+                    }
+                }
+            }
+        }
+
+        private (int ValidCount, List<string> Errors) ProcessResult(FileValidationResult[] results, ConcurrentBag<string> validCacheFiles, ConcurrentBag<string> validResourceFiles, ConcurrentBag<string> errors)
+        {
+            var validCount = 0;
+
+            foreach (var result in results)
+            {
+                if (result.IsValid)
+                {
+                    validCount++;
+
+                    switch (result.Type)
+                    {
+                        case FileType.Cache:
+                            validCacheFiles.Add(result.FilePath);
+                            break;
+                        case FileType.Resource:
+                            validResourceFiles.Add(result.FilePath);
+                            break;
+                    }
+                }
+                else if (result.ErrorMessage != null)
+                {
+                    errors.Add(result.ErrorMessage);
+                }
+            }
+
+            UpdateFileTable(validCacheFiles, validResourceFiles);
+
+            return (validCount, errors.ToList());
+        }
+
+        private void UpdateFileTable(ConcurrentBag<string> validCacheFiles, ConcurrentBag<string> validResourceFiles)
+        {
+            if (!validCacheFiles.IsEmpty)
+            {
+                lock (CurrentCacheFiles)
+                {
+                    foreach (var file in validCacheFiles)
+                    {
+                        CurrentCacheFiles.Add(file);
                     }
                 }
             }
 
-            Console.WriteLine($"Successfully Verified {validFiles}/{files.Count()} Files\n");
-
-            return true;
+            if (!validResourceFiles.IsEmpty)
+            {
+                lock (CurrentResourceFiles)
+                {
+                    foreach (var file in validResourceFiles)
+                    {
+                        CurrentResourceFiles.Add(file);
+                    }
+                }
+            }
         }
     }
 }
