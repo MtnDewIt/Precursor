@@ -48,17 +48,7 @@ namespace PrecursorShell.Commands.Builds
 
             Program.BuildTable.EmptyTable();
 
-            foreach (var build in buildTable?.Builds)
-            {
-                Console.WriteLine($"\nVerifying {build.Build} Cache Files...");
-
-                var buildTableEntry = BuildTableEntry.GetBuildEntry(build);
-
-                if (buildTableEntry != null)
-                {
-                    Program.BuildTable.AddEntry(buildTableEntry);
-                }
-            }
+            BuildTable.ParseBuildTable(buildTable);
 
             return true;
         }

@@ -19,7 +19,7 @@ namespace PrecursorShell.Cache.BuildInfo
 {
     public abstract class BuildTableEntry
     {
-        public static readonly int MaxConcurrency = Environment.ProcessorCount * 2;
+        public static readonly int MaxConcurrency = Environment.ProcessorCount;
 
         public abstract CacheBuild Build { get; }
         public abstract CacheVersion Version { get; }
