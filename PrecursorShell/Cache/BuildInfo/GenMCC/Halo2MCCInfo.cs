@@ -46,36 +46,22 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
             "textures.dat"
         };
 
-        public override List<string> CurrentMapFiles { get; set; }
-        public override List<string> CurrentCacheFiles { get; set; }
-        public override List<string> CurrentSharedFiles { get; set; }
-        public override List<string> CurrentResourceFiles { get; set; }
-
-        public Halo2MCCInfo()
-        {
-            CurrentCacheFiles = [];
-            CurrentSharedFiles = [];
-            CurrentResourceFiles = [];
-        }
-
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
-            var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
-            var resourceFiles = Directory.EnumerateFiles(build.Path, "*.dat", SearchOption.AllDirectories).ToList();
+            var files = Directory.EnumerateFiles(build.Path, "*.*", SearchOption.AllDirectories).Where(x => x.EndsWith(".map") || x.EndsWith(".dat"));
 
-            if (!ParseFileCount(files.Count))
+            if (!ParseFileCount(files.Count()))
             {
                 return false;
             }
 
-            var totalFileCount = files.Count + resourceFiles.Count;
             var validFiles = 0;
 
             foreach (var file in files)
             {
                 var fileInfo = new FileInfo(file);
 
-                if (!SharedFiles.Contains(fileInfo.Name))
+                if (!SharedFiles.Contains(fileInfo.Name) && !ResourceFiles.Contains(fileInfo.Name))
                 {
                     using (var stream = fileInfo.OpenRead())
                     using (var reader = new EndianReader(stream))
@@ -126,18 +112,18 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                     CurrentSharedFiles.Add(file);
                     validFiles++;
                 }
+
+                if (ResourceFiles.Contains(fileInfo.Name))
+                {
+                    CurrentResourceFiles.Add(file);
+                    validFiles++;
+                }
             }
 
-            foreach (var file in resourceFiles)
-            {
-                CurrentResourceFiles.Add(file);
-                validFiles++;
-            }
+            ParseFiles(SharedFiles, CurrentSharedFiles);
+            ParseFiles(ResourceFiles, CurrentResourceFiles);
 
-            ParseSharedFiles();
-            ParseResourceFiles();
-
-            Console.WriteLine($"Successfully Verified {validFiles}/{totalFileCount} Files\n");
+            Console.WriteLine($"Successfully Verified {validFiles}/{files.Count()} Files\n");
 
             return true;
         }

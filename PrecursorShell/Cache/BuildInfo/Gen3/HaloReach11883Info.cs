@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using TagTool.Cache;
 using TagTool.IO;
 
@@ -23,32 +24,22 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
             "0237d057-1e3c-4390-9cfc-6108a911de01" 
         };
 
-        public override List<string> CacheFiles => null;
+        public override List<string> CacheFiles => new List<string> 
+        {
+            "blob_index.dat"
+        };
         public override List<string> SharedFiles => null;
         public override List<string> ResourceFiles => null;
 
-        public override List<string> CurrentMapFiles { get; set; }
-        public override List<string> CurrentCacheFiles { get; set; }
-        public override List<string> CurrentSharedFiles { get; set; }
-        public override List<string> CurrentResourceFiles { get; set; }
-
-        public HaloReach11883Info() 
-        {
-            CurrentCacheFiles = [];
-            CurrentResourceFiles = [];
-        }
-
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
-            var files = Directory.EnumerateFiles(build.Path, "blob_index.dat", SearchOption.AllDirectories).ToList();
-            var blobs = Directory.EnumerateFiles($@"{build.Path}\blobs", "*.", SearchOption.AllDirectories).ToList();
+            var files = Directory.EnumerateFiles(build.Path, "*.*", SearchOption.AllDirectories).Where(x => x.EndsWith(".dat") || x.StartsWith($@"{build.Path}\blobs"));
 
-            if (!ParseFileCount(files.Count))
+            if (!ParseFileCount(files.Count()))
             {
                 return false;
             }
 
-            var totalFileCount = files.Count + blobs.Count;
             var validFiles = 0;
 
             foreach (var file in files) 
@@ -58,38 +49,38 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
                 using (var stream = fileInfo.OpenRead())
                 using (var reader = new EndianReader(stream))
                 {
-                    var guid = new Guid(reader.ReadBytes(16));
+                    if (CacheFiles.Contains(fileInfo.Name))
+                    {
+                        var guid = new Guid(reader.ReadBytes(16));
 
-                    if (BuildStrings.Contains(guid.ToString()))
-                    {
-                        CurrentCacheFiles.Add(file);
-                        validFiles++;
+                        if (BuildStrings.Contains(guid.ToString()))
+                        {
+                            CurrentCacheFiles.Add(file);
+                            validFiles++;
+                        }
+                        else
+                        {
+                            new PrecursorWarning($"Invalid Build String: {fileInfo.Name} - {guid.ToString()} != {BuildStrings.FirstOrDefault()}");
+                            continue;
+                        }
                     }
-                    else
+                    else 
                     {
-                        new PrecursorWarning($"Invalid Build String: {fileInfo.Name} - {guid.ToString()} != {BuildStrings.FirstOrDefault()}");
-                        continue;
+                        if (fileInfo.Name.StartsWith("cache_") || fileInfo.Name.StartsWith("tags_") || string.IsNullOrEmpty(fileInfo.Extension))
+                        {
+                            CurrentResourceFiles.Add(file);
+                            validFiles++;
+                        }
+                        else
+                        {
+                            new PrecursorWarning($"Invalid Blob File: {fileInfo.Name}");
+                            continue;
+                        }
                     }
                 }
             }
 
-            foreach (var blob in blobs) 
-            {
-                var fileInfo = new FileInfo(blob);
-
-                if (fileInfo.Name.StartsWith("cache_") || fileInfo.Name.StartsWith("tags_") || string.IsNullOrEmpty(fileInfo.Extension)) 
-                {
-                    CurrentResourceFiles.Add(blob);
-                    validFiles++;
-                }
-                else
-                {
-                    new PrecursorWarning($"Invalid Blob File: {fileInfo.Name}");
-                    continue;
-                }
-            }
-
-            Console.WriteLine($"Successfully Verified {validFiles}/{totalFileCount} Files\n");
+            Console.WriteLine($"Successfully Verified {validFiles}/{files.Count()} Files\n");
 
             return true;
         }

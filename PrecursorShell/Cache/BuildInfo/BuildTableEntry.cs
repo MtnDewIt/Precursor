@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.JSON.Handlers;
@@ -27,49 +26,26 @@ namespace PrecursorShell.Cache.BuildInfo
 
         public abstract string ResourcePath { get; }
 
-        public abstract List<string> BuildStrings { get; }
+        public abstract IReadOnlyList<string> BuildStrings { get; }
 
-        public abstract List<string> CacheFiles { get; }
-        public abstract List<string> SharedFiles { get; }
-        public abstract List<string> ResourceFiles { get; }
+        public abstract IReadOnlyList<string> CacheFiles { get; }
+        public abstract IReadOnlyList<string> SharedFiles { get; }
+        public abstract IReadOnlyList<string> ResourceFiles { get; }
 
-        public abstract List<string> CurrentMapFiles { get; set; }
-        public abstract List<string> CurrentCacheFiles { get; set; }
-        public abstract List<string> CurrentSharedFiles { get; set; }
-        public abstract List<string> CurrentResourceFiles { get; set; }
+        public HashSet<string> CurrentMapFiles { get; set; } = [];
+        public HashSet<string> CurrentCacheFiles { get; set; } = [];
+        public HashSet<string> CurrentSharedFiles { get; set; } = [];
+        public HashSet<string> CurrentResourceFiles { get; set; } = [];
 
         public abstract bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build);
 
-        public void ParseCacheFiles()
+        public static void ParseFiles(IReadOnlyList<string> mask, HashSet<string> files)
         {
-            foreach (var file in CacheFiles)
-            {
-                if (!CurrentCacheFiles.Any(x => Path.GetFileName(x) == file))
-                {
-                    new PrecursorWarning($"Missing Cache File: {file}");
-                }
-            }
-        }
+            var currentFiles = files.Select(Path.GetFileName);
 
-        public void ParseSharedFiles()
-        {
-            foreach (var file in SharedFiles) 
+            foreach (var file in mask.Where(file => !currentFiles.Contains(file)))
             {
-                if (!CurrentSharedFiles.Any(x => Path.GetFileName(x) == file)) 
-                {
-                    new PrecursorWarning($"Missing Shared File: {file}");
-                }
-            }
-        }
-
-        public void ParseResourceFiles()
-        {
-            foreach (var file in ResourceFiles)
-            {
-                if (!CurrentResourceFiles.Any(x => Path.GetFileName(x) == file))
-                {
-                    new PrecursorWarning($"Missing Resource File: {file}");
-                }
+                new PrecursorWarning($"Missing Shared File: {file}");
             }
         }
 
@@ -112,9 +88,9 @@ namespace PrecursorShell.Cache.BuildInfo
             File.WriteAllText(fileInfo.FullName, jsonData);
         }
 
-        public static CacheResource GetResourceType(string fileName)
+        public static CacheResource GetResourceType(ReadOnlySpan<char> fileName)
         {
-            return (fileName) switch 
+            return fileName switch
             {
                 "tags.dat" => CacheResource.Tags,
                 "string_ids.dat" => CacheResource.StringIds,

@@ -54,29 +54,15 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
             { CacheResource.Video, "2015-09-29 10:14:32.2100756" },
         };
 
-        public override List<string> CurrentMapFiles { get; set; }
-        public override List<string> CurrentCacheFiles { get; set; }
-        public override List<string> CurrentSharedFiles { get; set; }
-        public override List<string> CurrentResourceFiles { get; set; }
-
-        public HaloOnline554482Info()
-        {
-            CurrentMapFiles = [];
-            CurrentCacheFiles = [];
-            CurrentSharedFiles = [];
-        }
-
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
-            var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
-            var sharedFiles = Directory.EnumerateFiles(build.Path, "*.dat", SearchOption.AllDirectories).ToList();
+            var files = Directory.EnumerateFiles(build.Path, "*.*", SearchOption.AllDirectories).Where(x => x.EndsWith(".map") || x.EndsWith(".dat"));
 
-            if (!ParseFileCount(files.Count))
+            if (!ParseFileCount(files.Count()))
             {
                 return false;
             }
 
-            var totalFileCount = files.Count + sharedFiles.Count;
             var validFiles = 0;
 
             foreach (var file in files)
@@ -86,109 +72,107 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
                 using (var stream = fileInfo.OpenRead())
                 using (var reader = new EndianReader(stream))
                 {
-                    var mapFile = new MapFile();
+                    if (!CacheFiles.Contains(fileInfo.Name) && !SharedFiles.Contains(fileInfo.Name))
+                    {
+                        var mapFile = new MapFile();
 
-                    try
-                    {
-                        mapFile.Read(reader);
-                    }
-                    catch (Exception ex)
-                    {
-                        new PrecursorWarning($"Failed to parse file \"{fileInfo.Name}\": {ex.Message}");
-                        continue;
-                    }
-
-                    if (!mapFile.Header.IsValid())
-                    {
-                        new PrecursorWarning($"Invalid Map File: {fileInfo.Name}");
-                        continue;
-                    }
-
-                    if (BuildStrings.Contains(mapFile.Header.GetBuild()))
-                    {
                         try
                         {
-                            GenerateJSON(mapFile, fileInfo.Name, ResourcePath);
+                            mapFile.Read(reader);
                         }
                         catch (Exception ex)
                         {
-                            new PrecursorWarning($"Failed to serialize JSON \"{fileInfo.Name}\": {ex.Message}");
+                            new PrecursorWarning($"Failed to parse file \"{fileInfo.Name}\": {ex.Message}");
                             continue;
                         }
 
-                        CurrentMapFiles.Add(file);
-                        validFiles++;
-                    }
-                    else
-                    {
-                        new PrecursorWarning($"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
-                        continue;
-                    }
-                }
-            }
-
-            foreach (var file in sharedFiles)
-            {
-                var fileInfo = new FileInfo(file);
-
-                using (var stream = fileInfo.OpenRead())
-                using (var reader = new EndianReader(stream))
-                {
-                    var resourceType = GetResourceType(fileInfo.Name);
-
-                    if (resourceType == CacheResource.None || resourceType != CacheResource.StringIds && !BuildDateTable.ContainsKey(resourceType))
-                    {
-                        new PrecursorWarning($"Invalid File: {fileInfo.Name} - Unsupported or invalid resource type");
-                        continue;
-                    }
-
-                    if (resourceType != CacheResource.None && resourceType != CacheResource.StringIds)
-                    {
-                        CacheFileSectionHeader header = null;
-
-                        try
+                        if (!mapFile.Header.IsValid())
                         {
-                            header = CacheFileSectionHeader.ReadHeader(reader, Version, Platform);
-                        }
-                        catch
-                        {
-                            new PrecursorWarning($"Invalid File: {fileInfo.Name} - Failed to deserialize file section header");
+                            new PrecursorWarning($"Invalid Map File: {fileInfo.Name}");
                             continue;
                         }
 
-                        var timestamp = LastModificationDate.GetTimestamp(header.CreationDate);
-
-                        if (BuildDateTable[resourceType] == timestamp)
+                        if (BuildStrings.Contains(mapFile.Header.GetBuild()))
                         {
-                            if (resourceType == CacheResource.Tags)
+                            try
                             {
-                                CurrentCacheFiles.Add(file);
-                                validFiles++;
+                                GenerateJSON(mapFile, fileInfo.Name, ResourcePath);
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                CurrentSharedFiles.Add(file);
-                                validFiles++;
+                                new PrecursorWarning($"Failed to serialize JSON \"{fileInfo.Name}\": {ex.Message}");
+                                continue;
                             }
+
+                            CurrentMapFiles.Add(file);
+                            validFiles++;
                         }
                         else
                         {
-                            new PrecursorWarning($"Invalid Build Date: {fileInfo.Name} - {timestamp} != {BuildDateTable[resourceType]}");
+                            new PrecursorWarning($"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
                             continue;
                         }
                     }
-                    else if (resourceType == CacheResource.StringIds)
+
+                    if (CacheFiles.Contains(fileInfo.Name) || SharedFiles.Contains(fileInfo.Name))
                     {
-                        CurrentSharedFiles.Add(file);
-                        validFiles++;
+                        var resourceType = GetResourceType(fileInfo.Name);
+
+                        if (resourceType == CacheResource.None || resourceType != CacheResource.StringIds && !BuildDateTable.ContainsKey(resourceType))
+                        {
+                            new PrecursorWarning($"Invalid File: {fileInfo.Name} - Unsupported or invalid resource type");
+                            continue;
+                        }
+
+                        if (resourceType != CacheResource.None && resourceType != CacheResource.StringIds)
+                        {
+                            CacheFileSectionHeader header = null;
+
+                            try
+                            {
+                                header = CacheFileSectionHeader.ReadHeader(reader, Version, Platform);
+                            }
+                            catch
+                            {
+                                new PrecursorWarning($"Invalid File: {fileInfo.Name} - Failed to deserialize file section header");
+                                continue;
+                            }
+
+                            var timestamp = LastModificationDate.GetTimestamp(header.CreationDate);
+
+                            if (BuildDateTable[resourceType] == timestamp)
+                            {
+                                if (resourceType == CacheResource.Tags)
+                                {
+                                    CurrentCacheFiles.Add(file);
+                                    validFiles++;
+                                }
+                                else
+                                {
+                                    CurrentSharedFiles.Add(file);
+                                    validFiles++;
+                                }
+                            }
+                            else
+                            {
+                                new PrecursorWarning($"Invalid Build Date: {fileInfo.Name} - {timestamp} != {BuildDateTable[resourceType]}");
+                                continue;
+                            }
+                        }
+
+                        if (resourceType == CacheResource.StringIds)
+                        {
+                            CurrentSharedFiles.Add(file);
+                            validFiles++;
+                        }
                     }
                 }
             }
 
-            ParseCacheFiles();
-            ParseSharedFiles();
+            ParseFiles(CacheFiles, CurrentCacheFiles);
+            ParseFiles(SharedFiles, CurrentSharedFiles);
 
-            Console.WriteLine($"Successfully Verified {validFiles}/{totalFileCount} Files\n");
+            Console.WriteLine($"Successfully Verified {validFiles}/{files.Count()} Files\n");
 
             return true;
         }

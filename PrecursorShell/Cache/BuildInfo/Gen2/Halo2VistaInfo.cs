@@ -32,22 +32,11 @@ namespace PrecursorShell.Cache.BuildInfo.Gen2
         };
         public override List<string> ResourceFiles => null;
 
-        public override List<string> CurrentMapFiles { get; set; }
-        public override List<string> CurrentCacheFiles { get; set; }
-        public override List<string> CurrentSharedFiles { get; set; }
-        public override List<string> CurrentResourceFiles { get; set; }
-
-        public Halo2VistaInfo() 
-        {
-            CurrentCacheFiles = [];
-            CurrentSharedFiles = [];
-        }
-
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
-            var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToList();
+            var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories);
 
-            if (!ParseFileCount(files.Count))
+            if (!ParseFileCount(files.Count()))
             {
                 return false;
             }
@@ -111,9 +100,9 @@ namespace PrecursorShell.Cache.BuildInfo.Gen2
                 }
             }
 
-            ParseSharedFiles();
+            ParseFiles(SharedFiles, CurrentSharedFiles);
 
-            Console.WriteLine($"Successfully Verified {validFiles}/{files.Count} Files\n");
+            Console.WriteLine($"Successfully Verified {validFiles}/{files.Count()} Files\n");
 
             return true;
         }
