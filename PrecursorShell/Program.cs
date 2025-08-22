@@ -38,17 +38,7 @@ namespace PrecursorShell
             {
                 var buildTable = BuildTableConfig.ParseConfig();
 
-                foreach (var build in buildTable.Builds) 
-                {
-                    Console.WriteLine($"Verifying {build.Build} Cache Files...");
-
-                    var buildTableEntry = BuildTableEntry.GetBuildEntry(build);
-
-                    if (buildTableEntry != null) 
-                    {
-                        BuildTable.AddEntry(buildTableEntry);
-                    }
-                }
+                BuildTable.ParseBuildTable(buildTable);
             }
             else
             {
