@@ -14,18 +14,18 @@ using TagTool.IO;
 
 namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
 {
-    public class HaloOnline571627Info : BuildTableEntry
+    public class HaloOnline700255Info : BuildTableEntry
     {
-        public override CacheBuild Build => CacheBuild.HaloOnline571627;
-        public override CacheVersion Version => CacheVersion.HaloOnline571627;
+        public override CacheBuild Build => CacheBuild.HaloOnline700255;
+        public override CacheVersion Version => CacheVersion.HaloOnline700123;
         public override CachePlatform Platform => CachePlatform.Original;
         public override CacheGeneration Generation => CacheGeneration.GenHaloOnline;
 
-        public override string ResourcePath => @"Resources\GenHaloOnline\HaloOnline571627";
+        public override string ResourcePath => @"Resources\GenHaloOnline\HaloOnline700255";
 
         public override List<string> BuildStrings => new List<string>
         {
-            "11.1.571627 Live"
+            "12.1.700123 cert_ms30_oct19"
         };
 
         public override List<string> CacheFiles => new List<string>
@@ -47,14 +47,14 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
 
         public static readonly Dictionary<CacheResource, string> BuildDateTable = new Dictionary<CacheResource, string>
         {
-            { CacheResource.Tags, "2015-10-01 16:02:13.0693956" },
-            { CacheResource.Audio, "2015-10-01 16:02:13.4074294" },
-            { CacheResource.Lightmaps, "2015-10-01 16:02:13.4074294" },
-            { CacheResource.RenderModels, "2015-10-01 16:02:13.4074294" },
-            { CacheResource.Resources, "2015-10-01 16:02:13.4064293" },
-            { CacheResource.Textures, "2015-10-01 16:02:13.4064293" },
-            { CacheResource.TexturesB, "2015-10-01 16:02:13.4074294" },
-            { CacheResource.Video, "2015-10-01 16:02:13.4074294" },
+            { CacheResource.Tags, "2015-11-26 10:26:02.8935939" },
+            { CacheResource.Audio, "2015-11-26 10:26:03.1875939" },
+            { CacheResource.Lightmaps, "2015-11-26 10:26:03.1875939" },
+            { CacheResource.RenderModels, "2015-11-26 10:26:03.1875939" },
+            { CacheResource.Resources, "2015-11-26 10:26:03.1865939" },
+            { CacheResource.Textures, "2015-11-26 10:26:03.1865939" },
+            { CacheResource.TexturesB, "2015-11-26 10:26:03.1865939" },
+            { CacheResource.Video, "2015-11-26 10:26:03.1875939" },
         };
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)

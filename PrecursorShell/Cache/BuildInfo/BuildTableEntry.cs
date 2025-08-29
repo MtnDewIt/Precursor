@@ -171,6 +171,15 @@ namespace PrecursorShell.Cache.BuildInfo
                 case CacheBuild.HaloOnline106708:
                     buildInfo = new HaloOnline106708Info();
                     break;
+                case CacheBuild.HaloOnline155080:
+                    buildInfo = new HaloOnline155080Info();
+                    break;
+                case CacheBuild.HaloOnline171227:
+                    buildInfo = new HaloOnline171227Info();
+                    break;
+                case CacheBuild.HaloOnline177150:
+                    buildInfo = new HaloOnline177150Info();
+                    break;
                 case CacheBuild.HaloOnline235640:
                     buildInfo = new HaloOnline235640Info();
                     break;
@@ -180,41 +189,56 @@ namespace PrecursorShell.Cache.BuildInfo
                 case CacheBuild.HaloOnline327043:
                     buildInfo = new HaloOnline327043Info();
                     break;
+                case CacheBuild.HaloOnline332089:
+                    buildInfo = new HaloOnline332089Info();
+                    break;
                 case CacheBuild.HaloOnline372731:
                     buildInfo = new HaloOnline372731Info();
+                    break;
+                case CacheBuild.HaloOnline373869:
+                    buildInfo = new HaloOnline373869Info();
                     break;
                 case CacheBuild.HaloOnline416097:
                     buildInfo = new HaloOnline416097Info();
                     break;
+                case CacheBuild.HaloOnline416138:
+                    buildInfo = new HaloOnline416138Info();
+                    break;
                 case CacheBuild.HaloOnline430475:
                     buildInfo = new HaloOnline430475Info();
                     break;
-                case CacheBuild.HaloOnline454665:
-                    buildInfo = new HaloOnline454665Info();
+                case CacheBuild.HaloOnline430653:
+                    buildInfo = new HaloOnline430653Info();
                     break;
                 case CacheBuild.HaloOnline449175:
                     buildInfo = new HaloOnline449175Info();
                     break;
+                case CacheBuild.HaloOnline454665:
+                    buildInfo = new HaloOnline454665Info();
+                    break;
+                case CacheBuild.HaloOnline479394:
+                    buildInfo = new HaloOnline479394Info();
+                    break;
                 case CacheBuild.HaloOnline498295:
                     buildInfo = new HaloOnline498295Info();
                     break;
-                case CacheBuild.HaloOnline530605:
-                    buildInfo = new HaloOnline530605Info();
+                case CacheBuild.HaloOnline530945:
+                    buildInfo = new HaloOnline530945Info();
                     break;
-                case CacheBuild.HaloOnline532911:
-                    buildInfo = new HaloOnline532911Info();
+                case CacheBuild.HaloOnline533032:
+                    buildInfo = new HaloOnline533032Info();
                     break;
                 case CacheBuild.HaloOnline554482:
                     buildInfo = new HaloOnline554482Info();
                     break;
-                case CacheBuild.HaloOnline571627:
-                    buildInfo = new HaloOnline571627Info();
+                case CacheBuild.HaloOnline571698:
+                    buildInfo = new HaloOnline571698Info();
                     break;
                 case CacheBuild.HaloOnline604673:
                     buildInfo = new HaloOnline604673Info();
                     break;
-                case CacheBuild.HaloOnline700123:
-                    buildInfo = new HaloOnline700123Info();
+                case CacheBuild.HaloOnline700255:
+                    buildInfo = new HaloOnline700255Info();
                     break;
                 case CacheBuild.Halo1MCC:
                     buildInfo = new Halo1MCCInfo();

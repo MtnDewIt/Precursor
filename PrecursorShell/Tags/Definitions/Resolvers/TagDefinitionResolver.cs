@@ -281,21 +281,29 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
 
                 CacheBuild.HaloOnlineED or
                 CacheBuild.HaloOnline106708 or
+                CacheBuild.HaloOnline155080 or
+                CacheBuild.HaloOnline171227 or
+                CacheBuild.HaloOnline177150 or
                 CacheBuild.HaloOnline235640 or
                 CacheBuild.HaloOnline301003 or
                 CacheBuild.HaloOnline327043 or
+                CacheBuild.HaloOnline332089 or
                 CacheBuild.HaloOnline372731 or
+                CacheBuild.HaloOnline373869 or
                 CacheBuild.HaloOnline416097 or
+                CacheBuild.HaloOnline416138 or
                 CacheBuild.HaloOnline430475 or
-                CacheBuild.HaloOnline454665 or
+                CacheBuild.HaloOnline430653 or
                 CacheBuild.HaloOnline449175 or
+                CacheBuild.HaloOnline454665 or
+                CacheBuild.HaloOnline479394 or
                 CacheBuild.HaloOnline498295 or
-                CacheBuild.HaloOnline530605 or
-                CacheBuild.HaloOnline532911 or
+                CacheBuild.HaloOnline530945 or
+                CacheBuild.HaloOnline533032 or
                 CacheBuild.HaloOnline554482 or
-                CacheBuild.HaloOnline571627 or
+                CacheBuild.HaloOnline571698 or
                 CacheBuild.HaloOnline604673 or
-                CacheBuild.HaloOnline700123 => null,
+                CacheBuild.HaloOnline700255 => null,
 
                 CacheBuild.Halo4Retail or
                 CacheBuild.Halo4MCC or
