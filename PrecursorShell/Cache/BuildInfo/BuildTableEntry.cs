@@ -189,29 +189,14 @@ namespace PrecursorShell.Cache.BuildInfo
                 case CacheBuild.HaloOnline327043:
                     buildInfo = new HaloOnline327043Info();
                     break;
-                case CacheBuild.HaloOnline332089:
-                    buildInfo = new HaloOnline332089Info();
-                    break;
-                case CacheBuild.HaloOnline372731:
-                    buildInfo = new HaloOnline372731Info();
-                    break;
                 case CacheBuild.HaloOnline373869:
                     buildInfo = new HaloOnline373869Info();
-                    break;
-                case CacheBuild.HaloOnline416097:
-                    buildInfo = new HaloOnline416097Info();
                     break;
                 case CacheBuild.HaloOnline416138:
                     buildInfo = new HaloOnline416138Info();
                     break;
-                case CacheBuild.HaloOnline430475:
-                    buildInfo = new HaloOnline430475Info();
-                    break;
                 case CacheBuild.HaloOnline430653:
                     buildInfo = new HaloOnline430653Info();
-                    break;
-                case CacheBuild.HaloOnline449175:
-                    buildInfo = new HaloOnline449175Info();
                     break;
                 case CacheBuild.HaloOnline454665:
                     buildInfo = new HaloOnline454665Info();
