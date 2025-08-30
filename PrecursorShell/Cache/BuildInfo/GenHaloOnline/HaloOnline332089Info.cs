@@ -14,14 +14,14 @@ using TagTool.IO;
 
 namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
 {
-    public class HaloOnline327043Info : BuildTableEntry
+    public class HaloOnline332089Info : BuildTableEntry
     {
-        public override CacheBuild Build => CacheBuild.HaloOnline327043;
+        public override CacheBuild Build => CacheBuild.HaloOnline332089;
         public override CacheVersion Version => CacheVersion.HaloOnline327043;
         public override CachePlatform Platform => CachePlatform.Original;
         public override CacheGeneration Generation => CacheGeneration.GenHaloOnline;
 
-        public override string ResourcePath => @"Resources\GenHaloOnline\HaloOnline327043";
+        public override string ResourcePath => @"Resources\GenHaloOnline\HaloOnline332089";
 
         public override List<string> BuildStrings => new List<string>
         {
