@@ -4,6 +4,7 @@ using PrecursorShell.Commands.Common;
 using PrecursorShell.Commands.ConvertCache;
 using PrecursorShell.Commands.GenerateCache;
 using PrecursorShell.Commands.GenerateDonkeyCache;
+using PrecursorShell.Commands.Mandrill;
 using PrecursorShell.Commands.Tags;
 
 namespace PrecursorShell.Commands.Context
@@ -28,6 +29,8 @@ namespace PrecursorShell.Commands.Context
             context.AddCommand(new ValidateBitmapsCommand());
             context.AddCommand(new ValidateBlamFileCommand());
             context.AddCommand(new ValidateTagDefinitionsCommand());
+
+            context.AddCommand(new GenerateMandrilCommandArgumentsCommand());
 
             // TODO: Pass the cache into the command contsructor
             //context.AddCommand(new ConvertCacheCommand(null, null));
