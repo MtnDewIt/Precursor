@@ -1,36 +1,56 @@
 ﻿using HaloShaderGenerator.Globals;
+using PrecursorShell.Common;
+using PrecursorShell.Tags.Definitions.ElDewritoDebug;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using TagTool.Cache.HaloOnline;
 using TagTool.Cache;
+using TagTool.Cache.HaloOnline;
 using TagTool.Shaders.ShaderGenerator;
-using PrecursorShell.Tags.Definitions.ElDewritoDebug;
 
 namespace PrecursorShell.Commands.ConvertCache
 {
     public class ConvertCacheCommand : PrecursorCommand
     {
-        public GameCache Cache { get; set; }
-        public GameCacheHaloOnlineBase CacheContext { get; set; }
+        public enum ElDewritoBuild
+        {
+            None = 0,
+            ED061745,
+        }
 
-        public ConvertCacheCommand(GameCache cache, GameCacheHaloOnlineBase cacheContext) : base
+        public GameCache Cache { get; set; }
+
+        public ConvertCacheCommand() : base
         (
             true,
             "ConvertCache",
-            "Updates the specified cache so that it functions in ElDewrito 0.6.17.45",
-            "ConvertCache",
-            "Updates the specified cache so that it functions in ElDewrito 0.6.17.45"
+            "Converts the specified cache so that it functions in older eldewrito builds",
+            "ConvertCache <Cache Path> <Build>",
+            "Converts the specified cache so that it functions in older eldewrito builds\n\n" +
+            "WARNING: If you are converting mod packages, esnure they are placed in the mods folder of\n" +
+            "you eldewrito install, as the command will pull the base cache path from the maps folder"
         )
         {
-            Cache = cache;
-            CacheContext = cacheContext;
         }
 
         public override object Execute(List<string> args) 
         {
+            if (args.Count != 2)
+                return new PrecursorError($"Incorrect amount of arguments supplied!");
+
+            var file = new FileInfo(args[0]);
+
+            if (!file.Exists)
+                return new PrecursorError($"The specified file could not be found! \"{file.Name}\"");
+
+            if (!Enum.TryParse(args[1], true, out ElDewritoBuild build))
+                return new PrecursorError($"Invalid Build!");
+
+            ParseInputPath(file);
+
             if (Cache is GameCacheHaloOnline)
             {
-                using (Stream stream = CacheContext.OpenCacheReadWrite())
+                using (Stream stream = Cache.OpenCacheReadWrite())
                 {
                     ConvertTagData(Cache, stream);
                 }
@@ -51,23 +71,43 @@ namespace PrecursorShell.Commands.ConvertCache
             return true;
         }
 
+        public void ParseInputPath(FileInfo file) 
+        {
+            if (file.Name.EndsWith(".dat")) 
+            {
+                Cache = GameCache.Open(file);
+            }
+            else if (file.Name.EndsWith(".pak"))
+            {
+                var basePath = file.Directory.FullName.Replace("mods", "");
+
+                var baseCache = GameCache.Open($@"{basePath}maps\tags.dat");
+
+                Cache = new GameCacheModPackage(baseCache as GameCacheHaloOnline, file);
+            }
+        }
+
         public void ConvertTagData(GameCache cache, Stream stream) 
         {
             foreach (CachedTag tag in cache.TagCache.NonNull())
             {
-                if (tag.IsInGroup("sefc"))
-                    ConvertAreaScreenEffect(stream, tag);
+                if (!(tag as CachedTagHaloOnline).IsEmpty()) 
+                {
+                    if (tag.IsInGroup("sefc"))
+                        ConvertAreaScreenEffect(stream, tag);
 
-                if (tag.IsInGroup("forg"))
-                    ConvertForgeGlobalsDefintion(stream, tag);
+                    if (tag.IsInGroup("forg"))
+                        ConvertForgeGlobalsDefintion(stream, tag);
 
-                if (tag.IsInGroup("modg"))
-                    ConvertModGlobalsDefinition(stream, tag);
+                    if (tag.IsInGroup("modg"))
+                        ConvertModGlobalsDefinition(stream, tag);
 
-                if (tag.IsInGroup("pact"))
-                    ConvertPlayerActionSet(stream, tag);
+                    if (tag.IsInGroup("pact"))
+                        ConvertPlayerActionSet(stream, tag);
 
-                // TODO: Add something to revert the mp_wake_script script operator in the scenario
+                    if (tag.IsInGroup("scnr"))
+                        ConvertScenario(stream, tag);
+                }
             }
 
             GenerateExplicitShader(stream, ExplicitShader.final_composite, false);
@@ -83,7 +123,7 @@ namespace PrecursorShell.Commands.ConvertCache
 
         public void ConvertAreaScreenEffect(Stream stream, CachedTag tag) 
         {
-            TagTool.Tags.Definitions.AreaScreenEffect definition = CacheContext.Deserialize<TagTool.Tags.Definitions.AreaScreenEffect>(stream, tag);
+            TagTool.Tags.Definitions.AreaScreenEffect definition = Cache.Deserialize<TagTool.Tags.Definitions.AreaScreenEffect>(stream, tag);
 
             AreaScreenEffect adapter = new AreaScreenEffect 
             {
@@ -120,12 +160,12 @@ namespace PrecursorShell.Commands.ConvertCache
                 });
             }
 
-            CacheContext.Serialize(stream, tag, adapter);
+            Cache.Serialize(stream, tag, adapter);
         }
 
         public void ConvertForgeGlobalsDefintion(Stream stream, CachedTag tag) 
         {
-            ForgeGlobalsDefinition definition = CacheContext.Deserialize<ForgeGlobalsDefinition>(stream, tag);
+            ForgeGlobalsDefinition definition = Cache.Deserialize<ForgeGlobalsDefinition>(stream, tag);
 
             ForgeGlobalsDefinition adapter = new ForgeGlobalsDefinition 
             {
@@ -147,12 +187,12 @@ namespace PrecursorShell.Commands.ConvertCache
                 FxLight = definition.FxLight,
             };
 
-            CacheContext.Serialize(stream, tag, adapter);
+            Cache.Serialize(stream, tag, adapter);
         }
 
         public void ConvertModGlobalsDefinition(Stream stream, CachedTag tag) 
         {
-            ModGlobalsDefinition definition = CacheContext.Deserialize<ModGlobalsDefinition>(stream, tag);
+            ModGlobalsDefinition definition = Cache.Deserialize<ModGlobalsDefinition>(stream, tag);
 
             ModGlobalsDefinition adapter = new ModGlobalsDefinition 
             {
@@ -218,12 +258,12 @@ namespace PrecursorShell.Commands.ConvertCache
                 adapter.PlayerCharacterCustomizations[i].CharacterColors = customization.CharacterColors;
             }
 
-            CacheContext.Serialize(stream, tag, adapter);
+            Cache.Serialize(stream, tag, adapter);
         }
 
         public void ConvertPlayerActionSet(Stream stream, CachedTag tag) 
         {
-            TagTool.Tags.Definitions.PlayerActionSet definition = CacheContext.Deserialize<TagTool.Tags.Definitions.PlayerActionSet>(stream, tag);
+            TagTool.Tags.Definitions.PlayerActionSet definition = Cache.Deserialize<TagTool.Tags.Definitions.PlayerActionSet>(stream, tag);
 
             PlayerActionSet adapter = new PlayerActionSet 
             {
@@ -253,7 +293,12 @@ namespace PrecursorShell.Commands.ConvertCache
                 });
             }
 
-            CacheContext.Serialize(stream, tag, adapter);
+            Cache.Serialize(stream, tag, adapter);
+        }
+
+        public void ConvertScenario(Stream stream, CachedTag tag) 
+        {
+            // TODO: Add something to revert the mp_wake_script script operator in the scenario
         }
 
         public void GenerateExplicitShader(Stream stream, ExplicitShader shader, bool applyFixes = false)

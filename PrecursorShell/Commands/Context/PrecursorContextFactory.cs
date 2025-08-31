@@ -32,8 +32,9 @@ namespace PrecursorShell.Commands.Context
 
             context.AddCommand(new GenerateMandrilCommandArgumentsCommand());
 
+            context.AddCommand(new ConvertCacheCommand());
+
             // TODO: Pass the cache into the command contsructor
-            //context.AddCommand(new ConvertCacheCommand(null, null));
             //context.AddCommand(new GenerateCacheCommand(null));
             //context.AddCommand(new GenerateDonkeyCacheCommand(null, contextStack));
 
