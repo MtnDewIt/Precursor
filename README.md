@@ -82,8 +82,6 @@ The Blam! titles supported by Precursor line up roughly with engine versions cur
 | 11.1.601838 Live | HaloOnline604673 | GenHaloOnline\HaloOnline604673 |
 | 12.1.700123 cert_ms30_oct19 | HaloOnline700123 | GenHaloOnline\HaloOnline700255 |
 
-&nbsp;
-
 ### MCC
 
 MCC cache files are handled differently from all other builds. Since MCC uses a static folder structure for all its supported engine versions, the only input required is the path to the base MCC installation directory.
