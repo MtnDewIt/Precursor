@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace PrecursorShell.Commands.Mandrill
 {
-    public class GenerateMandrilCommandArgumentsCommand : PrecursorCommand
+    public class GenerateMandrillCommandArgumentsCommand : PrecursorCommand
     {
         public enum MandrillProject 
         {
@@ -17,13 +17,13 @@ namespace PrecursorShell.Commands.Mandrill
             EldoradoCacheFileTest,
         }
 
-        public GenerateMandrilCommandArgumentsCommand() : base
+        public GenerateMandrillCommandArgumentsCommand() : base
         (
             false,
-            "GenerateMandrilCommandArguments",
+            "GenerateMandrillCommandArguments",
             "Generates command line argument files for the specified mandrill project",
 
-            "GenerateMandrilCommandArguments <Project>",
+            "GenerateMandrillCommandArguments <Project>",
             "Generates command line argument files for the specified mandrill project"
         )
         {

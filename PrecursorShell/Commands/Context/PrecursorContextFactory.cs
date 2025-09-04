@@ -30,7 +30,7 @@ namespace PrecursorShell.Commands.Context
             context.AddCommand(new ValidateBlamFileCommand());
             context.AddCommand(new ValidateTagDefinitionsCommand());
 
-            context.AddCommand(new GenerateMandrilCommandArgumentsCommand());
+            context.AddCommand(new GenerateMandrillCommandArgumentsCommand());
 
             context.AddCommand(new ConvertCacheCommand());
 
