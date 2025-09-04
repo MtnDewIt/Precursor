@@ -3,6 +3,7 @@ using PrecursorShell.Cache;
 using PrecursorShell.Common;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace PrecursorShell.Commands.BlamFile
@@ -35,7 +36,7 @@ namespace PrecursorShell.Commands.BlamFile
             {
                 foreach (var buildInfo in buildTable) 
                 {
-                    if (buildInfo.ResourcePath != null) 
+                    if (buildInfo.ResourcePath != null && Directory.Exists(buildInfo.ResourcePath)) 
                     {
                         BlfResolver.ParseFiles(buildInfo);
                     }
@@ -45,7 +46,7 @@ namespace PrecursorShell.Commands.BlamFile
             {
                 var buildInfo = buildTable.Where(x => x.Build == build).FirstOrDefault();
 
-                if (buildInfo.ResourcePath != null)
+                if (buildInfo.ResourcePath != null && Directory.Exists(buildInfo.ResourcePath))
                 {
                     BlfResolver.ParseFiles(buildInfo);
                 }
