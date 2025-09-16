@@ -11,28 +11,27 @@ using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.IO;
 
-namespace PrecursorShell.Cache.BuildInfo.GenMCC
+namespace PrecursorShell.Cache.BuildInfo.MCC
 {
-    public class Halo1MCCInfo : BuildTableEntry
+    public class Halo3ODSTMCCInfo : BuildTableEntry
     {
-        public override CacheBuild Build => CacheBuild.Halo1MCC;
-        public override CacheVersion Version => CacheVersion.HaloCustomEdition;
+        public override CacheBuild Build => CacheBuild.Halo3ODSTMCC;
+        public override CacheVersion Version => CacheVersion.Halo3ODST;
         public override CachePlatform Platform => CachePlatform.MCC;
-        public override CacheGeneration Generation => CacheGeneration.GenMCC;
+        public override CacheGeneration Generation => CacheGeneration.MCC;
 
-        public override string ResourcePath => @"Resources\GenMCC\Halo1MCC";
+        public override string ResourcePath => @"Resources\MCC\Halo3ODSTMCC";
 
         public override List<string> BuildStrings => new List<string>
         {
-            "01.03.43.0000"
+            "May 16 2023 11:44:41"
         };
 
         public override List<string> CacheFiles => null;
         public override List<string> SharedFiles => new List<string>
         {
-            "bitmaps.map",
-            "loc.map",
-            "sounds.map"
+            "campaign.map",
+            "shared.map"
         };
         public override List<string> ResourceFiles => null;
 
@@ -116,7 +115,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                         return new FileValidationResult(false, $"Invalid Cache File: {fileInfo.Name}");
                     }
 
-                    if (BuildStrings.Contains(mapFile.Header.GetBuild()))
+                    if (BuildStrings.Contains(mapFile.Header.GetBuildNumber()))
                     {
                         try
                         {
@@ -131,7 +130,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                     }
                     else
                     {
-                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
+                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuildNumber()} != {BuildStrings.FirstOrDefault()}");
                     }
                 }
 

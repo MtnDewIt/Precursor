@@ -2,8 +2,8 @@
 using PrecursorShell.Cache.BuildInfo.Gen2;
 using PrecursorShell.Cache.BuildInfo.Gen3;
 using PrecursorShell.Cache.BuildInfo.Gen4;
-using PrecursorShell.Cache.BuildInfo.GenHaloOnline;
-using PrecursorShell.Cache.BuildInfo.GenMCC;
+using PrecursorShell.Cache.BuildInfo.Eldorado;
+using PrecursorShell.Cache.BuildInfo.MCC;
 using PrecursorShell.Cache.BuildTable;
 using PrecursorShell.Common;
 using System;
@@ -70,7 +70,8 @@ namespace PrecursorShell.Cache.BuildInfo
             var mapObject = new MapObject()
             {
                 MapName = mapName,
-                MapVersion = mapFile.Version,
+                Version = mapFile.Version,
+                Platform = mapFile.Platform,
                 Header = mapFile.Header,
                 MapFileBlf = mapFile.MapFileBlf,
                 Reports = mapFile.Reports,
@@ -165,65 +166,65 @@ namespace PrecursorShell.Cache.BuildInfo
                 case CacheBuild.Halo4Retail:
                     buildInfo = new Halo4RetailInfo();
                     break;
-                case CacheBuild.HaloOnlineED:
-                    buildInfo = new HaloOnlineEDInfo();
+                case CacheBuild.EldoradoED:
+                    buildInfo = new EldoradoEDInfo();
                     break;
-                case CacheBuild.HaloOnline106708:
-                    buildInfo = new HaloOnline106708Info();
+                case CacheBuild.Eldorado106708:
+                    buildInfo = new Eldorado106708Info();
                     break;
-                case CacheBuild.HaloOnline155080:
-                    buildInfo = new HaloOnline155080Info();
+                case CacheBuild.Eldorado155080:
+                    buildInfo = new Eldorado155080Info();
                     break;
-                case CacheBuild.HaloOnline171227:
-                    buildInfo = new HaloOnline171227Info();
+                case CacheBuild.Eldorado171227:
+                    buildInfo = new Eldorado171227Info();
                     break;
-                case CacheBuild.HaloOnline177150:
-                    buildInfo = new HaloOnline177150Info();
+                case CacheBuild.Eldorado177150:
+                    buildInfo = new Eldorado177150Info();
                     break;
-                case CacheBuild.HaloOnline235640:
-                    buildInfo = new HaloOnline235640Info();
+                case CacheBuild.Eldorado235640:
+                    buildInfo = new Eldorado235640Info();
                     break;
-                case CacheBuild.HaloOnline301003:
-                    buildInfo = new HaloOnline301003Info();
+                case CacheBuild.Eldorado301003:
+                    buildInfo = new Eldorado301003Info();
                     break;
-                case CacheBuild.HaloOnline332089:
-                    buildInfo = new HaloOnline332089Info();
+                case CacheBuild.Eldorado332089:
+                    buildInfo = new Eldorado332089Info();
                     break;
-                case CacheBuild.HaloOnline373869:
-                    buildInfo = new HaloOnline373869Info();
+                case CacheBuild.Eldorado373869:
+                    buildInfo = new Eldorado373869Info();
                     break;
-                case CacheBuild.HaloOnline416138:
-                    buildInfo = new HaloOnline416138Info();
+                case CacheBuild.Eldorado416138:
+                    buildInfo = new Eldorado416138Info();
                     break;
-                case CacheBuild.HaloOnline430653:
-                    buildInfo = new HaloOnline430653Info();
+                case CacheBuild.Eldorado430653:
+                    buildInfo = new Eldorado430653Info();
                     break;
-                case CacheBuild.HaloOnline454665:
-                    buildInfo = new HaloOnline454665Info();
+                case CacheBuild.Eldorado454665:
+                    buildInfo = new Eldorado454665Info();
                     break;
-                case CacheBuild.HaloOnline479394:
-                    buildInfo = new HaloOnline479394Info();
+                case CacheBuild.Eldorado479394:
+                    buildInfo = new Eldorado479394Info();
                     break;
-                case CacheBuild.HaloOnline498295:
-                    buildInfo = new HaloOnline498295Info();
+                case CacheBuild.Eldorado498295:
+                    buildInfo = new Eldorado498295Info();
                     break;
-                case CacheBuild.HaloOnline530945:
-                    buildInfo = new HaloOnline530945Info();
+                case CacheBuild.Eldorado530945:
+                    buildInfo = new Eldorado530945Info();
                     break;
-                case CacheBuild.HaloOnline533032:
-                    buildInfo = new HaloOnline533032Info();
+                case CacheBuild.Eldorado533032:
+                    buildInfo = new Eldorado533032Info();
                     break;
-                case CacheBuild.HaloOnline554482:
-                    buildInfo = new HaloOnline554482Info();
+                case CacheBuild.Eldorado554482:
+                    buildInfo = new Eldorado554482Info();
                     break;
-                case CacheBuild.HaloOnline571698:
-                    buildInfo = new HaloOnline571698Info();
+                case CacheBuild.Eldorado571698:
+                    buildInfo = new Eldorado571698Info();
                     break;
-                case CacheBuild.HaloOnline604673:
-                    buildInfo = new HaloOnline604673Info();
+                case CacheBuild.Eldorado604673:
+                    buildInfo = new Eldorado604673Info();
                     break;
-                case CacheBuild.HaloOnline700255:
-                    buildInfo = new HaloOnline700255Info();
+                case CacheBuild.Eldorado700255:
+                    buildInfo = new Eldorado700255Info();
                     break;
                 case CacheBuild.Halo1MCC:
                     buildInfo = new Halo1MCCInfo();

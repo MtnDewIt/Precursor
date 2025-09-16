@@ -120,7 +120,7 @@ namespace PrecursorShell.Cache.BuildInfo.Gen4
                         return new FileValidationResult(false, $"Invalid Cache File: {fileInfo.Name}");
                     }
 
-                    if (BuildStrings.Contains(mapFile.Header.GetBuild()))
+                    if (BuildStrings.Contains(mapFile.Header.GetBuildNumber()))
                     {
                         try
                         {
@@ -135,7 +135,7 @@ namespace PrecursorShell.Cache.BuildInfo.Gen4
                     }
                     else
                     {
-                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuild()}\n" + $"\nValid Build Strings:\n" + $"{string.Join("\n", BuildStrings)}\n");
+                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuildNumber()}\n" + $"\nValid Build Strings:\n" + $"{string.Join("\n", BuildStrings)}\n");
                     }
                 }
 

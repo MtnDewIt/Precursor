@@ -9,19 +9,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using TagTool.BlamFile;
 using TagTool.Cache;
-using TagTool.Cache.HaloOnline;
+using TagTool.Cache.Eldorado;
 using TagTool.IO;
 
-namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
+namespace PrecursorShell.Cache.BuildInfo.Eldorado
 {
-    public class HaloOnline416138Info : BuildTableEntry
+    public class Eldorado416138Info : BuildTableEntry
     {
-        public override CacheBuild Build => CacheBuild.HaloOnline416138;
-        public override CacheVersion Version => CacheVersion.HaloOnline416097;
+        public override CacheBuild Build => CacheBuild.Eldorado416138;
+        public override CacheVersion Version => CacheVersion.Eldorado416097;
         public override CachePlatform Platform => CachePlatform.Original;
-        public override CacheGeneration Generation => CacheGeneration.GenHaloOnline;
+        public override CacheGeneration Generation => CacheGeneration.Eldorado;
 
-        public override string ResourcePath => @"Resources\GenHaloOnline\HaloOnline416138";
+        public override string ResourcePath => @"Resources\Eldorado\Eldorado416138";
 
         public override List<string> BuildStrings => new List<string>
         {
@@ -151,7 +151,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
                 return new FileValidationResult(false, $"Invalid Map File: {fileName}");
             }
 
-            var buildString = mapFile.Header.GetBuild();
+            var buildString = mapFile.Header.GetBuildNumber();
 
             if (!BuildStrings.Contains(buildString))
             {

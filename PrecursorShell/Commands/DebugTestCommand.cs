@@ -7,10 +7,10 @@ namespace PrecursorShell.Commands
     class DebugTestCommand : PrecursorCommand
     {
         public GameCache Cache { get; set; }
-        public GameCacheHaloOnlineBase CacheContext { get; set; }
+        public GameCacheEldoradoBase CacheContext { get; set; }
         public PrecursorContextStack ContextStack { get; set; }
 
-        public DebugTestCommand(GameCache cache, GameCacheHaloOnlineBase cacheContext, PrecursorContextStack contextStack) : base
+        public DebugTestCommand(GameCache cache, GameCacheEldoradoBase cacheContext, PrecursorContextStack contextStack) : base
         (
             false,
             "DebugTest",

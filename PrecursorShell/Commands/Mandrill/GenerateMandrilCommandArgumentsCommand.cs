@@ -75,7 +75,7 @@ namespace PrecursorShell.Commands.Mandrill
             writer.WritePropertyName("Items");
             writer.WriteStartArray();
 
-            foreach (var build in Program.BuildTable.BuildInfo.Where(b => b.Generation == CacheGeneration.GenHaloOnline)) 
+            foreach (var build in Program.BuildTable.BuildInfo.Where(b => b.Generation == CacheGeneration.Eldorado)) 
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName("Id");
@@ -137,7 +137,7 @@ namespace PrecursorShell.Commands.Mandrill
             writer.WritePropertyName("Items");
             writer.WriteStartArray();
 
-            foreach (var build in Program.BuildTable.BuildInfo.Where(b => b.Generation == CacheGeneration.GenHaloOnline)) 
+            foreach (var build in Program.BuildTable.BuildInfo.Where(b => b.Generation == CacheGeneration.Eldorado)) 
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName("Id");

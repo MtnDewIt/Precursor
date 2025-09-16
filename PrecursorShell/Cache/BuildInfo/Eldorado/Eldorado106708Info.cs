@@ -9,34 +9,32 @@ using System.Threading;
 using System.Threading.Tasks;
 using TagTool.BlamFile;
 using TagTool.Cache;
-using TagTool.Cache.HaloOnline;
+using TagTool.Cache.Eldorado;
 using TagTool.IO;
 
-namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
+namespace PrecursorShell.Cache.BuildInfo.Eldorado
 {
-    public class HaloOnline571698Info : BuildTableEntry
+    public class Eldorado106708Info : BuildTableEntry
     {
-        public override CacheBuild Build => CacheBuild.HaloOnline571698;
-        public override CacheVersion Version => CacheVersion.HaloOnline571627;
+        public override CacheBuild Build => CacheBuild.Eldorado106708;
+        public override CacheVersion Version => CacheVersion.Eldorado106708;
         public override CachePlatform Platform => CachePlatform.Original;
-        public override CacheGeneration Generation => CacheGeneration.GenHaloOnline;
+        public override CacheGeneration Generation => CacheGeneration.Eldorado;
+        
+        public override string ResourcePath => @"Resources\Eldorado\Eldorado106708";
 
-        public override string ResourcePath => @"Resources\GenHaloOnline\HaloOnline571698";
-
-        public override List<string> BuildStrings => new List<string>
+        public override List<string> BuildStrings => new List<string> 
         {
-            "11.1.571627 Live"
+            "1.106708 cert_ms23"
         };
 
-        public override List<string> CacheFiles => new List<string>
+        public override List<string> CacheFiles => new List<string> 
         {
             "tags.dat",
         };
         public override List<string> SharedFiles => new List<string>
         {
             "audio.dat",
-            "lightmaps.dat",
-            "render_models.dat",
             "resources.dat",
             "string_ids.dat",
             "textures.dat",
@@ -47,14 +45,12 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
 
         public static readonly Dictionary<CacheResource, string> BuildDateTable = new Dictionary<CacheResource, string>
         {
-            { CacheResource.Tags, "2015-10-01 16:02:13.0693956" },
-            { CacheResource.Audio, "2015-10-01 16:02:13.4074294" },
-            { CacheResource.Lightmaps, "2015-10-01 16:02:13.4074294" },
-            { CacheResource.RenderModels, "2015-10-01 16:02:13.4074294" },
-            { CacheResource.Resources, "2015-10-01 16:02:13.4064293" },
-            { CacheResource.Textures, "2015-10-01 16:02:13.4064293" },
-            { CacheResource.TexturesB, "2015-10-01 16:02:13.4074294" },
-            { CacheResource.Video, "2015-10-01 16:02:13.4074294" },
+            { CacheResource.Tags, "2015-03-20 14:40:23.9499012" },
+            { CacheResource.Audio, "2015-03-20 14:40:24.1169179" },
+            { CacheResource.Resources, "2015-03-20 14:40:24.1169179" },
+            { CacheResource.Textures, "2015-03-20 14:40:24.1169179" },
+            { CacheResource.TexturesB, "2015-03-20 14:40:24.1169179" },
+            { CacheResource.Video, "2015-03-20 14:40:24.1169179" },
         };
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
@@ -151,7 +147,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
                 return new FileValidationResult(false, $"Invalid Map File: {fileName}");
             }
 
-            var buildString = mapFile.Header.GetBuild();
+            var buildString = mapFile.Header.GetBuildNumber();
 
             if (!BuildStrings.Contains(buildString))
             {
@@ -207,7 +203,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
             return new FileValidationResult(true, filePath, category);
         }
 
-        private (int ValidCount, List<string> Errors) ProcessResult(FileValidationResult[] results, ConcurrentBag<string> validMapFiles, ConcurrentBag<string> validCacheFiles, ConcurrentBag<string> validSharedFiles, ConcurrentBag<string> errors)
+        private (int ValidCount, List<string> Errors) ProcessResult(FileValidationResult[] results, ConcurrentBag<string> validMapFiles, ConcurrentBag<string> validCacheFiles, ConcurrentBag<string> validSharedFiles, ConcurrentBag<string> errors) 
         {
             var validCount = 0;
 

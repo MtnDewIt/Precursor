@@ -11,20 +11,20 @@ using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.IO;
 
-namespace PrecursorShell.Cache.BuildInfo.GenMCC
+namespace PrecursorShell.Cache.BuildInfo.MCC
 {
-    public class Halo3ODSTMCCInfo : BuildTableEntry
+    public class HaloReachMCCInfo : BuildTableEntry
     {
-        public override CacheBuild Build => CacheBuild.Halo3ODSTMCC;
-        public override CacheVersion Version => CacheVersion.Halo3ODST;
+        public override CacheBuild Build => CacheBuild.HaloReachMCC;
+        public override CacheVersion Version => CacheVersion.HaloReach;
         public override CachePlatform Platform => CachePlatform.MCC;
-        public override CacheGeneration Generation => CacheGeneration.GenMCC;
+        public override CacheGeneration Generation => CacheGeneration.MCC;
 
-        public override string ResourcePath => @"Resources\GenMCC\Halo3ODSTMCC";
+        public override string ResourcePath => @"Resources\MCC\HaloReachMCC";
 
         public override List<string> BuildStrings => new List<string>
         {
-            "May 16 2023 11:44:41"
+            "Jun 21 2023 15:35:31"
         };
 
         public override List<string> CacheFiles => null;
@@ -115,7 +115,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                         return new FileValidationResult(false, $"Invalid Cache File: {fileInfo.Name}");
                     }
 
-                    if (BuildStrings.Contains(mapFile.Header.GetBuild()))
+                    if (BuildStrings.Contains(mapFile.Header.GetBuildNumber()))
                     {
                         try
                         {
@@ -130,7 +130,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                     }
                     else
                     {
-                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
+                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuildNumber()} != {BuildStrings.FirstOrDefault()}");
                     }
                 }
 

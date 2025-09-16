@@ -11,20 +11,20 @@ using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.IO;
 
-namespace PrecursorShell.Cache.BuildInfo.GenMCC
+namespace PrecursorShell.Cache.BuildInfo.MCC
 {
-    public class Halo2AMPMCCInfo : BuildTableEntry
+    public class Halo4MCCInfo : BuildTableEntry
     {
-        public override CacheBuild Build => CacheBuild.Halo2AMPMCC;
-        public override CacheVersion Version => CacheVersion.Halo2AMP;
+        public override CacheBuild Build => CacheBuild.Halo4MCC;
+        public override CacheVersion Version => CacheVersion.Halo4;
         public override CachePlatform Platform => CachePlatform.MCC;
-        public override CacheGeneration Generation => CacheGeneration.GenMCC;
+        public override CacheGeneration Generation => CacheGeneration.MCC;
 
-        public override string ResourcePath => @"Resources\GenMCC\Halo2AMPMCC";
+        public override string ResourcePath => @"Resources\MCC\Halo4MCC";
 
         public override List<string> BuildStrings => new List<string>
         {
-            "Jun 13 2023 20:21:18"
+            "Apr  1 2023 17:35:22"
         };
 
         public override List<string> CacheFiles => null;
@@ -115,7 +115,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                         return new FileValidationResult(false, $"Invalid Cache File: {fileInfo.Name}");
                     }
 
-                    if (BuildStrings.Contains(mapFile.Header.GetBuild()))
+                    if (BuildStrings.Contains(mapFile.Header.GetBuildNumber()))
                     {
                         try
                         {
@@ -130,11 +130,11 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                     }
                     else
                     {
-                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
+                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuildNumber()} != {BuildStrings.FirstOrDefault()}");
                     }
                 }
 
-                if (SharedFiles.Contains(fileInfo.Name))
+                if (SharedFiles.Contains(fileInfo.Name)) 
                 {
                     return new FileValidationResult(true, filePath, FileType.Shared);
                 }

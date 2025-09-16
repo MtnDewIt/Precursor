@@ -9,23 +9,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using TagTool.BlamFile;
 using TagTool.Cache;
-using TagTool.Cache.HaloOnline;
+using TagTool.Cache.Eldorado;
 using TagTool.IO;
 
-namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
+namespace PrecursorShell.Cache.BuildInfo.Eldorado
 {
-    public class HaloOnline604673Info : BuildTableEntry
+    public class Eldorado177150Info : BuildTableEntry
     {
-        public override CacheBuild Build => CacheBuild.HaloOnline604673;
-        public override CacheVersion Version => CacheVersion.HaloOnline604673;
+        public override CacheBuild Build => CacheBuild.Eldorado177150;
+        public override CacheVersion Version => CacheVersion.Eldorado155080;
         public override CachePlatform Platform => CachePlatform.Original;
-        public override CacheGeneration Generation => CacheGeneration.GenHaloOnline;
+        public override CacheGeneration Generation => CacheGeneration.Eldorado;
 
-        public override string ResourcePath => @"Resources\GenHaloOnline\HaloOnline604673";
+        public override string ResourcePath => @"Resources\Eldorado\Eldorado177150";
 
         public override List<string> BuildStrings => new List<string>
         {
-            "11.1.601838 Live"
+            "1.155080 cert_ms23"
         };
 
         public override List<string> CacheFiles => new List<string>
@@ -35,8 +35,6 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
         public override List<string> SharedFiles => new List<string>
         {
             "audio.dat",
-            "lightmaps.dat",
-            "render_models.dat",
             "resources.dat",
             "string_ids.dat",
             "textures.dat",
@@ -47,14 +45,12 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
 
         public static readonly Dictionary<CacheResource, string> BuildDateTable = new Dictionary<CacheResource, string>
         {
-            { CacheResource.Tags, "2015-10-15 10:57:15.1772672" },
-            { CacheResource.Audio, "2015-10-15 10:57:15.575307" },
-            { CacheResource.Lightmaps, "2015-10-15 10:57:15.575307" },
-            { CacheResource.RenderModels, "2015-10-15 10:57:15.575307" },
-            { CacheResource.Resources, "2015-10-15 10:57:15.575307" },
-            { CacheResource.Textures, "2015-10-15 10:57:15.575307" },
-            { CacheResource.TexturesB, "2015-10-15 10:57:15.575307" },
-            { CacheResource.Video, "2015-10-15 10:57:15.575307" },
+            { CacheResource.Tags, "2015-04-10 11:37:39.234805" },
+            { CacheResource.Audio, "2015-04-10 11:37:39.397805" },
+            { CacheResource.Resources, "2015-04-10 11:37:39.396805" },
+            { CacheResource.Textures, "2015-04-10 11:37:39.396805" },
+            { CacheResource.TexturesB, "2015-04-10 11:37:39.396805" },
+            { CacheResource.Video, "2015-04-10 11:37:39.397805" },
         };
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
@@ -151,7 +147,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenHaloOnline
                 return new FileValidationResult(false, $"Invalid Map File: {fileName}");
             }
 
-            var buildString = mapFile.Header.GetBuild();
+            var buildString = mapFile.Header.GetBuildNumber();
 
             if (!BuildStrings.Contains(buildString))
             {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using TagTool.Cache;
-using TagTool.Cache.HaloOnline;
+using TagTool.Cache.Eldorado;
 using TagTool.Commands.Common;
 
 namespace PrecursorShell.Commands.GenerateCache
@@ -12,7 +12,7 @@ namespace PrecursorShell.Commands.GenerateCache
     partial class GenerateCacheCommand : PrecursorCommand
     {
         public GameCache Cache { get; set; }
-        public GameCacheHaloOnline CacheContext { get; set; }
+        public GameCacheEldorado CacheContext { get; set; }
         public Stream CacheStream { get; set; }
         public static DirectoryInfo SourceDirectoryInfo { get; set; }
         public static DirectoryInfo OutputDirectoryInfo { get; set; }

@@ -9,7 +9,7 @@ using TagTool.Cache.Gen1;
 using TagTool.Cache.Gen2;
 using TagTool.Cache.Gen3;
 using TagTool.Cache.Gen4;
-using TagTool.Cache.HaloOnline;
+using TagTool.Cache.Eldorado;
 using TagTool.Cache.Monolithic;
 using TagTool.Common;
 using TagTool.Geometry.BspCollisionGeometry;
@@ -61,9 +61,9 @@ namespace PrecursorShell.Serialization
                     context = new TagSerializationContextMonolithic(stream, gameCacheMonolithic, (CachedTagMonolithic)instance);
                     type = gameCacheMonolithic.TagCache.TagDefinitions.GetTagDefinitionType(instance.Group);
                     break;
-                case GameCacheHaloOnlineBase gameCacheHaloOnline:
-                    context = new HaloOnlineSerializationContext(stream, gameCacheHaloOnline, (CachedTagHaloOnline)instance);
-                    type = gameCacheHaloOnline.TagCache.TagDefinitions.GetTagDefinitionType(instance.Group);
+                case GameCacheEldoradoBase gameCacheEldorado:
+                    context = new EldoradoSerializationContext(stream, gameCacheEldorado, (CachedTagEldorado)instance);
+                    type = gameCacheEldorado.TagCache.TagDefinitions.GetTagDefinitionType(instance.Group);
                     break;
                 case GameCacheGen4 gameCacheGen4:
                     context = new Gen4SerializationContext(stream, gameCacheGen4, (CachedTagGen4)instance);
@@ -613,7 +613,7 @@ namespace PrecursorShell.Serialization
                             + $"\n - valid groups: {groups}");
                     }
 
-                    if (!cache.TagCache.TagDefinitions.TagDefinitionExists(result.Group.Tag) || (cache is not GameCacheHaloOnlineBase && !cache.TagCache.IsTagIndexValid((int)(result.ID & 0xFFFF))))
+                    if (!cache.TagCache.TagDefinitions.TagDefinitionExists(result.Group.Tag) || (cache is not GameCacheEldoradoBase && !cache.TagCache.IsTagIndexValid((int)(result.ID & 0xFFFF))))
                     {
                         Problems.Add($"Invalid tag reference: {CurrentFieldPath} = {result}");
                     }
@@ -724,7 +724,7 @@ namespace PrecursorShell.Serialization
 
         public IndexBufferIndex DeserializeObjectIndexBufferIndex(EndianReader reader) 
         {
-            if (Version >= CacheVersion.HaloReach || Version == CacheVersion.HaloOnlineED)
+            if (Version >= CacheVersion.HaloReach || Version == CacheVersion.EldoradoED)
                 return new IndexBufferIndex(reader.ReadInt32());
             else
                 return new IndexBufferIndex(reader.ReadUInt16());
@@ -732,7 +732,7 @@ namespace PrecursorShell.Serialization
 
         public object DeserializeObjectPlaneReference(EndianReader reader) 
         {
-            if (Version >= CacheVersion.HaloReach || Version == CacheVersion.HaloOnlineED)
+            if (Version >= CacheVersion.HaloReach || Version == CacheVersion.EldoradoED)
             {
                 var value = reader.ReadUInt32();
 

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using TagTool.Cache;
-using TagTool.Cache.HaloOnline;
+using TagTool.Cache.Eldorado;
 using TagTool.Common;
 using TagTool.Serialization;
 using TagTool.Tags.Definitions;
@@ -18,11 +18,11 @@ namespace PrecursorShell.Commands.GenerateCache
 
             MoveFontPackage(destDirectory.FullName);
 
-            var cacheContext = new GameCacheHaloOnline(destDirectory);
+            var cacheContext = new GameCacheEldorado(destDirectory);
 
             UpdateStringTable(cacheContext.StringTable);
 
-            SetCacheVersion(cacheContext, CacheVersion.HaloOnlineED);
+            SetCacheVersion(cacheContext, CacheVersion.EldoradoED);
 
             var resourceStreams = new Dictionary<ResourceLocation, Stream>();
 
@@ -56,7 +56,7 @@ namespace PrecursorShell.Commands.GenerateCache
         {
             var newFileInfo = new FileInfo(cache + "\\tags.dat");
             Cache = GameCache.Open(newFileInfo);
-            CacheContext = Cache as GameCacheHaloOnline;
+            CacheContext = Cache as GameCacheEldorado;
         }
 
         public void MoveFontPackage(string path)
@@ -80,15 +80,15 @@ namespace PrecursorShell.Commands.GenerateCache
                 stringTable.Add(str);
         }
         
-        public void SetCacheVersion(GameCacheHaloOnline cache, CacheVersion version)
+        public void SetCacheVersion(GameCacheEldorado cache, CacheVersion version)
         {
             cache.Version = version;
-            cache.TagCacheGenHO.Version = version;
-            cache.TagCacheGenHO.Header.CreationDate = LastModificationDate.CreateFromVersion(version);
-            cache.StringTableHaloOnline.Version = version;
+            cache.TagCacheEldorado.Version = version;
+            cache.TagCacheEldorado.Header.CreationDate = LastModificationDate.CreateFromVersion(version);
+            cache.StringTableEldorado.Version = version;
             cache.Serializer = new TagSerializer(version, CachePlatform.Original);
             cache.Deserializer = new TagDeserializer(version, CachePlatform.Original);
-            cache.ResourceCaches = new ResourceCachesHaloOnline(cache);
+            cache.ResourceCaches = new ResourceCachesEldorado(cache);
         }
     }
 }

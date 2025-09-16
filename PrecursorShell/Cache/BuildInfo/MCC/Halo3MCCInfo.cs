@@ -11,47 +11,33 @@ using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.IO;
 
-namespace PrecursorShell.Cache.BuildInfo.GenMCC
+namespace PrecursorShell.Cache.BuildInfo.MCC
 {
-    public class Halo2MCCInfo : BuildTableEntry
+    public class Halo3MCCInfo : BuildTableEntry
     {
-        public override CacheBuild Build => CacheBuild.Halo2MCC;
-        public override CacheVersion Version => CacheVersion.Halo2PC;
+        public override CacheBuild Build => CacheBuild.Halo3MCC;
+        public override CacheVersion Version => CacheVersion.Halo3Retail;
         public override CachePlatform Platform => CachePlatform.MCC;
-        public override CacheGeneration Generation => CacheGeneration.GenMCC;
+        public override CacheGeneration Generation => CacheGeneration.MCC;
 
-        public override string ResourcePath => @"Resources\GenMCC\Halo2MCC";
+        public override string ResourcePath => @"Resources\MCC\Halo3MCC";
 
         public override List<string> BuildStrings => new List<string>
         {
-            // No build string, srsly 343?
-            ""
+            "Dec 21 2023 22:31:37"
         };
 
         public override List<string> CacheFiles => null;
         public override List<string> SharedFiles => new List<string>
         {
-            "shared.map",
-            "single_player_shared.map"
+            "campaign.map",
+            "shared.map"
         };
-        public override List<string> ResourceFiles => new List<string> 
-        {
-            "sounds_cht.dat",
-            "sounds_de.dat",
-            "sounds_en.dat",
-            "sounds_fr.dat",
-            "sounds_it.dat",
-            "sounds_jpn.dat",
-            "sounds_kor.dat",
-            "sounds_neutral.dat",
-            "sounds_remastered.dat",
-            "sounds_sp.dat",
-            "textures.dat"
-        };
+        public override List<string> ResourceFiles => null;
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
         {
-            var files = Directory.EnumerateFiles(build.Path, "*.*", SearchOption.AllDirectories).Where(x => x.EndsWith(".map") || x.EndsWith(".dat")).ToArray();
+            var files = Directory.EnumerateFiles(build.Path, "*.map", SearchOption.AllDirectories).ToArray();
 
             if (!ParseFileCount(files.Length))
             {
@@ -71,7 +57,6 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
             }
 
             ParseFiles(SharedFiles, CurrentSharedFiles);
-            ParseFiles(ResourceFiles, CurrentResourceFiles);
 
             Console.WriteLine($"Successfully Verified {validCount}/{files.Length} Files\n");
 
@@ -82,7 +67,6 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
         {
             var validCacheFiles = new ConcurrentBag<string>();
             var validSharedFiles = new ConcurrentBag<string>();
-            var validResourceFiles = new ConcurrentBag<string>();
             var errors = new ConcurrentBag<string>();
 
             using var semaphore = new SemaphoreSlim(MaxConcurrency);
@@ -103,18 +87,17 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
 
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
-            return ProcessResult(results, validCacheFiles, validSharedFiles, validResourceFiles, errors);
+            return ProcessResult(results, validCacheFiles, validSharedFiles, errors);
         }
 
         private FileValidationResult ValidateFileAsync(string filePath)
         {
             var fileInfo = new FileInfo(filePath);
-            var fileName = fileInfo.Name;
 
             using (var stream = fileInfo.OpenRead())
             using (var reader = new EndianReader(stream))
             {
-                if (!SharedFiles.Contains(fileInfo.Name) && !ResourceFiles.Contains(fileInfo.Name)) 
+                if (!SharedFiles.Contains(fileInfo.Name))
                 {
                     var mapFile = new MapFile();
 
@@ -132,7 +115,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                         return new FileValidationResult(false, $"Invalid Cache File: {fileInfo.Name}");
                     }
 
-                    if (BuildStrings.Contains(mapFile.Header.GetBuild()))
+                    if (BuildStrings.Contains(mapFile.Header.GetBuildNumber()))
                     {
                         try
                         {
@@ -147,13 +130,8 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                     }
                     else
                     {
-                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuild()} != {BuildStrings.FirstOrDefault()}");
+                        return new FileValidationResult(false, $"Invalid Build String: {fileInfo.Name} - {mapFile.Header.GetBuildNumber()} != {BuildStrings.FirstOrDefault()}");
                     }
-                }
-
-                if (ResourceFiles.Contains(fileInfo.Name))
-                {
-                    return new FileValidationResult(true, filePath, FileType.Resource);
                 }
 
                 if (SharedFiles.Contains(fileInfo.Name))
@@ -165,7 +143,7 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
             return new FileValidationResult(false);
         }
 
-        private (int ValidCount, List<string> Errors) ProcessResult(FileValidationResult[] results, ConcurrentBag<string> validCacheFiles, ConcurrentBag<string> validSharedFiles, ConcurrentBag<string> validResourceFiles, ConcurrentBag<string> errors)
+        private (int ValidCount, List<string> Errors) ProcessResult(FileValidationResult[] results, ConcurrentBag<string> validCacheFiles, ConcurrentBag<string> validSharedFiles, ConcurrentBag<string> errors)
         {
             var validCount = 0;
 
@@ -183,9 +161,6 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                         case FileType.Shared:
                             validSharedFiles.Add(result.FilePath);
                             break;
-                        case FileType.Resource:
-                            validResourceFiles.Add(result.FilePath);
-                            break;
                     }
                 }
                 else if (result.ErrorMessage != null)
@@ -194,12 +169,12 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                 }
             }
 
-            UpdateFileTable(validCacheFiles, validSharedFiles, validResourceFiles);
+            UpdateFileTable(validCacheFiles, validSharedFiles);
 
             return (validCount, errors.ToList());
         }
 
-        private void UpdateFileTable(ConcurrentBag<string> validCacheFiles, ConcurrentBag<string> validSharedFiles, ConcurrentBag<string> validResourceFiles)
+        private void UpdateFileTable(ConcurrentBag<string> validCacheFiles, ConcurrentBag<string> validSharedFiles)
         {
             if (!validCacheFiles.IsEmpty)
             {
@@ -219,17 +194,6 @@ namespace PrecursorShell.Cache.BuildInfo.GenMCC
                     foreach (var file in validSharedFiles)
                     {
                         CurrentSharedFiles.Add(file);
-                    }
-                }
-            }
-
-            if (!validResourceFiles.IsEmpty) 
-            {
-                lock (CurrentResourceFiles)
-                {
-                    foreach (var file in validResourceFiles)
-                    {
-                        CurrentResourceFiles.Add(file);
                     }
                 }
             }
