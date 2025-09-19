@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using PrecursorShell.Cache;
 using PrecursorShell.Cache.BuildInfo;
+using PrecursorShell.Cache.BuildInfo.Eldorado.Groups;
+using PrecursorShell.Cache.BuildInfo.Gen1.Groups;
+using PrecursorShell.Cache.BuildInfo.Gen2.Groups;
 using PrecursorShell.Reports;
 using PrecursorShell.Serialization;
 using PrecursorShell.Tags.Definitions.Reports;
@@ -13,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using TagTool.Cache;
+using TagTool.Cache.Monolithic;
 using TagTool.Common;
 
 namespace PrecursorShell.Tags.Definitions.Resolvers
@@ -260,13 +264,13 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
                 CacheBuild.HaloXbox or
                 CacheBuild.HaloPC or
                 CacheBuild.HaloCustomEdition or
-                CacheBuild.Halo1MCC => null,
+                CacheBuild.Halo1MCC => Gen1Groups.Groups,
 
                 CacheBuild.Halo2Alpha or
                 CacheBuild.Halo2Beta or
                 CacheBuild.Halo2Xbox or
                 CacheBuild.Halo2Vista or
-                CacheBuild.Halo2MCC => null,
+                CacheBuild.Halo2MCC => Gen2Groups.Groups,
 
                 CacheBuild.Halo3Beta or
                 CacheBuild.Halo3Retail or
@@ -277,7 +281,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
                 CacheBuild.Halo3ODSTMCC or
                 CacheBuild.HaloReachMCC => (cache as GameCacheGen3).TagCacheGen3.Groups.ToDictionary(g => g.Tag, g => g.Name),
 
-                CacheBuild.HaloReach11883 => null,
+                CacheBuild.HaloReach11883 => GetMonolithicGroups(cache),
 
                 CacheBuild.EldoradoED or
                 CacheBuild.Eldorado106708 or
@@ -298,7 +302,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
                 CacheBuild.Eldorado554482 or
                 CacheBuild.Eldorado571698 or
                 CacheBuild.Eldorado604673 or
-                CacheBuild.Eldorado700255 => null,
+                CacheBuild.Eldorado700255 => EldoradoGroups.Groups,
 
                 CacheBuild.Halo4Retail or
                 CacheBuild.Halo4MCC or
@@ -306,6 +310,23 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
 
                 _ => null,
             };
+        }
+
+        public static Dictionary<Tag, string> GetMonolithicGroups(GameCache cache) 
+        {
+            Dictionary<Tag, string> groups = new Dictionary<Tag, string>();
+
+            foreach (var group in (cache as GameCacheMonolithic).TagCacheMono.Tags.GroupBy(x => x.Group)) 
+            {
+                string name = (cache as GameCacheMonolithic).TagCacheMono.Tags.FirstOrDefault(x => x.Group == group.Key).ToString();
+
+                if (!group.Key.Tag.Equals("????") && !name.Equals("????")) 
+                {
+                    groups.Add(group.Key.Tag, name.Split('.')[1]);
+                }
+            }
+
+            return groups;
         }
 
         public static ReportErrorLevel ParseErrorLevel(int currentCount, int totalCount)
