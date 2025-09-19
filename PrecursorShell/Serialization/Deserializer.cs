@@ -139,7 +139,7 @@ namespace PrecursorShell.Serialization
                 
                 int index = unused.IndexOfAnyExcept((byte)0);
                 
-                if (index != 0) 
+                if (index != -1) 
                 {
                     Problems.Add($"Non-zero padding found in {tagFieldInfo.FieldInfo.DeclaringType.FullName}.{tagFieldInfo.FieldInfo.Name} = {index}");
                 }
