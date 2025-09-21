@@ -38,36 +38,29 @@ namespace PrecursorShell.Serialization
             Problems = new List<string>();
         }
 
-        public object DeserializeTagInstance(GameCache cache, Stream stream, CachedTag instance)
+        public object DeserializeTagInstance(GameCache cache, Stream stream, Type type, CachedTag instance)
         {
             ISerializationContext context = null;
-            Type type = null;
 
             switch (cache) 
             {
                 case GameCacheGen1 gameCacheGen1:
                     context = new Gen1SerializationContext(stream, gameCacheGen1, (CachedTagGen1)instance);
-                    type = gameCacheGen1.TagCache.TagDefinitions.GetTagDefinitionType(instance.Group);
                     break;
                 case GameCacheGen2 gameCacheGen2:
                     context = new Gen2SerializationContext(stream, gameCacheGen2, (CachedTagGen2)instance);
-                    type = gameCacheGen2.TagCache.TagDefinitions.GetTagDefinitionType(instance.Group);
                     break;
                 case GameCacheGen3 gameCacheGen3:
                     context = new Gen3SerializationContext(stream, gameCacheGen3, (CachedTagGen3)instance);
-                    type = gameCacheGen3.TagCache.TagDefinitions.GetTagDefinitionType(instance.Group);
                     break;
                 case GameCacheMonolithic gameCacheMonolithic:
                     context = new TagSerializationContextMonolithic(stream, gameCacheMonolithic, (CachedTagMonolithic)instance);
-                    type = gameCacheMonolithic.TagCache.TagDefinitions.GetTagDefinitionType(instance.Group);
                     break;
                 case GameCacheEldoradoBase gameCacheEldorado:
                     context = new EldoradoSerializationContext(stream, gameCacheEldorado, (CachedTagEldorado)instance);
-                    type = gameCacheEldorado.TagCache.TagDefinitions.GetTagDefinitionType(instance.Group);
                     break;
                 case GameCacheGen4 gameCacheGen4:
                     context = new Gen4SerializationContext(stream, gameCacheGen4, (CachedTagGen4)instance);
-                    type = gameCacheGen4.TagCache.TagDefinitions.GetTagDefinitionType(instance.Group);
                     break;
             }
 

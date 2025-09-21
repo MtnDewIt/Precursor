@@ -99,10 +99,6 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
         {
             var tagGroups = GetTagGroups(cache, build);
 
-            // TODO: Resolve Gen 1, Gen 2, Monolithic and Halo Online tag groups.
-            if (tagGroups == null)
-                return true;
-
             using var fileStream = new StreamWriter(outputFileInfo.FullName);
             using var fileWriter = new JsonTextWriter(fileStream)
             {
@@ -186,6 +182,9 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
 
             var tags = cache.TagCache.FindAllInGroup(group.Key);
 
+            var type = cache.TagCache.TagDefinitions.GetTagDefinitionType(group.Key);
+            var isValidDefinition = cache.TagCache.TagDefinitions == null || !cache.TagCache.TagDefinitions.TagDefinitionExists(group.Key);
+
             foreach (var tag in tags)
             {
                 var deserializer = new Deserializer(cache.Version, cache.Platform);
@@ -199,7 +198,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
                 groupWriter.WritePropertyName("Errors");
                 groupWriter.WriteStartArray();
 
-                if (cache.TagCache.TagDefinitions == null || !cache.TagCache.TagDefinitions.TagDefinitionExists(group.Key))
+                if (isValidDefinition)
                 {
                     groupWriter.WriteValue($"Tag definition for tag group {group.Key} not implemented");
                     groupWriter.WriteEndArray();
@@ -210,7 +209,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
 
                 try
                 {
-                    deserializer.DeserializeTagInstance(cache, stream, tag);
+                    deserializer.DeserializeTagInstance(cache, stream, type, tag);
                 }
                 catch (Exception ex)
                 {
