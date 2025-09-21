@@ -5,7 +5,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PrecursorShell</RootNamespace>
     <AssemblyName>PrecursorShell</AssemblyName>
-    <ApplicationIcon>Precursor.ico</ApplicationIcon>
+    <ApplicationIcon>PrecursorShell.ico</ApplicationIcon>
     <TargetFramework>net8.0-windows</TargetFramework>
     <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -20,16 +20,10 @@
     <Platform>x64</Platform>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="Precursor.ico" />
+    <Content Include="PrecursorShell.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\**\*" Link="Resources\%(RecursiveDir)\%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TagTool-NET\TagTool\TagTool.csproj" PrivateAssets="all" Private="false" />
