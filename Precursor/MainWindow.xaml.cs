@@ -44,7 +44,7 @@ namespace Precursor
                     ErrorLevel = b.ErrorLevel,
                     FileErrorCount = b.FileErrorCount,
                     Files = b.Files,
-                    ErrorInfo = $"Errors: {b.FileErrorCount} | Level: {b.ErrorLevel}"
+                    ErrorInfo = $"Errors: {b.FileErrorCount}"
                 }).ToList();
 
                 BuildsList.ItemsSource = _builds;
@@ -168,6 +168,7 @@ namespace Precursor
             {
                 TagName = t.TagName,
                 Errors = t.Errors,
+                ErrorLevel = t.Errors.Count > 0 ? "All" : "None",
                 ErrorInfo = $"Errors: {t.Errors.Count}"
             }).ToList();
 
