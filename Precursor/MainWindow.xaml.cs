@@ -44,6 +44,7 @@ namespace Precursor
                     ErrorLevel = b.ErrorLevel,
                     FileErrorCount = b.FileErrorCount,
                     Files = b.Files,
+                    BuildInfo = $"Files: {b.Files.Count}",
                     ErrorInfo = $"Errors: {b.FileErrorCount}"
                 }).ToList();
 
@@ -57,6 +58,7 @@ namespace Precursor
 
         private void BuildsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // TODO: Free memory when switching builds
             FilesList.ItemsSource = null;
             GroupsList.ItemsSource = null;
             TagsList.ItemsSource = null;
@@ -90,6 +92,7 @@ namespace Precursor
                             ErrorLevel = fileData.ErrorLevel,
                             GroupErrorCount = fileData.GroupErrorCount,
                             Groups = fileData.Groups,
+                            FileInfo = $"Groups: {fileData.Groups.Count}",
                             ErrorInfo = $"Errors: {fileData.GroupErrorCount}"
                         });
                     }
@@ -105,6 +108,7 @@ namespace Precursor
 
         private void FilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // TODO: Free memory when switching files
             GroupsList.ItemsSource = null;
             TagsList.ItemsSource = null;
             ErrorsList.ItemsSource = null;
@@ -133,11 +137,12 @@ namespace Precursor
                         groupViewModels.Add(new TagGroupViewModel
                         {
                             GroupPath = group,
-                            TagGroup = groupData.TagGroup,
+                            GroupTag = groupData.TagGroup,
                             GroupName = groupData.GroupName,
                             ErrorLevel = groupData.ErrorLevel,
                             TagErrorCount = groupData.TagErrorCount,
                             Tags = groupData.Tags,
+                            GroupInfo = $"Tags: {groupData.Tags.Count}",
                             ErrorInfo = $"Errors: {groupData.TagErrorCount}"
                         });
                     }
@@ -153,6 +158,7 @@ namespace Precursor
 
         private void GroupsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // TODO: Free memory when switching groups
             TagsList.ItemsSource = null;
             ErrorsList.ItemsSource = null;
 
@@ -177,6 +183,7 @@ namespace Precursor
 
         private void TagsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // TODO: Free memory when switching tags
             ErrorsList.ItemsSource = null;
 
             if (TagsList.SelectedItem is TagViewModel selectedTag)

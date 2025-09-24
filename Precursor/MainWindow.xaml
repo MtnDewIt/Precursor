@@ -45,6 +45,7 @@
                     <Border>
                         <StackPanel>
                             <TextBlock Text="{Binding Build}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding BuildInfo}" FontSize="10" Foreground="Gray"/>
                             <TextBlock Text="{Binding ErrorInfo}" FontSize="10" Foreground="Gray"/>
                         </StackPanel>
                     </Border>
@@ -64,6 +65,7 @@
                     <Border>
                         <StackPanel>
                             <TextBlock Text="{Binding FileName}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding FileInfo}" FontSize="10" Foreground="Gray"/>
                             <TextBlock Text="{Binding ErrorInfo}" FontSize="10" Foreground="Gray"/>
                         </StackPanel>
                     </Border>
@@ -82,8 +84,9 @@
                 <DataTemplate>
                     <Border>
                         <StackPanel>
-                            <TextBlock Text="{Binding TagGroup}" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding GroupTag}" FontWeight="Bold"/>
                             <TextBlock Text="{Binding GroupName}"/>
+                            <TextBlock Text="{Binding GroupInfo}" FontSize="10" Foreground="Gray"/>
                             <TextBlock Text="{Binding ErrorInfo}" FontSize="10" Foreground="Gray"/>
                         </StackPanel>
                     </Border>

@@ -193,7 +193,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
 
                 groupWriter.WriteStartObject();
                 groupWriter.WritePropertyName("TagName");
-                groupWriter.WriteValue(tag.Name);
+                groupWriter.WriteValue(tag.Name ?? $"0x{tag.Index:X4}");
 
                 groupWriter.WritePropertyName("Errors");
                 groupWriter.WriteStartArray();

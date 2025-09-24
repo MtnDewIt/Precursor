@@ -9,6 +9,7 @@ namespace Precursor.ViewModels
         public string ErrorLevel { get; set; }
         public int GroupErrorCount { get; set; }
         public List<string> Groups { get; set; }
+        public string FileInfo { get; set; }
         public string ErrorInfo { get; set; }
     }
 }
