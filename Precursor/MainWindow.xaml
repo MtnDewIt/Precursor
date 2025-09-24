@@ -19,21 +19,34 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="Builds" FontWeight="Bold" 
-                   Background="LightGray" TextAlignment="Center" Padding="5"/>
-        <TextBlock Grid.Column="1" Grid.Row="0" Text="Files" FontWeight="Bold" 
-                   Background="LightGray" TextAlignment="Center" Padding="5"/>
-        <TextBlock Grid.Column="2" Grid.Row="0" Text="Tag Groups" FontWeight="Bold" 
-                   Background="LightGray" TextAlignment="Center" Padding="5"/>
-        <TextBlock Grid.Column="3" Grid.Row="0" Text="Tags" FontWeight="Bold" 
-                   Background="LightGray" TextAlignment="Center" Padding="5"/>
-        <TextBlock Grid.Column="4" Grid.Row="0" Text="Errors" FontWeight="Bold" 
-                   Background="LightGray" TextAlignment="Center" Padding="5"/>
+        <!-- TODO: Implement! -->
+        <TextBlock Grid.Column="0" Grid.Row="0" Text="Tag Definition Report" FontWeight="Bold" 
+           Background="LightGray" TextAlignment="Left" Padding="5"/>
+        <TextBlock Grid.Column="1" Grid.Row="0" Text="Cache Definition Report" FontWeight="Bold" 
+           Background="LightGray" TextAlignment="Left" Padding="5"/>
+        <TextBlock Grid.Column="2" Grid.Row="0" Text="Tag Resource Definition Report" FontWeight="Bold" 
+           Background="LightGray" TextAlignment="Left" Padding="5"/>
+        <TextBlock Grid.Column="3" Grid.Row="0" Text="Blam File Report" FontWeight="Bold" 
+           Background="LightGray" TextAlignment="Left" Padding="5"/>
+        <TextBlock Grid.Column="4" Grid.Row="0" Text="Bitmap Resource Report" FontWeight="Bold" 
+           Background="LightGray" TextAlignment="Left" Padding="5"/>
 
-        <ListBox Grid.Column="0" Grid.Row="1" Name="BuildsList" 
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="Builds" FontWeight="Bold" 
+                   Background="LightGray" TextAlignment="Left" Padding="5"/>
+        <TextBlock Grid.Column="1" Grid.Row="1" Text="Files" FontWeight="Bold" 
+                   Background="LightGray" TextAlignment="Left" Padding="5"/>
+        <TextBlock Grid.Column="2" Grid.Row="1" Text="Tag Groups" FontWeight="Bold" 
+                   Background="LightGray" TextAlignment="Left" Padding="5"/>
+        <TextBlock Grid.Column="3" Grid.Row="1" Text="Tags" FontWeight="Bold" 
+                   Background="LightGray" TextAlignment="Left" Padding="5"/>
+        <TextBlock Grid.Column="4" Grid.Row="1" Text="Errors" FontWeight="Bold" 
+                   Background="LightGray" TextAlignment="Left" Padding="5"/>
+
+        <ListBox Grid.Column="0" Grid.Row="2" Name="BuildsList" 
                  SelectionChanged="BuildsList_SelectionChanged">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -53,7 +66,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <ListBox Grid.Column="1" Grid.Row="1" Name="FilesList" 
+        <ListBox Grid.Column="1" Grid.Row="2" Name="FilesList" 
                  SelectionChanged="FilesList_SelectionChanged">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -73,7 +86,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <ListBox Grid.Column="2" Grid.Row="1" Name="GroupsList" 
+        <ListBox Grid.Column="2" Grid.Row="2" Name="GroupsList" 
                  SelectionChanged="GroupsList_SelectionChanged">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -94,7 +107,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <ListBox Grid.Column="3" Grid.Row="1" Name="TagsList" 
+        <ListBox Grid.Column="3" Grid.Row="2" Name="TagsList" 
                  SelectionChanged="TagsList_SelectionChanged">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -113,7 +126,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <ListBox Grid.Column="4" Grid.Row="1" Name="ErrorsList">
+        <ListBox Grid.Column="4" Grid.Row="2" Name="ErrorsList">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="Background" Value="#ffe6e6"/>
