@@ -7,8 +7,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TagTool.Cache;
+using TagTool.JSON.Handlers;
+using TagTool.JSON.Objects;
 
 namespace PrecursorShell.Cache.Resolvers
 {
@@ -19,19 +23,11 @@ namespace PrecursorShell.Cache.Resolvers
             MaxDegreeOfParallelism = Environment.ProcessorCount * 2
         };
 
-        private static HashSet<string> GetBuildFiles(BuildTableEntry buildInfo) 
-        {
-            if (buildInfo.Generation == CacheGeneration.Eldorado)
-            {
-                return buildInfo.CurrentMapFiles;
-            }
-
-            // TODO: Merge shared maps for other cache generations
-            return buildInfo.CurrentCacheFiles;
-        }
-
         public static void ParseDefinitionsAsync(BuildTableEntry buildInfo) 
         {
+            if (buildInfo.Build == CacheBuild.HaloReach11883) 
+                return;
+
             var files = GetBuildFiles(buildInfo);
             var build = buildInfo.Build;
 
@@ -74,7 +70,7 @@ namespace PrecursorShell.Cache.Resolvers
                 outputFileInfo.Directory.Create();
             }
 
-            var hasFileErrors = ProcessCacheFileAsync(buildInfo, outputFileInfo, fileName);
+            var hasFileErrors = ProcessCacheFileAsync(buildInfo, fileInfo, outputFileInfo, fileName);
 
             return new FileProcessResult
             {
@@ -83,7 +79,7 @@ namespace PrecursorShell.Cache.Resolvers
             };
         }
 
-        private static bool ProcessCacheFileAsync(BuildTableEntry buildInfo, FileInfo outputFileInfo, string fileName)
+        private static bool ProcessCacheFileAsync(BuildTableEntry buildInfo, FileInfo fileInfo, FileInfo outputFileInfo, string fileName)
         {
             using var fileStream = new StreamWriter(outputFileInfo.FullName);
             using var fileWriter = new JsonTextWriter(fileStream)
@@ -99,8 +95,22 @@ namespace PrecursorShell.Cache.Resolvers
             fileWriter.WriteStartArray();
 
             var deserializer = new Deserializer(buildInfo.Version, buildInfo.Platform);
+            var headerType = CacheFileHeader.GetHeaderType(buildInfo.Version, buildInfo.Platform);
 
-
+            using (var stream = fileInfo.OpenRead()) 
+            {
+                try 
+                {
+                    ProcessCacheFile(buildInfo, deserializer, stream, headerType, fileName);
+                }
+                catch (Exception ex) 
+                {
+                    fileWriter.WriteValue($"Failed to deserialize header \"{fileName}\": {ex.Message}");
+                    fileWriter.WriteEndArray();
+                    fileWriter.WriteEndObject();
+                    return true;
+                }
+            }
 
             if (deserializer.Problems.Count > 0)
             {
@@ -111,48 +121,32 @@ namespace PrecursorShell.Cache.Resolvers
             }
 
             fileWriter.WriteEndArray();
-
             fileWriter.WriteEndObject();
 
-            return false;
+            return deserializer.Problems.Count > 0; 
         }
 
-        private class FileProcessResult
+        private static void ProcessCacheFile(BuildTableEntry buildInfo, Deserializer deserializer, Stream stream, Type headerType, string fileName) 
         {
-            public string FilePath { get; set; }
-            public bool HasErrors { get; set; }
-        }
-
-        /*
-        try
-        {
-            GenerateJSON(mapFile, fileName, ResourcePath);
-        }
-        catch (Exception ex)
-        {
-            return new FileValidationResult(false, $"Failed to serialize JSON \"{fileName}\": {ex.Message}");
-        }
-
-        public void GenerateJSON(MapFile mapFile, string fileName, string tempPath) 
-        {
-            var path = ResourcePath.Replace("Resources", "Temp");
-            var mapName = Path.GetFileNameWithoutExtension(fileName);
+            var header = deserializer.DeserializeStructure(stream, headerType);
+            var blf = deserializer.DeserializeBlf(stream);
+            var reports = deserializer.DeserializeCacheFileReports(stream, header as CacheFileHeader);
 
             var mapObject = new MapObject()
             {
-                MapName = mapName,
-                Version = mapFile.Version,
-                Platform = mapFile.Platform,
-                Header = mapFile.Header,
-                MapFileBlf = mapFile.MapFileBlf,
-                Reports = mapFile.Reports,
+                MapName = fileName,
+                Version = buildInfo.Version,
+                Platform = buildInfo.Platform,
+                Header = header as CacheFileHeader,
+                MapFileBlf = blf,
+                Reports = reports,
             };
 
-            var handler = new MapObjectHandler(Version, Platform);
+            var handler = new MapObjectHandler(buildInfo.Version, buildInfo.Platform);
 
             var jsonData = handler.Serialize(mapObject);
 
-            var fileInfo = new FileInfo(Path.Combine($"{path}", "cache_files", $"{fileName}.json"));
+            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\CacheDefinitions\\{buildInfo.Build}\\{fileName}\\{fileName}_header.json");
 
             if (!fileInfo.Directory.Exists)
             {
@@ -161,6 +155,57 @@ namespace PrecursorShell.Cache.Resolvers
 
             File.WriteAllText(fileInfo.FullName, jsonData);
         }
-        */
+
+        private static HashSet<string> GetBuildFiles(BuildTableEntry buildInfo)
+        {
+            return buildInfo.Build switch
+            {
+                CacheBuild.Halo2Alpha or
+                CacheBuild.Halo2Beta or
+                CacheBuild.Halo2Xbox or
+                CacheBuild.Halo2Vista or
+                CacheBuild.Halo3Beta or
+                CacheBuild.Halo3Retail or
+                CacheBuild.Halo3MythicRetail or
+                CacheBuild.Halo3ODST or
+                CacheBuild.HaloReach or
+                CacheBuild.Halo4Retail or
+                CacheBuild.Halo2MCC or
+                CacheBuild.Halo3MCC or
+                CacheBuild.Halo3ODSTMCC or
+                CacheBuild.HaloReachMCC or
+                CacheBuild.Halo4MCC or
+                CacheBuild.Halo2AMPMCC => buildInfo.CurrentCacheFiles.Union(buildInfo.CurrentSharedFiles).ToHashSet(),
+
+                CacheBuild.EldoradoED or
+                CacheBuild.Eldorado106708 or
+                CacheBuild.Eldorado155080 or
+                CacheBuild.Eldorado171227 or
+                CacheBuild.Eldorado177150 or
+                CacheBuild.Eldorado235640 or
+                CacheBuild.Eldorado301003 or
+                CacheBuild.Eldorado332089 or
+                CacheBuild.Eldorado373869 or
+                CacheBuild.Eldorado416138 or
+                CacheBuild.Eldorado430653 or
+                CacheBuild.Eldorado454665 or
+                CacheBuild.Eldorado479394 or
+                CacheBuild.Eldorado498295 or
+                CacheBuild.Eldorado530945 or
+                CacheBuild.Eldorado533032 or
+                CacheBuild.Eldorado554482 or
+                CacheBuild.Eldorado571698 or
+                CacheBuild.Eldorado604673 or
+                CacheBuild.Eldorado700255 => buildInfo.CurrentMapFiles,
+
+                _ => buildInfo.CurrentCacheFiles,
+            };
+        }
+
+        private class FileProcessResult
+        {
+            public string FilePath { get; set; }
+            public bool HasErrors { get; set; }
+        }
     }
 }

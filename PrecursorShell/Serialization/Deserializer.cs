@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using TagTool.BlamFile;
 using TagTool.Cache;
+using TagTool.Cache.Eldorado;
 using TagTool.Cache.Gen1;
 using TagTool.Cache.Gen2;
 using TagTool.Cache.Gen3;
 using TagTool.Cache.Gen4;
-using TagTool.Cache.Eldorado;
 using TagTool.Cache.Monolithic;
 using TagTool.Common;
 using TagTool.Geometry.BspCollisionGeometry;
@@ -36,6 +37,63 @@ namespace PrecursorShell.Serialization
             Platform = platform;
             PathStack = new Stack<string>();
             Problems = new List<string>();
+        }
+
+        public Blf DeserializeBlf(Stream stream) 
+        {
+            if (Version == CacheVersion.EldoradoED) 
+            {
+                var isLittleEndian = CacheVersionDetection.IsLittleEndian(Version, Platform);
+
+                var contextReader = new EndianReader(stream, isLittleEndian ? EndianFormat.LittleEndian : EndianFormat.BigEndian);
+
+                var blf = new Blf(Version, Platform);
+
+                if (blf.Read(contextReader))
+                    return blf;
+            }
+
+            return null;
+        }
+
+        public CacheFileReports DeserializeCacheFileReports(Stream stream, CacheFileHeader header) 
+        {
+            if (CacheVersionDetection.IsInGen(CacheGeneration.Eldorado, Version) && Version != CacheVersion.EldoradoED) 
+            {
+                var isLittleEndian = CacheVersionDetection.IsLittleEndian(Version, Platform);
+
+                var contextReader = new EndianReader(stream, isLittleEndian ? EndianFormat.LittleEndian : EndianFormat.BigEndian);
+
+                var context = new DataSerializationContext(contextReader);
+
+                var reports = new CacheFileReports(Version);
+
+                var reportSize = (int)TagStructure.GetTagStructureInfo(typeof(CacheFileReports.CacheFileReport), Version, CachePlatform.Original).TotalSize;
+
+                reports.Count = header.GetReports().Size / reportSize;
+
+                reports.Reports = new CacheFileReports.CacheFileReport[reports.Count];
+
+                for (int i = 0; i < reports.Count; i++)
+                {
+                    var info = TagStructure.GetTagStructureInfo(typeof(CacheFileReports.CacheFileReport), Version, Platform);
+
+                    var reader = context.BeginDeserialize(info);
+
+                    if (reader.Length == 0)
+                        return null;
+
+                    var result = DeserializeObjectStruct(null, reader, context, info);
+
+                    context.EndDeserialize(info, result);
+
+                    reports.Reports[i] = result as CacheFileReports.CacheFileReport;
+                }
+
+                return reports;
+            }
+
+            return null;
         }
 
         public object DeserializeTagInstance(GameCache cache, Stream stream, Type type, CachedTag instance)
@@ -78,10 +136,26 @@ namespace PrecursorShell.Serialization
             return result;
         }
 
-        public object DeserializeStructure() 
+        public object DeserializeStructure(Stream stream, Type type) 
         {
-            // TODO: Implement;
-            return null;
+            var isLittleEndian = CacheVersionDetection.IsLittleEndian(Version, Platform);
+
+            var contextReader = new EndianReader(stream, isLittleEndian ? EndianFormat.LittleEndian : EndianFormat.BigEndian);
+
+            var context = new DataSerializationContext(contextReader);
+
+            var info = TagStructure.GetTagStructureInfo(type, Version, Platform);
+
+            var reader = context.BeginDeserialize(info);
+
+            if (reader.Length == 0)
+                return null;
+
+            var result = DeserializeObjectStruct(null, reader, context, info);
+
+            context.EndDeserialize(info, result);
+
+            return result;
         }
 
         public object DeserializeObjectStruct(GameCache cache, EndianReader reader, ISerializationContext context, TagStructureInfo info) 
