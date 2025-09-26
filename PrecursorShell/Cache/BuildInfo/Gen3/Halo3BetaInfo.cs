@@ -116,15 +116,6 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
 
                     if (BuildStrings.Contains(mapFile.Header.GetBuildNumber()))
                     {
-                        try
-                        {
-                            GenerateJSON(mapFile, fileInfo.Name, ResourcePath);
-                        }
-                        catch (Exception ex)
-                        {
-                            return new FileValidationResult(false, $"Failed to serialize JSON \"{fileInfo.Name}\": {ex.Message}");
-                        }
-
                         return new FileValidationResult(true, filePath, FileType.Cache);
                     }
                     else

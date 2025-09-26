@@ -53,7 +53,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
                 }
             });
 
-            buildReport.ErrorLevel = ParseErrorLevel(fileErrorCount, buildReport.Files.Count);
+            buildReport.ErrorLevel = ReportHelper.ParseErrorLevel(fileErrorCount, buildReport.Files.Count);
             buildReport.FileErrorCount = fileErrorCount;
             buildReport.Files.AddRange(processedFiles);
 
@@ -142,7 +142,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             fileWriter.WriteEndArray();
 
             fileWriter.WritePropertyName("ErrorLevel");
-            fileWriter.WriteValue(ParseErrorLevel(tagGroupErrorCount, tagGroupCount).ToString());
+            fileWriter.WriteValue(ReportHelper.ParseErrorLevel(tagGroupErrorCount, tagGroupCount).ToString());
 
             fileWriter.WritePropertyName("GroupErrorCount");
             fileWriter.WriteValue(tagGroupErrorCount);
@@ -242,7 +242,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             groupWriter.WriteEndArray();
 
             groupWriter.WritePropertyName("ErrorLevel");
-            groupWriter.WriteValue(ParseErrorLevel(tagErrorCount, tags.Count()).ToString());
+            groupWriter.WriteValue(ReportHelper.ParseErrorLevel(tagErrorCount, tags.Count()).ToString());
 
             groupWriter.WritePropertyName("TagErrorCount");
             groupWriter.WriteValue(tagErrorCount);
@@ -326,20 +326,6 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             }
 
             return groups;
-        }
-
-        public static ReportErrorLevel ParseErrorLevel(int currentCount, int totalCount)
-        {
-            if (currentCount == 0)
-                return ReportErrorLevel.None;
-
-            if (currentCount > 0 && currentCount < totalCount)
-                return ReportErrorLevel.Intermediate;
-
-            if (currentCount == totalCount)
-                return ReportErrorLevel.All;
-
-            return ReportErrorLevel.All;
         }
 
         private class FileProcessResult

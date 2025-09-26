@@ -44,7 +44,7 @@ namespace PrecursorShell.Commands
                         case CacheBuild.Halo3MCC:
                         case CacheBuild.Halo3ODSTMCC:
                         case CacheBuild.HaloReachMCC:
-                            BitmapResolver.ParseFiles(buildInfo);
+                            BitmapResourceResolver.ParseFiles(buildInfo);
                             break;
                         default:
                             return new PrecursorWarning($"Unsupported build - {buildInfo.Build}");
@@ -64,7 +64,7 @@ namespace PrecursorShell.Commands
                     case CacheBuild.Halo3MCC:
                     case CacheBuild.Halo3ODSTMCC:
                     case CacheBuild.HaloReachMCC:
-                        BitmapResolver.ParseFiles(buildInfo);
+                        BitmapResourceResolver.ParseFiles(buildInfo);
                         break;
                     default:
                         return new PrecursorWarning($"Unsupported build - {buildInfo.Build}");

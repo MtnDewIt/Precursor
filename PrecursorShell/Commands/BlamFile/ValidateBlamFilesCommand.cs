@@ -8,9 +8,9 @@ using System.Linq;
 
 namespace PrecursorShell.Commands.BlamFile
 {
-    public class ValidateBlamFileCommand : PrecursorCommand
+    public class ValidateBlamFilesCommand : PrecursorCommand
     {
-        public ValidateBlamFileCommand() : base
+        public ValidateBlamFilesCommand() : base
         (
             false,
             "ValidateBlamFiles",
@@ -38,7 +38,7 @@ namespace PrecursorShell.Commands.BlamFile
                 {
                     if (buildInfo.ResourcePath != null && Directory.Exists(buildInfo.ResourcePath)) 
                     {
-                        BlfResolver.ParseFiles(buildInfo);
+                        BlamFileResolver.ParseFiles(buildInfo);
                     }
                 }
             }
@@ -48,7 +48,7 @@ namespace PrecursorShell.Commands.BlamFile
 
                 if (buildInfo.ResourcePath != null && Directory.Exists(buildInfo.ResourcePath))
                 {
-                    BlfResolver.ParseFiles(buildInfo);
+                    BlamFileResolver.ParseFiles(buildInfo);
                 }
             }
 

@@ -10,7 +10,7 @@ using TagTool.JSON.Objects;
 
 namespace PrecursorShell.BlamFile.Resolvers
 {
-    public class BlfResolver
+    public class BlamFileResolver
     {
         public static void ParseFiles(BuildTableEntry buildInfo)
         {

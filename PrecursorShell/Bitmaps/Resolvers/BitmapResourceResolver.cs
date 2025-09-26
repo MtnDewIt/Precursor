@@ -9,7 +9,7 @@ using TagTool.Tags.Definitions;
 
 namespace PrecursorShell.Bitmaps.Resolvers
 {
-    public class BitmapResolver
+    public class BitmapResourceResolver
     {
         public static void ParseFiles(BuildTableEntry buildInfo) 
         {

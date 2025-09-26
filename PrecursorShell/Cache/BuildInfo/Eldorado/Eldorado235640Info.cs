@@ -158,15 +158,6 @@ namespace PrecursorShell.Cache.BuildInfo.Eldorado
                 return new FileValidationResult(false, $"Invalid Build String: {fileName} - {buildString} != {BuildStrings.FirstOrDefault()}");
             }
 
-            try
-            {
-                GenerateJSON(mapFile, fileName, ResourcePath);
-            }
-            catch (Exception ex)
-            {
-                return new FileValidationResult(false, $"Failed to serialize JSON \"{fileName}\": {ex.Message}");
-            }
-
             return new FileValidationResult(true, filePath, FileType.Map);
         }
 

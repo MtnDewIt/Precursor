@@ -6,37 +6,37 @@ using System.IO;
 
 namespace PrecursorShell.Tags.Definitions.Reports
 {
-    public class TagDefinitionReport
+    public class TagResourceDefinitionReport
     {
-        private List<TagDefinitionReportBuild> _builds { get; set; }  
+        private List<TagResourceDefinitionReportBuild> _builds { get; set; }
 
-        public TagDefinitionReport()
+        public TagResourceDefinitionReport()
         {
             _builds = [];
         }
 
-        public class TagDefinitionReportBuild
+        public class TagResourceDefinitionReportBuild
         {
             public CacheBuild Build;
             public ReportHelper.ReportErrorLevel ErrorLevel;
             public int FileErrorCount;
             public List<string> Files = [];
 
-            public TagDefinitionReportBuild(CacheBuild build)
+            public TagResourceDefinitionReportBuild(CacheBuild build)
             {
                 Build = build;
             }
         }
 
-        public List<TagDefinitionReportBuild> Builds => _builds;
+        public List<TagResourceDefinitionReportBuild> Builds => _builds;
 
-        public void AddEntry(TagDefinitionReportBuild build) => _builds.Add(build);
+        public void AddEntry(TagResourceDefinitionReportBuild build) => _builds.Add(build);
 
-        public void RemoveEntry(TagDefinitionReportBuild build) => _builds.Remove(build);
+        public void RemoveEntry(TagResourceDefinitionReportBuild build) => _builds.Remove(build);
 
         public void GenerateReport()
         {
-            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\TagDefinitions\\Reports.json");
+            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\TagResourceDefinitions\\Reports.json");
 
             if (!fileInfo.Directory.Exists)
             {
@@ -44,7 +44,7 @@ namespace PrecursorShell.Tags.Definitions.Reports
             }
 
             using var sw = new StreamWriter(fileInfo.FullName);
-            using var writer = new JsonTextWriter(sw) 
+            using var writer = new JsonTextWriter(sw)
             {
                 Formatting = Formatting.Indented,
             };
@@ -53,7 +53,7 @@ namespace PrecursorShell.Tags.Definitions.Reports
             writer.WritePropertyName("Builds");
             writer.WriteStartArray();
 
-            foreach (var build in Builds) 
+            foreach (var build in Builds)
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName("Build");
@@ -68,7 +68,7 @@ namespace PrecursorShell.Tags.Definitions.Reports
                 writer.WritePropertyName("Files");
                 writer.WriteStartArray();
 
-                foreach (var file in build.Files) 
+                foreach (var file in build.Files)
                 {
                     writer.WriteValue(file);
                 }

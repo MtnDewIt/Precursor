@@ -19,7 +19,7 @@ namespace PrecursorShell.Cache.BuildInfo
 {
     public abstract class BuildTableEntry
     {
-        public static readonly int MaxConcurrency = Environment.ProcessorCount;
+        public static readonly int MaxConcurrency = Environment.ProcessorCount * 2;
 
         public abstract CacheBuild Build { get; }
         public abstract CacheVersion Version { get; }
@@ -60,35 +60,6 @@ namespace PrecursorShell.Cache.BuildInfo
             }
 
             return true;
-        }
-
-        public void GenerateJSON(MapFile mapFile, string fileName, string tempPath) 
-        {
-            var path = ResourcePath.Replace("Resources", "Temp");
-            var mapName = Path.GetFileNameWithoutExtension(fileName);
-
-            var mapObject = new MapObject()
-            {
-                MapName = mapName,
-                Version = mapFile.Version,
-                Platform = mapFile.Platform,
-                Header = mapFile.Header,
-                MapFileBlf = mapFile.MapFileBlf,
-                Reports = mapFile.Reports,
-            };
-
-            var handler = new MapObjectHandler(Version, Platform);
-
-            var jsonData = handler.Serialize(mapObject);
-
-            var fileInfo = new FileInfo(Path.Combine($"{path}", "cache_files", $"{fileName}.json"));
-
-            if (!fileInfo.Directory.Exists)
-            {
-                fileInfo.Directory.Create();
-            }
-
-            File.WriteAllText(fileInfo.FullName, jsonData);
         }
 
         public static CacheResource GetResourceType(ReadOnlySpan<char> fileName)

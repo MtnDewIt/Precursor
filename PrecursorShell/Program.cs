@@ -1,5 +1,6 @@
-﻿using PrecursorShell.Cache.BuildInfo;
+﻿using PrecursorShell.BlamFile.Reports;
 using PrecursorShell.Cache.BuildTable;
+using PrecursorShell.Cache.Reports;
 using PrecursorShell.Commands;
 using PrecursorShell.Commands.Context;
 using PrecursorShell.Common;
@@ -12,16 +13,16 @@ namespace PrecursorShell
 {
     public class Program
     {
-        public static string PrecursorDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string ConfigPath = Path.Combine(PrecursorDirectory, "Config.json");
+        public static readonly string PrecursorDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public static readonly string ConfigPath = Path.Combine(PrecursorDirectory, "Config.json");
 
         // TODO: Move these elsewhere
-        public static BuildTable BuildTable = new BuildTable();
-        // public static BlamFileReport BlamFileReport = new BlamFileReport();
-        // public static CacheBuildReport CacheBuildReport = new CacheFileReport();
-        public static TagDefinitionReport TagDefinitionReport = new TagDefinitionReport();
+        public static BuildTable BuildTable = new();
+        public static BlamFileReport BlamFileReport = new();
+        public static CacheDefinitionReport CacheDefinitionReport = new();
+        public static TagDefinitionReport TagDefinitionReport = new();
 
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine($"Precursor [{Assembly.GetExecutingAssembly().GetName().Version} (Built {GetLinkerTimestampUtc(Assembly.GetExecutingAssembly())} UTC)]\n");
 
