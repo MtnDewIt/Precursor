@@ -134,8 +134,23 @@ namespace PrecursorShell.Cache.BuildInfo
                 case CacheBuild.HaloReach11883:
                     buildInfo = new HaloReach11883Info();
                     break;
+                case CacheBuild.Halo4220811:
+                    buildInfo = new Halo4220811Info();
+                    break;
+                case CacheBuild.Halo4280911:
+                    buildInfo = new Halo4280911Info();
+                    break;
+                case CacheBuild.Halo4E3:
+                    buildInfo = new Halo4E3Info();
+                    break;
                 case CacheBuild.Halo4Retail:
                     buildInfo = new Halo4RetailInfo();
+                    break;
+                case CacheBuild.Halo4140113:
+                    buildInfo = new Halo4140113Info();
+                    break;
+                case CacheBuild.Halo4131113:
+                    buildInfo = new Halo4131113Info();
                     break;
                 case CacheBuild.EldoradoED:
                     buildInfo = new EldoradoEDInfo();
