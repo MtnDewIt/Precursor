@@ -32,6 +32,11 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="managedblam">
+      <HintPath>D:\SteamLibrary\steamapps\common\H3EK\bin\ManagedBlam.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemDefinitionGroup>
     <ReferenceCopyLocalPaths>
       <DestinationSubDirectory>Tools\</DestinationSubDirectory>
@@ -42,6 +47,7 @@
       <TagTool-NET Include="..\TagTool-NET\TagTool\bin\$(Platform)\$(ConfigurationName)\$(TargetFramework)\**\*" />
     </ItemGroup>
     <Copy SourceFiles="@(TagTool-NET)" DestinationFolder="$(OutDir)Tools\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Exec Command="call &quot;$(DevEnvDir)..\Tools\VsDevCmd.bat&quot; &amp;&amp; editbin /HIGHENTROPYVA:NO /DYNAMICBASE:NO /REBASE:base=0x10000 &quot;$(TargetDir)$(TargetName).exe&quot;" />
   </Target>
   <PropertyGroup>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>

@@ -15,6 +15,8 @@ namespace PrecursorShell.Commands.Mandrill
             None = 0,
             DefinitionTweaker,
             EldoradoCacheFileTest,
+            DefinitionDumper,
+            All,
         }
 
         public GenerateMandrillCommandArgumentsCommand() : base
@@ -44,6 +46,14 @@ namespace PrecursorShell.Commands.Mandrill
                     break;
                 case MandrillProject.EldoradoCacheFileTest:
                     GenerateEldoradoCacheFileTestArguments();
+                    break;
+                case MandrillProject.DefinitionDumper:
+                    GenerateDefinitionDumperArguments();
+                    break;
+                case MandrillProject.All: // This can be handled better
+                    GenerateDefinitionTweakerArguments();
+                    GenerateEldoradoCacheFileTestArguments();
+                    GenerateDefinitionDumperArguments();
                     break;
                 default:
                     return new PrecursorError($"Project not implemented!");
@@ -164,6 +174,68 @@ namespace PrecursorShell.Commands.Mandrill
                 writer.WriteEndArray();
                 writer.WriteEndObject();
             }
+
+            writer.WriteEndArray();
+            writer.WriteEndObject();
+        }
+
+        public static void GenerateDefinitionDumperArguments() 
+        {
+            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Mandrill\\Arguments\\definitiondumper.args.json");
+
+            if (!fileInfo.Directory.Exists)
+            {
+                fileInfo.Directory.Create();
+            }
+
+            using var sw = new StreamWriter(fileInfo.FullName);
+            using var writer = new JsonTextWriter(sw)
+            {
+                Formatting = Formatting.Indented,
+            };
+
+            writer.WriteStartObject();
+            writer.WritePropertyName("FileVersion");
+            writer.WriteValue(2);
+            writer.WritePropertyName("Id");
+            writer.WriteValue(Guid.NewGuid());
+            writer.WritePropertyName("Items");
+            writer.WriteStartArray();
+
+            foreach (var build in Program.BuildTable.BuildInfo.Where(b => b.Generation == CacheGeneration.MCC)) 
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("Id");
+                writer.WriteValue(Guid.NewGuid());
+                writer.WritePropertyName("Command");
+                writer.WriteValue(build.Build.ToString());
+                writer.WritePropertyName("Items");
+                writer.WriteStartArray();
+
+                writer.WriteStartObject();
+                writer.WritePropertyName("Id");
+                writer.WriteValue(Guid.NewGuid());
+                writer.WritePropertyName("Command");
+                writer.WriteValue($@"-filepath:");
+                writer.WriteEndObject();
+
+                writer.WriteStartObject();
+                writer.WritePropertyName("Id");
+                writer.WriteValue(Guid.NewGuid());
+                writer.WritePropertyName("Command");
+                writer.WriteValue($@"-tag-definitions-output-directory:\output\definitions\");
+                writer.WriteEndObject();
+
+                writer.WriteStartObject();
+                writer.WritePropertyName("Id");
+                writer.WriteValue(Guid.NewGuid());
+                writer.WritePropertyName("Command");
+                writer.WriteValue($@"-tag-groups-output-directory:\output\groups\");
+                writer.WriteEndObject();
+
+                writer.WriteEndArray();
+                writer.WriteEndObject();
+            } 
 
             writer.WriteEndArray();
             writer.WriteEndObject();
