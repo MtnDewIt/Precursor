@@ -128,6 +128,15 @@ namespace PrecursorShell.Cache.BuildInfo
                 case CacheBuild.Halo3ODST:
                     buildInfo = new Halo3ODSTInfo();
                     break;
+                case CacheBuild.HaloReachAlpha:
+                    buildInfo = new HaloReachAlphaInfo();
+                    break;
+                case CacheBuild.HaloReachPreBeta:
+                    buildInfo = new HaloReachPreBetaInfo();
+                    break;
+                case CacheBuild.HaloReachBeta:
+                    buildInfo = new HaloReachBetaInfo();
+                    break;
                 case CacheBuild.HaloReach:
                     buildInfo = new HaloReachInfo();
                     break;
