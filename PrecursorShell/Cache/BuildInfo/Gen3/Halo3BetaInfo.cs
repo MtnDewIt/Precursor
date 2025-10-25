@@ -19,7 +19,9 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
         public override CacheVersion Version => CacheVersion.Halo3Beta;
         public override CachePlatform Platform => CachePlatform.Original;
         public override CacheGeneration Generation => CacheGeneration.Gen3;
-        
+
+        public override bool Compressed => false;
+
         public override string ResourcePath => @"Resources\Gen3\Halo3Beta";
 
         public override List<string> BuildStrings => new List<string> 

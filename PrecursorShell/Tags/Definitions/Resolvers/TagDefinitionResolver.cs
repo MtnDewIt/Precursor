@@ -38,20 +38,40 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             var processedFiles = new ConcurrentBag<string>();
             var fileErrorCount = 0;
 
-            Parallel.ForEach(files, Options, file =>
+            if (buildInfo.Compressed)
             {
-                var result = ProcessFileAsync(file, build);
-
-                if (result.HasErrors)
+                foreach (var file in files) 
                 {
-                    Interlocked.Increment(ref fileErrorCount);
-                }
+                    var result = ProcessFileAsync(file, build);
 
-                if (result.FilePath != null)
-                {
-                    processedFiles.Add(result.FilePath);
+                    if (result.HasErrors)
+                    {
+                        fileErrorCount++;
+                    }
+
+                    if (result.FilePath != null)
+                    {
+                        processedFiles.Add(result.FilePath);
+                    }
                 }
-            });
+            }
+            else 
+            {
+                Parallel.ForEach(files, Options, file =>
+                {
+                    var result = ProcessFileAsync(file, build);
+
+                    if (result.HasErrors)
+                    {
+                        Interlocked.Increment(ref fileErrorCount);
+                    }
+
+                    if (result.FilePath != null)
+                    {
+                        processedFiles.Add(result.FilePath);
+                    }
+                });
+            }
 
             buildReport.ErrorLevel = ReportHelper.ParseErrorLevel(fileErrorCount, buildReport.Files.Count);
             buildReport.FileErrorCount = fileErrorCount;

@@ -20,6 +20,8 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
         public override CachePlatform Platform => CachePlatform.Original;
         public override CacheGeneration Generation => CacheGeneration.Gen3;
 
+        public override bool Compressed => false;
+
         public override string ResourcePath => @"Resources\Gen3\Halo3MythicRetail";
 
         public override List<string> BuildStrings => new List<string> 

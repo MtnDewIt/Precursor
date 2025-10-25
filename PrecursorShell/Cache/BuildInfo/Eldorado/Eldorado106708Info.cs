@@ -20,7 +20,9 @@ namespace PrecursorShell.Cache.BuildInfo.Eldorado
         public override CacheVersion Version => CacheVersion.Eldorado106708;
         public override CachePlatform Platform => CachePlatform.Original;
         public override CacheGeneration Generation => CacheGeneration.Eldorado;
-        
+
+        public override bool Compressed => false;
+
         public override string ResourcePath => @"Resources\Eldorado\Eldorado106708";
 
         public override List<string> BuildStrings => new List<string> 

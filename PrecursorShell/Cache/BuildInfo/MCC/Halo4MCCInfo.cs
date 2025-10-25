@@ -20,6 +20,8 @@ namespace PrecursorShell.Cache.BuildInfo.MCC
         public override CachePlatform Platform => CachePlatform.MCC;
         public override CacheGeneration Generation => CacheGeneration.MCC;
 
+        public override bool Compressed => false;
+
         public override string ResourcePath => @"Resources\MCC\Halo4MCC";
 
         public override List<string> BuildStrings => new List<string>

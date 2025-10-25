@@ -20,6 +20,8 @@ namespace PrecursorShell.Cache.BuildInfo.Gen4
         public override CachePlatform Platform => CachePlatform.Original;
         public override CacheGeneration Generation => CacheGeneration.Gen4;
 
+        public override bool Compressed => false;
+
         public override string ResourcePath => @"Resources\Gen4\Halo4E3";
 
         public override List<string> BuildStrings => new List<string>

@@ -19,7 +19,9 @@ namespace PrecursorShell.Cache.BuildInfo.Gen1
         public override CacheVersion Version => CacheVersion.HaloCustomEdition;
         public override CachePlatform Platform => CachePlatform.Original;
         public override CacheGeneration Generation => CacheGeneration.Gen1;
-        
+
+        public override bool Compressed => false;
+
         public override string ResourcePath => @"Resources\Gen1\HaloCustomEdition";
 
         public override List<string> BuildStrings => new List<string> 

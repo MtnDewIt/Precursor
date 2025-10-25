@@ -26,6 +26,8 @@ namespace PrecursorShell.Cache.BuildInfo
         public abstract CachePlatform Platform { get; }
         public abstract CacheGeneration Generation { get; }
 
+        public abstract bool Compressed { get; }
+
         public abstract string ResourcePath { get; }
 
         public abstract IReadOnlyList<string> BuildStrings { get; }

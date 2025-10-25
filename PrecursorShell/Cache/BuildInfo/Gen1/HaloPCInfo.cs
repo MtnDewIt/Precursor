@@ -20,6 +20,8 @@ namespace PrecursorShell.Cache.BuildInfo.Gen1
         public override CachePlatform Platform => CachePlatform.Original;
         public override CacheGeneration Generation => CacheGeneration.Gen1;
 
+        public override bool Compressed => false;
+
         public override string ResourcePath => @"Resources\Gen1\HaloPC";
 
         public override List<string> BuildStrings => new List<string> 
