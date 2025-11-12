@@ -17,7 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TagTool.Cache;
 using TagTool.Cache.Monolithic;
-using TagTool.Common;
+using TagGroup = TagTool.Common.Tag;
 
 namespace PrecursorShell.Tags.Definitions.Resolvers
 {
@@ -172,7 +172,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             return tagGroupErrorCount > 0;
         }
 
-        private static TagGroupProcessResult ProcessTagGroupAsync(GameCache cache, Stream stream, KeyValuePair<Tag, string> group, CacheBuild build, string fileName) 
+        private static TagGroupProcessResult ProcessTagGroupAsync(GameCache cache, Stream stream, KeyValuePair<TagGroup, string> group, CacheBuild build, string fileName) 
         {
             var filteredGroup = Regex.Replace($"{group.Key}", @"[<>*\\ /:]", "_");
             var tagErrorCount = 0;
@@ -276,7 +276,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             };
         }
 
-        public static Dictionary<Tag, string> GetTagGroups(GameCache cache, CacheBuild build) 
+        public static Dictionary<TagGroup, string> GetTagGroups(GameCache cache, CacheBuild build) 
         {
             return build switch
             {
@@ -331,9 +331,9 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             };
         }
 
-        public static Dictionary<Tag, string> GetMonolithicGroups(GameCache cache) 
+        public static Dictionary<TagGroup, string> GetMonolithicGroups(GameCache cache) 
         {
-            Dictionary<Tag, string> groups = new Dictionary<Tag, string>();
+            Dictionary<TagGroup, string> groups = new Dictionary<TagGroup, string>();
 
             foreach (var group in (cache as GameCacheMonolithic).TagCacheMono.Tags.GroupBy(x => x.Group)) 
             {

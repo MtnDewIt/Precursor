@@ -32,11 +32,6 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="managedblam">
-      <HintPath>D:\SteamLibrary\steamapps\common\H3EK\bin\ManagedBlam.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <ItemDefinitionGroup>
     <ReferenceCopyLocalPaths>
       <DestinationSubDirectory>Tools\</DestinationSubDirectory>

@@ -18,6 +18,7 @@ using TagTool.IO;
 using TagTool.Serialization;
 using TagTool.Shaders;
 using TagTool.Tags;
+using TagGroup = TagTool.Common.Tag;
 
 namespace PrecursorShell.Serialization
 {
@@ -295,8 +296,8 @@ namespace PrecursorShell.Serialization
             if (valueType == typeof(string))
                 return DeserializeObjectString(reader, valueInfo);
 
-            if (valueType == typeof(Tag))
-                return new Tag(reader.ReadInt32());
+            if (valueType == typeof(TagGroup))
+                return new TagGroup(reader.ReadInt32());
 
             // TagInstance = Tag reference
             if (valueType == typeof(CachedTag))
@@ -655,7 +656,7 @@ namespace PrecursorShell.Serialization
 
         public CachedTag DeserializeObjectTagReference(GameCache cache, EndianReader reader, ISerializationContext context, TagFieldAttribute valueInfo) 
         {
-            Tag group = Tag.Null;
+            TagGroup group = TagGroup.Null;
 
             if (valueInfo == null || (valueInfo.Flags & TagFieldFlags.Short) == 0)
             {
@@ -667,7 +668,7 @@ namespace PrecursorShell.Serialization
 
             var result = context.GetTagByIndex(reader.ReadInt32());
 
-            if (group != Tag.Null && group.Value != 0)
+            if (group != TagGroup.Null && group.Value != 0)
             {
                 if (result != null && valueInfo != null && valueInfo.ValidTags != null)
                 {
