@@ -64,7 +64,7 @@ namespace PrecursorShell.Commands.Mandrill
 
         public static void GenerateDefinitionTweakerArguments() 
         {
-            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Mandrill\\Arguments\\definitiontweaker.args.json");
+            var fileInfo = new FileInfo($"{DirectoryPaths.Base}\\Mandrill\\Arguments\\definitiontweaker.args.json");
 
             if (!fileInfo.Directory.Exists)
             {
@@ -85,7 +85,7 @@ namespace PrecursorShell.Commands.Mandrill
             writer.WritePropertyName("Items");
             writer.WriteStartArray();
 
-            foreach (var build in Program.BuildTable.BuildInfo.Where(b => b.Generation == CacheGeneration.Eldorado)) 
+            foreach (var build in Program.BuildTable.BuildInfo.Where(b => b.Generation == CacheGeneration.HaloOnline)) 
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName("Id");
@@ -126,7 +126,7 @@ namespace PrecursorShell.Commands.Mandrill
 
         public static void GenerateEldoradoCacheFileTestArguments() 
         {
-            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Mandrill\\Arguments\\eldoradocachefiletest.args.json");
+            var fileInfo = new FileInfo($"{DirectoryPaths.Base}\\Mandrill\\Arguments\\eldoradocachefiletest.args.json");
 
             if (!fileInfo.Directory.Exists)
             {
@@ -147,7 +147,7 @@ namespace PrecursorShell.Commands.Mandrill
             writer.WritePropertyName("Items");
             writer.WriteStartArray();
 
-            foreach (var build in Program.BuildTable.BuildInfo.Where(b => b.Generation == CacheGeneration.Eldorado)) 
+            foreach (var build in Program.BuildTable.BuildInfo.Where(b => b.Generation == CacheGeneration.HaloOnline)) 
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName("Id");
@@ -181,7 +181,7 @@ namespace PrecursorShell.Commands.Mandrill
 
         public static void GenerateDefinitionDumperArguments() 
         {
-            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Mandrill\\Arguments\\definitiondumper.args.json");
+            var fileInfo = new FileInfo($"{DirectoryPaths.Base}\\Mandrill\\Arguments\\definitiondumper.args.json");
 
             if (!fileInfo.Directory.Exists)
             {

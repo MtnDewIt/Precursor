@@ -36,7 +36,7 @@ namespace PrecursorShell.BlamFile.Reports
 
         public void GenerateReport()
         {
-            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\BlamFiles\\Reports.json");
+            var fileInfo = new FileInfo($"{DirectoryPaths.Base}\\Reports\\BlamFiles\\Reports.json");
 
             if (!fileInfo.Directory.Exists)
             {

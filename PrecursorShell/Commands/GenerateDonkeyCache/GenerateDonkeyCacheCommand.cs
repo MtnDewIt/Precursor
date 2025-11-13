@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using TagTool.Cache;
-using TagTool.Cache.Eldorado;
+using TagTool.Cache.HaloOnline;
 
 namespace PrecursorShell.Commands.GenerateDonkeyCache
 {
@@ -15,7 +15,7 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
     partial class GenerateDonkeyCacheCommand : PrecursorCommand
     {
         public GameCache Cache { get; set; }
-        public GameCacheEldorado CacheContext { get; set; }
+        public GameCacheHaloOnline CacheContext { get; set; }
         public PrecursorContextStack ContextStack { get; set; }
         public Stream CacheStream { get; set; }
         public static DirectoryInfo SourceDirectoryInfo { get; set; }

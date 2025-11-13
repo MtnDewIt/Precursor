@@ -13,8 +13,7 @@ namespace PrecursorShell
 {
     public class Program
     {
-        public static readonly string PrecursorDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static readonly string ConfigPath = Path.Combine(PrecursorDirectory, "Config.json");
+        public static readonly string ConfigPath = Path.Combine(DirectoryPaths.Base, "Config.json");
 
         // TODO: Move these elsewhere
         public static BuildTable BuildTable = new();

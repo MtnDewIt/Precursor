@@ -5,8 +5,8 @@ using System.IO;
 using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.IO;
-using TagTool.JSON.Handlers;
-using TagTool.JSON.Objects;
+using PrecursorShell.JSON.Handlers;
+using PrecursorShell.JSON.Objects;
 
 namespace PrecursorShell.BlamFile.Resolvers
 {
@@ -109,10 +109,10 @@ namespace PrecursorShell.BlamFile.Resolvers
                 bool isGen3Campaign = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.Campaign) && CacheVersionDetection.IsBetween(version, CacheVersion.Halo3Retail, CacheVersion.HaloReach);
 
                 // We force Halo4:Original for campaign files up to h2amp, as the format doesn't change from Halo4 to Halo2AMP
-                bool isGen4Campaign = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.Campaign) && CacheVersionDetection.IsBetween(version, CacheVersion.Halo4, CacheVersion.Halo2AMP);
+                bool isGen4Campaign = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.Campaign) && CacheVersionDetection.IsBetween(version, CacheVersion.Halo4, CacheVersion.H2AMP);
 
                 // We force Halo4:Original for map info files up to h2amp, as the format doesn't change from Halo4 to Halo2AMP
-                bool isGen4MapInfo = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.Scenario) && CacheVersionDetection.IsBetween(version, CacheVersion.Halo4, CacheVersion.Halo2AMP);
+                bool isGen4MapInfo = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.Scenario) && CacheVersionDetection.IsBetween(version, CacheVersion.Halo4, CacheVersion.H2AMP);
 
                 // We force X:Original for all map info files as the format does not change from X:Original to X:MCC 
                 bool isMCCMapInfo = blf.ContentFlags.HasFlag(Blf.BlfFileContentFlags.Scenario) && platform == CachePlatform.MCC;

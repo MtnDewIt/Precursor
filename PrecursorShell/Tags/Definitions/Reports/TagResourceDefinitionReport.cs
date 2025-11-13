@@ -36,7 +36,7 @@ namespace PrecursorShell.Tags.Definitions.Reports
 
         public void GenerateReport()
         {
-            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\TagResourceDefinitions\\Reports.json");
+            var fileInfo = new FileInfo($"{DirectoryPaths.Base}\\Reports\\TagResourceDefinitions\\Reports.json");
 
             if (!fileInfo.Directory.Exists)
             {

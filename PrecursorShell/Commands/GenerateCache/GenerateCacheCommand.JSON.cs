@@ -1,4 +1,4 @@
-﻿using TagTool.JSON.Parsers;
+﻿using PrecursorShell.JSON.Parsers;
 
 namespace PrecursorShell.Commands.GenerateCache
 {

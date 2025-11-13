@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using TagTool.Cache;
-using TagTool.Cache.Eldorado;
+using TagTool.Cache.HaloOnline;
 using TagTool.Shaders.ShaderGenerator;
 
 namespace PrecursorShell.Commands.ConvertCache
@@ -48,7 +48,7 @@ namespace PrecursorShell.Commands.ConvertCache
 
             ParseInputPath(file);
 
-            if (Cache is GameCacheEldorado)
+            if (Cache is GameCacheHaloOnline)
             {
                 using (Stream stream = Cache.OpenCacheReadWrite())
                 {
@@ -83,7 +83,7 @@ namespace PrecursorShell.Commands.ConvertCache
 
                 var baseCache = GameCache.Open($@"{basePath}maps\tags.dat");
 
-                Cache = new GameCacheModPackage(baseCache as GameCacheEldorado, file);
+                Cache = new GameCacheModPackage(baseCache as GameCacheHaloOnline, file);
             }
         }
 
@@ -91,7 +91,7 @@ namespace PrecursorShell.Commands.ConvertCache
         {
             foreach (CachedTag tag in cache.TagCache.NonNull())
             {
-                if (!(tag as CachedTagEldorado).IsEmpty()) 
+                if (!(tag as CachedTagHaloOnline).IsEmpty()) 
                 {
                     if (tag.IsInGroup("sefc"))
                         ConvertAreaScreenEffect(stream, tag);

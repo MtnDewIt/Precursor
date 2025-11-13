@@ -35,7 +35,7 @@ namespace PrecursorShell.Cache.Reports
 
         public void GenerateReport()
         {
-            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\CacheDefinitions\\Reports.json");
+            var fileInfo = new FileInfo($"{DirectoryPaths.Base}\\Reports\\CacheDefinitions\\Reports.json");
 
             if (!fileInfo.Directory.Exists)
             {

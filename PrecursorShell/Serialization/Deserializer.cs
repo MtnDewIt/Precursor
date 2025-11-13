@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using TagTool.BlamFile;
 using TagTool.Cache;
-using TagTool.Cache.Eldorado;
+using TagTool.Cache.HaloOnline;
 using TagTool.Cache.Gen1;
 using TagTool.Cache.Gen2;
 using TagTool.Cache.Gen3;
@@ -42,7 +42,7 @@ namespace PrecursorShell.Serialization
 
         public Blf DeserializeBlf(Stream stream) 
         {
-            if (Version == CacheVersion.EldoradoED) 
+            if (Version == CacheVersion.HaloOnlineED) 
             {
                 var isLittleEndian = CacheVersionDetection.IsLittleEndian(Version, Platform);
 
@@ -59,7 +59,7 @@ namespace PrecursorShell.Serialization
 
         public CacheFileReports DeserializeCacheFileReports(Stream stream, CacheFileHeader header) 
         {
-            if (CacheVersionDetection.IsInGen(CacheGeneration.Eldorado, Version) && Version != CacheVersion.EldoradoED) 
+            if (CacheVersionDetection.IsInGen(CacheGeneration.HaloOnline, Version) && Version != CacheVersion.HaloOnlineED) 
             {
                 var isLittleEndian = CacheVersionDetection.IsLittleEndian(Version, Platform);
 
@@ -115,8 +115,8 @@ namespace PrecursorShell.Serialization
                 case GameCacheMonolithic gameCacheMonolithic:
                     context = new TagSerializationContextMonolithic(stream, gameCacheMonolithic, (CachedTagMonolithic)instance);
                     break;
-                case GameCacheEldoradoBase gameCacheEldorado:
-                    context = new EldoradoSerializationContext(stream, gameCacheEldorado, (CachedTagEldorado)instance);
+                case GameCacheHaloOnlineBase gameCacheHaloOnline:
+                    context = new HaloOnlineSerializationContext(stream, gameCacheHaloOnline, (CachedTagHaloOnline)instance);
                     break;
                 case GameCacheGen4 gameCacheGen4:
                     context = new Gen4SerializationContext(stream, gameCacheGen4, (CachedTagGen4)instance);
@@ -681,7 +681,7 @@ namespace PrecursorShell.Serialization
                             + $"\n - valid groups: {groups}");
                     }
 
-                    if (!cache.TagCache.TagDefinitions.TagDefinitionExists(result.Group.Tag) || (cache is not GameCacheEldoradoBase && !cache.TagCache.IsTagIndexValid((int)(result.ID & 0xFFFF))))
+                    if (!cache.TagCache.TagDefinitions.TagDefinitionExists(result.Group.Tag) || (cache is not GameCacheHaloOnlineBase && !cache.TagCache.IsTagIndexValid((int)(result.ID & 0xFFFF))))
                     {
                         Problems.Add($"Invalid tag reference: {CurrentFieldPath} = {result}");
                     }
@@ -792,7 +792,7 @@ namespace PrecursorShell.Serialization
 
         public IndexBufferIndex DeserializeObjectIndexBufferIndex(EndianReader reader) 
         {
-            if (Version >= CacheVersion.HaloReach || Version == CacheVersion.EldoradoED)
+            if (Version >= CacheVersion.HaloReach || Version == CacheVersion.HaloOnlineED)
                 return new IndexBufferIndex(reader.ReadInt32());
             else
                 return new IndexBufferIndex(reader.ReadUInt16());
@@ -800,7 +800,7 @@ namespace PrecursorShell.Serialization
 
         public object DeserializeObjectPlaneReference(EndianReader reader) 
         {
-            if (Version >= CacheVersion.HaloReach || Version == CacheVersion.EldoradoED)
+            if (Version >= CacheVersion.HaloReach || Version == CacheVersion.HaloOnlineED)
             {
                 var value = reader.ReadUInt32();
 

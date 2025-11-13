@@ -7,7 +7,7 @@
         Gen2,
         Gen3,
         Gen4,
-        Eldorado,
+        HaloOnline,
         MCC
     }
 }

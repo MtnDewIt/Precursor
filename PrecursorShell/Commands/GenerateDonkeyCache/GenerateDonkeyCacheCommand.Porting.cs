@@ -1,6 +1,6 @@
 ﻿using System;
 using TagTool.Cache;
-using TagTool.JSON.Parsers;
+using PrecursorShell.JSON.Parsers;
 using TagTool.Tags;
 using HaloShaderGenerator.Globals;
 using TagTool.Tags.Definitions;

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using TagTool.Cache;
-using TagTool.Cache.Eldorado;
+using TagTool.Cache.HaloOnline;
 using TagTool.Common;
 using TagTool.Serialization;
 using TagTool.Tags.Definitions;
@@ -18,11 +18,11 @@ namespace PrecursorShell.Commands.GenerateCache
 
             MoveFontPackage(destDirectory.FullName);
 
-            var cacheContext = new GameCacheEldorado(destDirectory);
+            var cacheContext = new GameCacheHaloOnline(destDirectory);
 
             UpdateStringTable(cacheContext.StringTable);
 
-            SetCacheVersion(cacheContext, CacheVersion.EldoradoED);
+            SetCacheVersion(cacheContext, CacheVersion.HaloOnlineED);
 
             var resourceStreams = new Dictionary<ResourceLocation, Stream>();
 
@@ -56,7 +56,7 @@ namespace PrecursorShell.Commands.GenerateCache
         {
             var newFileInfo = new FileInfo(cache + "\\tags.dat");
             Cache = GameCache.Open(newFileInfo);
-            CacheContext = Cache as GameCacheEldorado;
+            CacheContext = Cache as GameCacheHaloOnline;
         }
 
         public void MoveFontPackage(string path)
@@ -80,14 +80,14 @@ namespace PrecursorShell.Commands.GenerateCache
                 stringTable.Add(str);
         }
         
-        public void SetCacheVersion(GameCacheEldorado cache, CacheVersion version)
+        public void SetCacheVersion(GameCacheHaloOnline cache, CacheVersion version)
         {
             cache.Version = version;
-            cache.TagCacheEldorado.Version = version;
-            cache.TagCacheEldorado.Header.CreationDate = LastModificationDate.CreateFromVersion(version);
+            cache.TagCacheGenHO.Version = version;
+            cache.TagCacheGenHO.Header.CreationDate = LastModificationDate.CreateFromVersion(version);
             cache.Serializer = new TagSerializer(version, CachePlatform.Original);
             cache.Deserializer = new TagDeserializer(version, CachePlatform.Original);
-            cache.ResourceCaches = new ResourceCachesEldorado(cache);
+            cache.ResourceCaches = new ResourceCachesHaloOnline(cache);
         }
     }
 }

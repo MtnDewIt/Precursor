@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using PrecursorShell.Cache;
 using PrecursorShell.Cache.BuildInfo;
-using PrecursorShell.Cache.BuildInfo.Eldorado.Groups;
+using PrecursorShell.Cache.BuildInfo.HaloOnline.Groups;
 using PrecursorShell.Cache.BuildInfo.Gen1.Groups;
 using PrecursorShell.Cache.BuildInfo.Gen2.Groups;
 using PrecursorShell.Reports;
@@ -85,7 +85,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             var fileName = Path.GetFileNameWithoutExtension(file);
             var filePath = $"{build}\\{fileName}\\{fileName}.json";
             var fileInfo = new FileInfo(file);
-            var outputFileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\TagDefinitions\\{filePath}");
+            var outputFileInfo = new FileInfo($"{DirectoryPaths.Base}\\Reports\\TagDefinitions\\{filePath}");
 
             if (!outputFileInfo.Directory.Exists)
             {
@@ -177,7 +177,7 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             var filteredGroup = Regex.Replace($"{group.Key}", @"[<>*\\ /:]", "_");
             var tagErrorCount = 0;
             var groupPath = $"{build}\\{fileName}\\{filteredGroup}\\{filteredGroup}.json";
-            var groupOutputInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\TagDefinitions\\{groupPath}");
+            var groupOutputInfo = new FileInfo($"{DirectoryPaths.Base}\\Reports\\TagDefinitions\\{groupPath}");
 
             if (!groupOutputInfo.Directory.Exists)
             {
@@ -302,26 +302,26 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
 
                 CacheBuild.HaloReach11883 => GetMonolithicGroups(cache),
 
-                CacheBuild.EldoradoED or
-                CacheBuild.Eldorado106708 or
-                CacheBuild.Eldorado155080 or
-                CacheBuild.Eldorado171227 or
-                CacheBuild.Eldorado177150 or
-                CacheBuild.Eldorado235640 or
-                CacheBuild.Eldorado301003 or
-                CacheBuild.Eldorado332089 or
-                CacheBuild.Eldorado373869 or
-                CacheBuild.Eldorado416138 or
-                CacheBuild.Eldorado430653 or
-                CacheBuild.Eldorado454665 or
-                CacheBuild.Eldorado479394 or
-                CacheBuild.Eldorado498295 or
-                CacheBuild.Eldorado530945 or
-                CacheBuild.Eldorado533032 or
-                CacheBuild.Eldorado554482 or
-                CacheBuild.Eldorado571698 or
-                CacheBuild.Eldorado604673 or
-                CacheBuild.Eldorado700255 => EldoradoGroups.Groups,
+                CacheBuild.HaloOnlineED or
+                CacheBuild.HaloOnline106708 or
+                CacheBuild.HaloOnline155080 or
+                CacheBuild.HaloOnline171227 or
+                CacheBuild.HaloOnline177150 or
+                CacheBuild.HaloOnline235640 or
+                CacheBuild.HaloOnline301003 or
+                CacheBuild.HaloOnline332089 or
+                CacheBuild.HaloOnline373869 or
+                CacheBuild.HaloOnline416138 or
+                CacheBuild.HaloOnline430653 or
+                CacheBuild.HaloOnline454665 or
+                CacheBuild.HaloOnline479394 or
+                CacheBuild.HaloOnline498295 or
+                CacheBuild.HaloOnline530945 or
+                CacheBuild.HaloOnline533032 or
+                CacheBuild.HaloOnline554482 or
+                CacheBuild.HaloOnline571698 or
+                CacheBuild.HaloOnline604673 or
+                CacheBuild.HaloOnline700255 => HaloOnlineGroups.Groups,
 
                 CacheBuild.Halo4Retail or
                 CacheBuild.Halo4MCC or

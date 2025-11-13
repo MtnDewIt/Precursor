@@ -11,8 +11,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TagTool.Cache;
-using TagTool.JSON.Handlers;
-using TagTool.JSON.Objects;
+using PrecursorShell.JSON.Handlers;
+using PrecursorShell.JSON.Objects;
 
 namespace PrecursorShell.Cache.Resolvers
 {
@@ -63,7 +63,7 @@ namespace PrecursorShell.Cache.Resolvers
             var fileName = Path.GetFileNameWithoutExtension(file);
             var filePath = $"{buildInfo.Build}\\{fileName}\\{fileName}.json";
             var fileInfo = new FileInfo(file);
-            var outputFileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\CacheDefinitions\\{filePath}");
+            var outputFileInfo = new FileInfo($"{DirectoryPaths.Base}\\Reports\\CacheDefinitions\\{filePath}");
 
             if (!outputFileInfo.Directory.Exists)
             {
@@ -146,7 +146,7 @@ namespace PrecursorShell.Cache.Resolvers
 
             var jsonData = handler.Serialize(mapObject);
 
-            var fileInfo = new FileInfo($"{Program.PrecursorDirectory}\\Reports\\CacheDefinitions\\{buildInfo.Build}\\{fileName}\\{fileName}_header.json");
+            var fileInfo = new FileInfo($"{DirectoryPaths.Base}\\Reports\\CacheDefinitions\\{buildInfo.Build}\\{fileName}\\{fileName}_header.json");
 
             if (!fileInfo.Directory.Exists)
             {
@@ -177,26 +177,26 @@ namespace PrecursorShell.Cache.Resolvers
                 CacheBuild.Halo4MCC or
                 CacheBuild.Halo2AMPMCC => buildInfo.CurrentCacheFiles.Union(buildInfo.CurrentSharedFiles).ToHashSet(),
 
-                CacheBuild.EldoradoED or
-                CacheBuild.Eldorado106708 or
-                CacheBuild.Eldorado155080 or
-                CacheBuild.Eldorado171227 or
-                CacheBuild.Eldorado177150 or
-                CacheBuild.Eldorado235640 or
-                CacheBuild.Eldorado301003 or
-                CacheBuild.Eldorado332089 or
-                CacheBuild.Eldorado373869 or
-                CacheBuild.Eldorado416138 or
-                CacheBuild.Eldorado430653 or
-                CacheBuild.Eldorado454665 or
-                CacheBuild.Eldorado479394 or
-                CacheBuild.Eldorado498295 or
-                CacheBuild.Eldorado530945 or
-                CacheBuild.Eldorado533032 or
-                CacheBuild.Eldorado554482 or
-                CacheBuild.Eldorado571698 or
-                CacheBuild.Eldorado604673 or
-                CacheBuild.Eldorado700255 => buildInfo.CurrentMapFiles,
+                CacheBuild.HaloOnlineED or
+                CacheBuild.HaloOnline106708 or
+                CacheBuild.HaloOnline155080 or
+                CacheBuild.HaloOnline171227 or
+                CacheBuild.HaloOnline177150 or
+                CacheBuild.HaloOnline235640 or
+                CacheBuild.HaloOnline301003 or
+                CacheBuild.HaloOnline332089 or
+                CacheBuild.HaloOnline373869 or
+                CacheBuild.HaloOnline416138 or
+                CacheBuild.HaloOnline430653 or
+                CacheBuild.HaloOnline454665 or
+                CacheBuild.HaloOnline479394 or
+                CacheBuild.HaloOnline498295 or
+                CacheBuild.HaloOnline530945 or
+                CacheBuild.HaloOnline533032 or
+                CacheBuild.HaloOnline554482 or
+                CacheBuild.HaloOnline571698 or
+                CacheBuild.HaloOnline604673 or
+                CacheBuild.HaloOnline700255 => buildInfo.CurrentMapFiles,
 
                 _ => buildInfo.CurrentCacheFiles,
             };

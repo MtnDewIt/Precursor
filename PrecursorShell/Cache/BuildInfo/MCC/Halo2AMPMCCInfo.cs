@@ -16,7 +16,7 @@ namespace PrecursorShell.Cache.BuildInfo.MCC
     public class Halo2AMPMCCInfo : BuildTableEntry
     {
         public override CacheBuild Build => CacheBuild.Halo2AMPMCC;
-        public override CacheVersion Version => CacheVersion.Halo2AMP;
+        public override CacheVersion Version => CacheVersion.H2AMP;
         public override CachePlatform Platform => CachePlatform.MCC;
         public override CacheGeneration Generation => CacheGeneration.MCC;
 
