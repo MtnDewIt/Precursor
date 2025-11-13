@@ -127,8 +127,11 @@ namespace PrecursorShell.Cache.BuildInfo
                 case CacheBuild.Halo3Beta:
                     buildInfo = new Halo3BetaInfo();
                     break;
-                case CacheBuild.Halo3MarchDelta:
-                    buildInfo = new Halo3MarchDeltaInfo();
+                case CacheBuild.Halo3March7Delta:
+                    buildInfo = new Halo3March7DeltaInfo();
+                    break;
+                case CacheBuild.Halo3March8Delta:
+                    buildInfo = new Halo3March8DeltaInfo();
                     break;
                 case CacheBuild.Halo3March9Delta:
                     buildInfo = new Halo3March9DeltaInfo();

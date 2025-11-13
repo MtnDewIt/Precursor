@@ -13,20 +13,19 @@ using TagTool.IO;
 
 namespace PrecursorShell.Cache.BuildInfo.Gen3
 {
-    public class Halo3MarchDeltaInfo : BuildTableEntry
+    public class Halo3March8DeltaInfo : BuildTableEntry
     {
-        public override CacheBuild Build => CacheBuild.Halo3MarchDelta;
-        public override CacheVersion Version => CacheVersion.Halo3MarchDelta;
+        public override CacheBuild Build => CacheBuild.Halo3March8Delta;
+        public override CacheVersion Version => CacheVersion.Halo3March8Delta;
         public override CachePlatform Platform => CachePlatform.Original;
         public override CacheGeneration Generation => CacheGeneration.Gen3;
 
         public override bool Compressed => false;
 
-        public override string ResourcePath => @"Resources\Gen3\Halo3MarchDelta";
+        public override string ResourcePath => @"Resources\Gen3\Halo3March8Delta";
 
         public override List<string> BuildStrings => new List<string>
         {
-            "08117.07.03.07.1702.delta",
             "08172.07.03.08.2240.delta"
         };
 
