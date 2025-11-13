@@ -30,7 +30,7 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
         };
 
         public override List<string> CacheFiles => null;
-        public override List<string> SharedFiles => null;
+        public override List<string> SharedFiles => [];
         public override List<string> ResourceFiles => null;
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
