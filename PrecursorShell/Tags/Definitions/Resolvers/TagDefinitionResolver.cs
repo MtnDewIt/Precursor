@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using PrecursorShell.Cache;
 using PrecursorShell.Cache.BuildInfo;
-using PrecursorShell.Cache.BuildInfo.HaloOnline.Groups;
 using PrecursorShell.Cache.BuildInfo.Gen1.Groups;
 using PrecursorShell.Cache.BuildInfo.Gen2.Groups;
+using PrecursorShell.Cache.BuildInfo.HaloOnline.Groups;
 using PrecursorShell.Reports;
 using PrecursorShell.Serialization;
 using PrecursorShell.Tags.Definitions.Reports;
@@ -136,9 +136,9 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             var tagGroupErrorCount = 0;
             var groupPaths = new List<string>();
 
-            Parallel.ForEach(tagGroups, Options, group => 
+            using (var stream = cache.OpenCacheRead()) 
             {
-                using (var stream = cache.OpenCacheRead())
+                Parallel.ForEach(tagGroups, Options, group =>
                 {
                     var result = ProcessTagGroupAsync(cache, stream, group, build, fileName);
 
@@ -151,8 +151,8 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
                             Interlocked.Increment(ref tagGroupErrorCount);
                         }
                     }
-                }
-            });
+                });
+            }
 
             foreach (var groupPath in groupPaths.OrderBy(p => p))
             {
@@ -291,7 +291,14 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
                 CacheBuild.Halo2Vista or
                 CacheBuild.Halo2MCC => Gen2Groups.Groups,
 
+                CacheBuild.Halo3PreAlpha or
+                CacheBuild.Halo3Alpha or
                 CacheBuild.Halo3Beta or
+                CacheBuild.Halo3March7Delta or
+                CacheBuild.Halo3March8Delta or
+                CacheBuild.Halo3March9Delta or
+                CacheBuild.Halo3Epsilon or
+                CacheBuild.Halo3DLC or
                 CacheBuild.Halo3Retail or
                 CacheBuild.Halo3MythicRetail or
                 CacheBuild.Halo3ODST or

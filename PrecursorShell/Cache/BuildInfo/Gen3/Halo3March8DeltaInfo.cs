@@ -30,7 +30,10 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
         };
 
         public override List<string> CacheFiles => null;
-        public override List<string> SharedFiles => [];
+        public override List<string> SharedFiles => new List<string>
+        {
+            "shared.map"
+        };
         public override List<string> ResourceFiles => null;
 
         public override bool VerifyBuildInfo(BuildTableConfig.BuildTableEntry build)
@@ -172,6 +175,17 @@ namespace PrecursorShell.Cache.BuildInfo.Gen3
                     foreach (var file in validCacheFiles)
                     {
                         CurrentCacheFiles.Add(file);
+                    }
+                }
+            }
+
+            if (!validSharedFiles.IsEmpty)
+            {
+                lock (CurrentSharedFiles)
+                {
+                    foreach (var file in validSharedFiles)
+                    {
+                        CurrentSharedFiles.Add(file);
                     }
                 }
             }
