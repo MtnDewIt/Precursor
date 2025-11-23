@@ -42,7 +42,6 @@
       <TagTool-NET Include="..\TagTool-NET\TagTool\bin\$(Platform)\$(ConfigurationName)\$(TargetFramework)\**\*" />
     </ItemGroup>
     <Copy SourceFiles="@(TagTool-NET)" DestinationFolder="$(OutDir)Tools\%(RecursiveDir)" SkipUnchangedFiles="true" />
-    <Exec Command="call &quot;$(DevEnvDir)..\Tools\VsDevCmd.bat&quot; &amp;&amp; editbin /HIGHENTROPYVA:NO /DYNAMICBASE:NO /REBASE:base=0x10000 &quot;$(TargetDir)$(TargetName).exe&quot;" />
   </Target>
   <PropertyGroup>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>

@@ -17,7 +17,7 @@ namespace PrecursorShell.Commands.GenerateCache
         public static DirectoryInfo OutputDirectoryInfo { get; set; }
         public Stopwatch StopWatch { get; set; }
 
-        public GenerateCacheCommand(GameCache cache) : base
+        public GenerateCacheCommand() : base
         (
             true,
             "GenerateCache",
@@ -28,7 +28,6 @@ namespace PrecursorShell.Commands.GenerateCache
             "It's similar to the MCC Tools, but don't try and use MCC loose tags" 
         )
         {
-            Cache = cache;
             StopWatch = new Stopwatch();
         }
 
@@ -56,10 +55,7 @@ namespace PrecursorShell.Commands.GenerateCache
             RebuildCache(OutputDirectoryInfo.FullName);
             RetargetCache(OutputDirectoryInfo.FullName);
 
-            using (CacheStream = Cache.OpenCacheReadWrite()) 
-            {
-                ParseJSONData(SourceDirectoryInfo.FullName, args[2]);
-            }
+            ParseJSONData(SourceDirectoryInfo.FullName, args[2]);
 
             StopWatch.Stop();
 

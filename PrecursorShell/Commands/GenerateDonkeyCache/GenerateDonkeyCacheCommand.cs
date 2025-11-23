@@ -8,10 +8,12 @@ using System.Linq;
 using System.Text;
 using TagTool.Cache;
 using TagTool.Cache.HaloOnline;
+using TagTool.Porting;
+using TagTool.Porting.Gen3;
+using TagTool.Porting.HaloOnline;
 
 namespace PrecursorShell.Commands.GenerateDonkeyCache
 {
-    /*
     partial class GenerateDonkeyCacheCommand : PrecursorCommand
     {
         public GameCache Cache { get; set; }
@@ -28,108 +30,108 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
         public static DirectoryInfo halo3ODSTDirectoryInfo { get; set; }
 
         public static GameCache haloOnlineCache { get; set; }
-        public static PortingContextGen3 haloOnline { get; set; }
+        public static PortingContextHaloOnline haloOnline { get; set; }
 
-        public GameCache h3MainMenuCache { get; set; }
-        public PortingContextGen3 h3MainMenu { get; set; }
-        public GameCache introCache { get; set; }
-        public PortingContextGen3 intro { get; set; }
-        public GameCache jungleCache { get; set; }
-        public PortingContextGen3 jungle { get; set; }
-        public GameCache crowsCache { get; set; }
-        public PortingContextGen3 crows { get; set; }
-        public GameCache outskirtsCache { get; set; }
-        public PortingContextGen3 outskirts { get; set; }
-        public GameCache voiCache { get; set; }
-        public PortingContextGen3 voi { get; set; }
-        public GameCache floodvoiCache { get; set; }
-        public PortingContextGen3 floodvoi { get; set; }
-        public GameCache wasteCache { get; set; }
-        public PortingContextGen3 waste { get; set; }
-        public GameCache citadelCache { get; set; }
-        public PortingContextGen3 citadel { get; set; }
-        public GameCache highCharityCache { get; set; }
-        public PortingContextGen3 highCharity { get; set; }
-        public GameCache haloCache { get; set; }
-        public PortingContextGen3 halo { get; set; }
-        public GameCache epilogueCache { get; set; }
-        public PortingContextGen3 epilogue { get; set; }
+        public static GameCache h3MainMenuCache { get; set; }
+        public static PortingContextGen3 h3MainMenu { get; set; }
+        public static GameCache introCache { get; set; }
+        public static PortingContextGen3 intro { get; set; }
+        public static GameCache jungleCache { get; set; }
+        public static PortingContextGen3 jungle { get; set; }
+        public static GameCache crowsCache { get; set; }
+        public static PortingContextGen3 crows { get; set; }
+        public static GameCache outskirtsCache { get; set; }
+        public static PortingContextGen3 outskirts { get; set; }
+        public static GameCache voiCache { get; set; }
+        public static PortingContextGen3 voi { get; set; }
+        public static GameCache floodvoiCache { get; set; }
+        public static PortingContextGen3 floodvoi { get; set; }
+        public static GameCache wasteCache { get; set; }
+        public static PortingContextGen3 waste { get; set; }
+        public static GameCache citadelCache { get; set; }
+        public static PortingContextGen3 citadel { get; set; }
+        public static GameCache highCharityCache { get; set; }
+        public static PortingContextGen3 highCharity { get; set; }
+        public static GameCache haloCache { get; set; }
+        public static PortingContextGen3 halo { get; set; }
+        public static GameCache epilogueCache { get; set; }
+        public static PortingContextGen3 epilogue { get; set; }
 
-        public GameCache mythicMainMenuCache { get; set; }
-        public PortingContextGen3 mythicMainMenu { get; set; }
-        public GameCache armoryCache { get; set; }
-        public PortingContextGen3 armory { get; set; }
-        public GameCache bunkerworldCache { get; set; }
-        public PortingContextGen3 bunkerworld { get; set; }
-        public GameCache chillCache { get; set; }
-        public PortingContextGen3 chill { get; set; }
-        public GameCache chilloutCache { get; set; }
-        public PortingContextGen3 chillout { get; set; }
-        public GameCache constructCache { get; set; }
-        public PortingContextGen3 construct { get; set; }
-        public GameCache cyberdyneCache { get; set; }
-        public PortingContextGen3 cyberdyne { get; set; }
-        public GameCache deadlockCache { get; set; }
-        public PortingContextGen3 deadlock { get; set; }
-        public GameCache descentCache { get; set; }
-        public PortingContextGen3 descent { get; set; }
-        public GameCache docksCache { get; set; }
-        public PortingContextGen3 docks { get; set; }
-        public GameCache fortressCache { get; set; }
-        public PortingContextGen3 fortress { get; set; }
-        public GameCache ghosttownCache { get; set; }
-        public PortingContextGen3 ghosttown { get; set; }
-        public GameCache guardianCache { get; set; }
-        public PortingContextGen3 guardian { get; set; }
-        public GameCache isolationCache { get; set; }
-        public PortingContextGen3 isolation { get; set; }
-        public GameCache lockoutCache { get; set; }
-        public PortingContextGen3 lockout { get; set; }
-        public GameCache midshipCache { get; set; }
-        public PortingContextGen3 midship { get; set; }
-        public GameCache riverworldCache { get; set; }
-        public PortingContextGen3 riverworld { get; set; }
-        public GameCache salvationCache { get; set; }
-        public PortingContextGen3 salvation { get; set; }
-        public GameCache sandboxCache { get; set; }
-        public PortingContextGen3 sandbox { get; set; }
-        public GameCache shrineCache { get; set; }
-        public PortingContextGen3 shrine { get; set; }
-        public GameCache sidewinderCache { get; set; }
-        public PortingContextGen3 sidewinder { get; set; }
-        public GameCache snowboundCache { get; set; }
-        public PortingContextGen3 snowbound { get; set; }
-        public GameCache spacecampCache { get; set; }
-        public PortingContextGen3 spacecamp { get; set; }
-        public GameCache warehouseCache { get; set; }
-        public PortingContextGen3 warehouse { get; set; }
-        public GameCache zanzibarCache { get; set; }
-        public PortingContextGen3 zanzibar { get; set; }
+        public static GameCache mythicMainMenuCache { get; set; }
+        public static PortingContextGen3 mythicMainMenu { get; set; }
+        public static GameCache armoryCache { get; set; }
+        public static PortingContextGen3 armory { get; set; }
+        public static GameCache bunkerworldCache { get; set; }
+        public static PortingContextGen3 bunkerworld { get; set; }
+        public static GameCache chillCache { get; set; }
+        public static PortingContextGen3 chill { get; set; }
+        public static GameCache chilloutCache { get; set; }
+        public static PortingContextGen3 chillout { get; set; }
+        public static GameCache constructCache { get; set; }
+        public static PortingContextGen3 construct { get; set; }
+        public static GameCache cyberdyneCache { get; set; }
+        public static PortingContextGen3 cyberdyne { get; set; }
+        public static GameCache deadlockCache { get; set; }
+        public static PortingContextGen3 deadlock { get; set; }
+        public static GameCache descentCache { get; set; }
+        public static PortingContextGen3 descent { get; set; }
+        public static GameCache docksCache { get; set; }
+        public static PortingContextGen3 docks { get; set; }
+        public static GameCache fortressCache { get; set; }
+        public static PortingContextGen3 fortress { get; set; }
+        public static GameCache ghosttownCache { get; set; }
+        public static PortingContextGen3 ghosttown { get; set; }
+        public static GameCache guardianCache { get; set; }
+        public static PortingContextGen3 guardian { get; set; }
+        public static GameCache isolationCache { get; set; }
+        public static PortingContextGen3 isolation { get; set; }
+        public static GameCache lockoutCache { get; set; }
+        public static PortingContextGen3 lockout { get; set; }
+        public static GameCache midshipCache { get; set; }
+        public static PortingContextGen3 midship { get; set; }
+        public static GameCache riverworldCache { get; set; }
+        public static PortingContextGen3 riverworld { get; set; }
+        public static GameCache salvationCache { get; set; }
+        public static PortingContextGen3 salvation { get; set; }
+        public static GameCache sandboxCache { get; set; }
+        public static PortingContextGen3 sandbox { get; set; }
+        public static GameCache shrineCache { get; set; }
+        public static PortingContextGen3 shrine { get; set; }
+        public static GameCache sidewinderCache { get; set; }
+        public static PortingContextGen3 sidewinder { get; set; }
+        public static GameCache snowboundCache { get; set; }
+        public static PortingContextGen3 snowbound { get; set; }
+        public static GameCache spacecampCache { get; set; }
+        public static PortingContextGen3 spacecamp { get; set; }
+        public static GameCache warehouseCache { get; set; }
+        public static PortingContextGen3 warehouse { get; set; }
+        public static GameCache zanzibarCache { get; set; }
+        public static PortingContextGen3 zanzibar { get; set; }
 
-        public GameCache odstMainMenuCache { get; set; }
-        public PortingContextGen3 odstMainMenu { get; set; }
-        public GameCache h100Cache { get; set; }
-        public PortingContextGen3 h100 { get; set; }
-        public GameCache c100Cache { get; set; }
-        public PortingContextGen3 c100 { get; set; }
-        public GameCache c200Cache { get; set; }
-        public PortingContextGen3 c200 { get; set; }
-        public GameCache l200Cache { get; set; }
-        public PortingContextGen3 l200 { get; set; }
-        public GameCache l300Cache { get; set; }
-        public PortingContextGen3 l300 { get; set; }
-        public GameCache sc100Cache { get; set; }
-        public PortingContextGen3 sc100 { get; set; }
-        public GameCache sc110Cache { get; set; }
-        public PortingContextGen3 sc110 { get; set; }
-        public GameCache sc120Cache { get; set; }
-        public PortingContextGen3 sc120 { get; set; }
-        public GameCache sc130Cache { get; set; }
-        public PortingContextGen3 sc130 { get; set; }
-        public GameCache sc140Cache { get; set; }
-        public PortingContextGen3 sc140 { get; set; }
-        public GameCache sc150Cache { get; set; }
-        public PortingContextGen3 sc150 { get; set; }
+        public static GameCache odstMainMenuCache { get; set; }
+        public static PortingContextGen3 odstMainMenu { get; set; }
+        public static GameCache h100Cache { get; set; }
+        public static PortingContextGen3 h100 { get; set; }
+        public static GameCache c100Cache { get; set; }
+        public static PortingContextGen3 c100 { get; set; }
+        public static GameCache c200Cache { get; set; }
+        public static PortingContextGen3 c200 { get; set; }
+        public static GameCache l200Cache { get; set; }
+        public static PortingContextGen3 l200 { get; set; }
+        public static GameCache l300Cache { get; set; }
+        public static PortingContextGen3 l300 { get; set; }
+        public static GameCache sc100Cache { get; set; }
+        public static PortingContextGen3 sc100 { get; set; }
+        public static GameCache sc110Cache { get; set; }
+        public static PortingContextGen3 sc110 { get; set; }
+        public static GameCache sc120Cache { get; set; }
+        public static PortingContextGen3 sc120 { get; set; }
+        public static GameCache sc130Cache { get; set; }
+        public static PortingContextGen3 sc130 { get; set; }
+        public static GameCache sc140Cache { get; set; }
+        public static PortingContextGen3 sc140 { get; set; }
+        public static GameCache sc150Cache { get; set; }
+        public static PortingContextGen3 sc150 { get; set; }
 
         public GenerateDonkeyCacheCommand(GameCache cache, PrecursorContextStack contextStack) : base
         (
@@ -173,7 +175,7 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
             if (OutputDirectoryInfo.FullName == Cache.Directory.FullName)
                 return new PrecursorError("Output path cannot be the same as the current working directory");
 
-            CacheFiles;
+            CacheFiles();
 
             StopWatch.Start();
 
@@ -200,7 +202,7 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
             return true;
         }
 
-        public void CacheFiles
+        public void CacheFiles()
         {
             haloOnlineDirectoryInfo = GetDirectoryInfo(haloOnlineDirectoryInfo, "Halo Online MS23");
 
@@ -286,5 +288,4 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
             return directoryInfo;
         }
     }
-    */
 }

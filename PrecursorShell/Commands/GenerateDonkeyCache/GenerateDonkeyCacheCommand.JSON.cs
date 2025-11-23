@@ -5,7 +5,6 @@ using PrecursorShell.JSON.Parsers;
 
 namespace PrecursorShell.Commands.GenerateDonkeyCache
 {
-    /*
     partial class GenerateDonkeyCacheCommand : PrecursorCommand
     {
         private TagObjectParser TagParser;
@@ -48,5 +47,4 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
                 BlfParser.ParseFile(file);
         }
     }
-    */
 }

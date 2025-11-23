@@ -37,7 +37,7 @@ namespace PrecursorShell.Commands.Context
             context.AddCommand(new ConvertCacheCommand());
 
             // TODO: Update command to pull from build table
-            context.AddCommand(new GenerateCacheCommand(null));
+            context.AddCommand(new GenerateCacheCommand());
             //context.AddCommand(new GenerateDonkeyCacheCommand(null, contextStack));
 
             // TODO: Update command to pull from build table

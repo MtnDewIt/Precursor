@@ -12,7 +12,6 @@ using PrecursorShell.Common;
 
 namespace PrecursorShell.Commands.GenerateDonkeyCache
 {
-    /*
     partial class GenerateDonkeyCacheCommand : PrecursorCommand
     {
         public object RebuildCache(string destCacheDirectory)
@@ -87,9 +86,8 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
         public void SetCacheVersion(GameCacheHaloOnline cache, CacheVersion version)
         {
             cache.Version = version;
-            cache.TagCacheHaloOnline.Version = version;
-            cache.TagCacheHaloOnline.Header.CreationDate = LastModificationDate.CreateFromVersion(version);
-            cache.StringTableHaloOnline.Version = version;
+            cache.TagCacheGenHO.Version = version;
+            cache.TagCacheGenHO.Header.CreationDate = LastModificationDate.CreateFromVersion(version);
             cache.Serializer = new TagSerializer(version, CachePlatform.Original);
             cache.Deserializer = new TagDeserializer(version, CachePlatform.Original);
             cache.ResourceCaches = new ResourceCachesHaloOnline(cache);
@@ -111,5 +109,4 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
             }
         }
     }
-    */
 }

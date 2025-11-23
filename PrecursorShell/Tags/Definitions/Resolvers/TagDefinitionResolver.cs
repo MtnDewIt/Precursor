@@ -136,9 +136,10 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
             var tagGroupErrorCount = 0;
             var groupPaths = new List<string>();
 
-            using (var stream = cache.OpenCacheRead()) 
+            
+            Parallel.ForEach(tagGroups, Options, group =>
             {
-                Parallel.ForEach(tagGroups, Options, group =>
+                using (var stream = cache.OpenCacheRead())
                 {
                     var result = ProcessTagGroupAsync(cache, stream, group, build, fileName);
 
@@ -151,8 +152,8 @@ namespace PrecursorShell.Tags.Definitions.Resolvers
                             Interlocked.Increment(ref tagGroupErrorCount);
                         }
                     }
-                });
-            }
+                };
+            });
 
             foreach (var groupPath in groupPaths.OrderBy(p => p))
             {
