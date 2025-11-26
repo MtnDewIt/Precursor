@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using TagTool.Cache.HaloOnline;
 using TagTool.Cache;
 using TagTool.Common;
 
@@ -9,12 +8,10 @@ namespace PrecursorShell.JSON.Handlers
     public class StringIdHandler : JsonConverter<StringId>
     {
         private GameCache Cache;
-        private GameCacheHaloOnlineBase CacheContext;
 
-        public StringIdHandler(GameCache cache, GameCacheHaloOnlineBase cacheContext)
+        public StringIdHandler(GameCache cache)
         {
             Cache = cache;
-            CacheContext = cacheContext;
         }
 
         public override void WriteJson(JsonWriter writer, StringId value, JsonSerializer serializer)
@@ -26,7 +23,7 @@ namespace PrecursorShell.JSON.Handlers
         {
             string stringId = reader.Value.ToString();
 
-            return stringId == $@"invalid" ? StringId.Invalid : CacheContext.StringTable.GetOrAddString(stringId);
+            return stringId == $@"invalid" ? StringId.Invalid : Cache.StringTable.GetOrAddString(stringId);
         }
     }
 }

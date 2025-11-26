@@ -4,8 +4,11 @@ using PrecursorShell.Commands.Cache;
 using PrecursorShell.Commands.Common;
 using PrecursorShell.Commands.ConvertCache;
 using PrecursorShell.Commands.GenerateCache;
+using PrecursorShell.Commands.JSON;
 using PrecursorShell.Commands.Mandrill;
 using PrecursorShell.Commands.Tags;
+using System.IO;
+using TagTool.Cache;
 
 namespace PrecursorShell.Commands.Context
 {
@@ -35,15 +38,13 @@ namespace PrecursorShell.Commands.Context
             context.AddCommand(new GenerateMandrillCommandArgumentsCommand());
 
             context.AddCommand(new ConvertCacheCommand());
-
-            // TODO: Update command to pull from build table
             context.AddCommand(new GenerateCacheCommand());
             //context.AddCommand(new GenerateDonkeyCacheCommand(null, contextStack));
 
             // TODO: Update command to pull from build table
-            //context.AddCommand(new GenerateBlfObjectCommand(cache, cache as GameCacheHaloOnline));
-            //context.AddCommand(new GenerateMapObjectCommand(cache, cache as GameCacheHaloOnline));
-            //context.AddCommand(new GenerateTagObjectCommand(cache, cache as GameCacheHaloOnline));
+            context.AddCommand(new GenerateBlfObjectCommand(null));
+            context.AddCommand(new GenerateMapObjectCommand(null));
+            context.AddCommand(new GenerateTagObjectCommand(null));
 
             context.AddCommand(new DebugTestCommand(null, null, contextStack));
         }

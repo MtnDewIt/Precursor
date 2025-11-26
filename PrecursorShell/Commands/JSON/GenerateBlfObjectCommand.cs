@@ -17,7 +17,6 @@ namespace PrecursorShell.Commands.JSON
     public class GenerateBlfObjectCommand : PrecursorCommand
     {
         private GameCache Cache;
-        private GameCacheHaloOnlineBase CacheContext;
         private string PathPrefix = null;
 
         private int FileCount = 0;
@@ -46,7 +45,7 @@ namespace PrecursorShell.Commands.JSON
             ".shot"
         };
 
-        public GenerateBlfObjectCommand(GameCache cache, GameCacheHaloOnlineBase cacheContext) : base
+        public GenerateBlfObjectCommand(GameCache cache) : base
         (
             false,
             "GenerateBlfObject",
@@ -57,7 +56,6 @@ namespace PrecursorShell.Commands.JSON
         )
         {
             Cache = cache;
-            CacheContext = cacheContext;
         }
 
         public override object Execute(List<string> args)

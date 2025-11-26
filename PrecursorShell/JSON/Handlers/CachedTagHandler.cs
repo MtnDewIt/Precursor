@@ -7,21 +7,20 @@ using TagTool.Tags;
 using PrecursorShell.JSON.Parsers;
 using System.Collections.Generic;
 using TagTool.Common.Logging;
+using TagTool.Cache.HaloOnline;
 
 namespace PrecursorShell.JSON.Handlers
 {
     public class CachedTagHandler : JsonConverter<CachedTag>
     {
         private GameCache Cache;
-        private GameCacheHaloOnlineBase CacheContext;
         private Stream CacheStream;
         private TagObjectParser TagParser;
         private List<string> ParsedTags;
 
-        public CachedTagHandler(GameCache cache, GameCacheHaloOnlineBase cacheContext, Stream cacheStream, TagObjectParser tagParser, List<string> parsedTags)
+        public CachedTagHandler(GameCache cache, Stream cacheStream, TagObjectParser tagParser, List<string> parsedTags)
         {
             Cache = cache;
-            CacheContext = cacheContext;
             CacheStream = cacheStream;
             TagParser = tagParser;
             ParsedTags = parsedTags;
@@ -38,28 +37,31 @@ namespace PrecursorShell.JSON.Handlers
         {
             var inlineTag = serializer.Deserialize<InlineCachedTag>(reader);
 
-            if (inlineTag != null)
+            if (Cache is GameCacheHaloOnline hoCache) 
             {
-                if (!ParsedTags.Contains($@"{inlineTag.Name}.{inlineTag.Type}")) 
+                if (inlineTag != null)
                 {
-                    ParsedTags.Add($@"{inlineTag.Name}.{inlineTag.Type}");
-
-                    Cache.TagCache.TryGetTag($@"{inlineTag.Name}.{inlineTag.Type}", out var result);
-
-                    if (result == null) 
+                    if (!ParsedTags.Contains($@"{inlineTag.Name}.{inlineTag.Type}"))
                     {
-                        Cache.TagCache.TryParseGroupTag(inlineTag.Type, out var tagGroup);
-                        var type = Cache.TagCache.TagDefinitions.GetTagDefinitionType(tagGroup);
-                        result = Cache.TagCache.AllocateTag(type, inlineTag.Name);
-                        var definition = (TagStructure)Activator.CreateInstance(type);
-                        Cache.Serialize(CacheStream, result, definition);
-                        CacheContext.SaveTagNames();
+                        ParsedTags.Add($@"{inlineTag.Name}.{inlineTag.Type}");
+
+                        hoCache.TagCache.TryGetTag($@"{inlineTag.Name}.{inlineTag.Type}", out var result);
+
+                        if (result == null)
+                        {
+                            hoCache.TagCache.TryParseGroupTag(inlineTag.Type, out var tagGroup);
+                            var type = hoCache.TagCache.TagDefinitions.GetTagDefinitionType(tagGroup);
+                            result = hoCache.TagCache.AllocateTag(type, inlineTag.Name);
+                            var definition = (TagStructure)Activator.CreateInstance(type);
+                            hoCache.Serialize(CacheStream, result, definition);
+                            hoCache.SaveTagNames();
+                        }
+
+                        TagParser.ParseFile($@"{inlineTag.Name}.{inlineTag.Type}");
                     }
 
-                    TagParser.ParseFile($@"{inlineTag.Name}.{inlineTag.Type}");
+                    return GetCachedTag(inlineTag.Name, inlineTag.Type);
                 }
-
-                return GetCachedTag(inlineTag.Name, inlineTag.Type);
             }
 
             return null;

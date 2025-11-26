@@ -10,25 +10,23 @@ namespace PrecursorShell.JSON.Handlers
     public class TagObjectHandler
     {
         private GameCache Cache { get; set; }
-        private GameCacheHaloOnlineBase CacheContext { get; set; }
         private Stream CacheStream { get; set; }
         private TagObjectParser TagParser { get; set; }
         private List<string> ParsedTags { get; set; }
 
         private static List<JsonConverter> Converters;
 
-        public TagObjectHandler(GameCache cache, GameCacheHaloOnlineBase cacheContext, Stream cacheStream, TagObjectParser tagParser)
+        public TagObjectHandler(GameCache cache, Stream cacheStream, TagObjectParser tagParser)
         {
             Cache = cache;
-            CacheContext = cacheContext;
             CacheStream = cacheStream;
             TagParser = tagParser;
             ParsedTags = new List<string>();
 
             Converters = new List<JsonConverter>
             {
-                new StringIdHandler(Cache, CacheContext),
-                new CachedTagHandler(Cache, CacheContext, CacheStream, TagParser, ParsedTags),
+                new StringIdHandler(Cache),
+                new CachedTagHandler(Cache, CacheStream, TagParser, ParsedTags),
                 new TagStructureHandler(Cache.Version, Cache.Platform),
 
                 // I really need to merge all these into a single handler which just takes a generic type as an input :/
@@ -86,8 +84,8 @@ namespace PrecursorShell.JSON.Handlers
         {
             var converters = new List<JsonConverter>
             {
-                new StringIdHandler(Cache, CacheContext),
-                new CachedTagHandler(Cache, CacheContext, CacheStream, TagParser, ParsedTags),
+                new StringIdHandler(Cache),
+                new CachedTagHandler(Cache, CacheStream, TagParser, ParsedTags),
 
                 // I really need to merge all these into a single handler which just takes a generic type as an input :/
                 new AngleHandler(),

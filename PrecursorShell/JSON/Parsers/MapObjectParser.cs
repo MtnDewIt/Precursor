@@ -12,15 +12,13 @@ namespace PrecursorShell.JSON.Parsers
     public class MapObjectParser
     {
         private GameCache Cache;
-        private GameCacheHaloOnlineBase CacheContext;
         private Stream CacheStream;
         private MapObjectHandler Handler;
         private string InputPath;
 
-        public MapObjectParser(GameCache cache, GameCacheHaloOnlineBase cacheContext, Stream cacheStream, string inputPath)
+        public MapObjectParser(GameCache cache, Stream cacheStream, string inputPath)
         {
             Cache = cache;
-            CacheContext = cacheContext;
             CacheStream = cacheStream;
             InputPath = inputPath;
             Handler = new MapObjectHandler(Cache.Version, Cache.Platform);
@@ -46,7 +44,7 @@ namespace PrecursorShell.JSON.Parsers
                 };
 
                 var scnrTag = Cache.TagCache.GetTag<Scenario>(mapData.Header.GetTagPath());
-                var scnr = CacheContext.Deserialize<Scenario>(CacheStream, scnrTag);
+                var scnr = Cache.Deserialize<Scenario>(CacheStream, scnrTag);
 
                 switch (scnr.MapType)
                 {
@@ -83,7 +81,7 @@ namespace PrecursorShell.JSON.Parsers
 
                 if (tagName.Name != null && tagName.Name != "")
                 {
-                    var tag = CacheContext.TagCache.GetTag(tagName.Name);
+                    var tag = Cache.TagCache.GetTag(tagName.Name);
 
                     quotaList[i].ObjectDefinitionIndex = tag.Index;
                 }

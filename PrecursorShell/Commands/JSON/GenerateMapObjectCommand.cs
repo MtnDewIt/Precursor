@@ -17,7 +17,6 @@ namespace PrecursorShell.Commands.JSON
     public class GenerateMapObjectCommand : PrecursorCommand
     {
         private GameCache Cache;
-        private GameCacheHaloOnlineBase CacheContext;
         private string ExportPath = $@"maps";
         private string PathPrefix = null;
 
@@ -25,7 +24,7 @@ namespace PrecursorShell.Commands.JSON
         private Stopwatch StopWatch = new Stopwatch();
         private List<string> ErrorLog = new List<string>();
 
-        public GenerateMapObjectCommand(GameCache cache, GameCacheHaloOnlineBase cacheContext) : base
+        public GenerateMapObjectCommand(GameCache cache) : base
         (
             false,
             "GenerateMapObject",
@@ -40,7 +39,6 @@ namespace PrecursorShell.Commands.JSON
         )
         {
             Cache = cache;
-            CacheContext = cacheContext;
         }
 
         public override object Execute(List<string> args)

@@ -924,8 +924,8 @@ namespace PrecursorShell.Commands.GenerateDonkeyCache
         {
             // These need to be defined after the new cache has been generated, otherwise it gets given the wrong cache context
 
-            TagParser = new TagObjectParser(Cache, CacheContext, CacheStream, SourceDirectoryInfo.FullName);
-            MapParser = new MapObjectParser(Cache, CacheContext, CacheStream, SourceDirectoryInfo.FullName);
+            TagParser = new TagObjectParser(Cache, CacheStream, SourceDirectoryInfo.FullName);
+            MapParser = new MapObjectParser(Cache, CacheStream, SourceDirectoryInfo.FullName);
             BlfParser = new BlfObjectParser(Cache.Version, Cache.Platform, SourceDirectoryInfo.FullName, Cache.Directory.FullName);
 
             haloOnline = new PortingContextHaloOnline(CacheContext, haloOnlineCache);

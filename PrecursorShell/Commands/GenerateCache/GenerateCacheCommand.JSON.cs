@@ -9,7 +9,7 @@ namespace PrecursorShell.Commands.GenerateCache
 
         public void ParseJSONData(string sourcePath, string scenarioPath)
         {
-            TagParser = new TagObjectParser(Cache, CacheContext, CacheStream, sourcePath);
+            TagParser = new TagObjectParser(Cache, CacheStream, sourcePath);
             BlfParser = new BlfObjectParser(Cache.Version, Cache.Platform, sourcePath, Cache.Directory.FullName);
 
             TagParser.ParseFile($@"global_tags.cache_file_global_tags");

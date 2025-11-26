@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using TagTool.Cache;
+using TagTool.Cache.HaloOnline;
 using TagTool.Common;
 using TagTool.Scripting.Compiler;
 using TagTool.Tags;
@@ -18,82 +19,83 @@ namespace PrecursorShell.JSON.Parsers
     public class TagObjectParser
     {
         private GameCache Cache;
-        private GameCacheHaloOnlineBase CacheContext;
         private Stream CacheStream;
         private TagObjectHandler TagHandler;
         private MapObjectParser MapParser;
         private string InputPath;
 
-        public TagObjectParser(GameCache cache, GameCacheHaloOnlineBase cacheContext, Stream cacheStream, string inputPath)
+        public TagObjectParser(GameCache cache, Stream cacheStream, string inputPath)
         {
             Cache = cache;
-            CacheContext = cacheContext;
             CacheStream = cacheStream;
             InputPath = inputPath;
-            TagHandler = new TagObjectHandler(Cache, CacheContext, CacheStream, this);
-            MapParser = new MapObjectParser(Cache, CacheContext, CacheStream, InputPath);
+            TagHandler = new TagObjectHandler(Cache, CacheStream, this);
+            MapParser = new MapObjectParser(Cache, CacheStream, InputPath);
         }
 
         public void ParseFile(string filePath)
         {
-            var fullPath = $@"{InputPath}\tags\{filePath}.json";
-
-            if (!File.Exists(fullPath)) 
+            if (Cache is GameCacheHaloOnline hoCache) 
             {
-                // Add error message?
-                return;
+                var fullPath = $@"{InputPath}\tags\{filePath}.json";
+
+                if (!File.Exists(fullPath))
+                {
+                    // Add error message?
+                    return;
+                }
+
+                var jsonData = File.ReadAllText(fullPath);
+                var tagObject = TagHandler.Deserialize(jsonData);
+
+                hoCache.TagCache.TryGetTag($@"{tagObject.TagName}.{tagObject.TagType}", out var tag);
+
+                if (tag == null)
+                {
+                    hoCache.TagCache.TryParseGroupTag(tagObject.TagType, out var tagGroup);
+                    var type = hoCache.TagCache.TagDefinitions.GetTagDefinitionType(tagGroup);
+                    tag = hoCache.TagCache.AllocateTag(type, tagObject.TagName);
+                    var definition = (TagStructure)Activator.CreateInstance(type);
+                    hoCache.Serialize(CacheStream, tag, definition);
+                    hoCache.SaveTagNames();
+                }
+
+                switch (tagObject.TagData)
+                {
+                    case Bitmap:
+                        ParseBitmapData(tagObject, tag);
+                        break;
+                    case ModelAnimationGraph:
+                        ParseAnimationData(tagObject, tag);
+                        break;
+                    case ParticleModel:
+                        ParseParticleModelData(tagObject, tag);
+                        break;
+                    case RenderModel:
+                        ParseRenderModelData(tagObject, tag);
+                        break;
+                    case Scenario:
+                        ParseScenarioData(tagObject, tag);
+                        break;
+                    case ScenarioLightmapBspData:
+                        ParseScenarioLightmapBspData(tagObject, tag);
+                        break;
+                    case ScenarioStructureBsp:
+                        ParseScenarioStructureBspData(tagObject, tag);
+                        break;
+                    case Sound:
+                        ParseSoundData(tagObject, tag);
+                        break;
+                    case MultilingualUnicodeStringList:
+                        ParseUnicodeStringData(tagObject, tag);
+                        break;
+                    default:
+                        hoCache.Serialize(CacheStream, tag, tagObject.TagData);
+                        break;
+                }
+
+                hoCache.SaveStrings();
             }
-
-            var jsonData = File.ReadAllText(fullPath);
-            var tagObject = TagHandler.Deserialize(jsonData);
-
-            Cache.TagCache.TryGetTag($@"{tagObject.TagName}.{tagObject.TagType}", out var tag);
-
-            if (tag == null)
-            {
-                Cache.TagCache.TryParseGroupTag(tagObject.TagType, out var tagGroup);
-                var type = Cache.TagCache.TagDefinitions.GetTagDefinitionType(tagGroup);
-                tag = Cache.TagCache.AllocateTag(type, tagObject.TagName);
-                var definition = (TagStructure)Activator.CreateInstance(type);
-                Cache.Serialize(CacheStream, tag, definition);
-                CacheContext.SaveTagNames();
-            }
-
-            switch (tagObject.TagData)
-            {
-                case Bitmap:
-                    ParseBitmapData(tagObject, tag);
-                    break;
-                case ModelAnimationGraph:
-                    ParseAnimationData(tagObject, tag);
-                    break;
-                case ParticleModel:
-                    ParseParticleModelData(tagObject, tag);
-                    break;
-                case RenderModel:
-                    ParseRenderModelData(tagObject, tag);
-                    break;
-                case Scenario:
-                    ParseScenarioData(tagObject, tag);
-                    break;
-                case ScenarioLightmapBspData:
-                    ParseScenarioLightmapBspData(tagObject, tag);
-                    break;
-                case ScenarioStructureBsp:
-                    ParseScenarioStructureBspData(tagObject, tag);
-                    break;
-                case Sound:
-                    ParseSoundData(tagObject, tag);
-                    break;
-                case MultilingualUnicodeStringList:
-                    ParseUnicodeStringData(tagObject, tag);
-                    break;
-                default:
-                    Cache.Serialize(CacheStream, tag, tagObject.TagData);
-                    break;
-            }
-
-            Cache.SaveStrings();
         }
 
         public void ParseBitmapData(TagObject tagObject, CachedTag tagInstance)
@@ -691,13 +693,13 @@ namespace PrecursorShell.JSON.Parsers
         {
             var scriptData = new FileInfo(scriptFile);
 
-            var scnr = CacheContext.Deserialize<Scenario>(CacheStream, tag);
+            var scnr = Cache.Deserialize<Scenario>(CacheStream, tag);
 
             ScriptCompiler scriptCompiler = new ScriptCompiler(Cache, scnr);
 
             scriptCompiler.CompileFile(scriptData);
 
-            CacheContext.Serialize(CacheStream, tag, scnr);
+            Cache.Serialize(CacheStream, tag, scnr);
         }
     }
 }

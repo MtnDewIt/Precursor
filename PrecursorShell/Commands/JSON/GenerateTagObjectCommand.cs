@@ -21,7 +21,6 @@ namespace PrecursorShell.Commands.JSON
     public class GenerateTagObjectCommand : PrecursorCommand
     {
         private GameCache Cache;
-        private GameCacheHaloOnlineBase CacheContext;
         private string ExportPath = $@"tags";
         private string DataPath = $@"data";
         private string PathPrefix = null;
@@ -32,7 +31,7 @@ namespace PrecursorShell.Commands.JSON
         private Stopwatch StopWatch = new Stopwatch();
         private List<string> ErrorLog = new List<string>();
 
-        public GenerateTagObjectCommand(GameCache cache, GameCacheHaloOnlineBase cacheContext) : base
+        public GenerateTagObjectCommand(GameCache cache) : base
         (
             false,
             "GenerateTagObject",
@@ -50,7 +49,6 @@ namespace PrecursorShell.Commands.JSON
         )
         {
             Cache = cache;
-            CacheContext = cacheContext;
         }
 
         public override object Execute(List<string> args)
@@ -93,11 +91,14 @@ namespace PrecursorShell.Commands.JSON
 
             if (Cache.TagCache.TryGetCachedTag(input, out var tag))
             {
-                tagTable.Add(tag);
-
-                if (Recursive)
+                if (Cache is GameCacheHaloOnline hoCache) 
                 {
-                    tagTable.AddRange(CacheContext.TagCacheGenHO.FindDependencies((CachedTagHaloOnline)tag));
+                    tagTable.Add(tag);
+
+                    if (Recursive)
+                    {
+                        tagTable.AddRange(hoCache.TagCacheGenHO.FindDependencies((CachedTagHaloOnline)tag));
+                    }
                 }
             }
             else if (input.Equals("all", StringComparison.OrdinalIgnoreCase))
@@ -366,7 +367,7 @@ namespace PrecursorShell.Commands.JSON
                     }
                 }
 
-                var handler = new TagObjectHandler(Cache, CacheContext, cacheStream, null);
+                var handler = new TagObjectHandler(Cache, cacheStream, null);
 
                 var jsonData = handler.Serialize(tagObject);
 
