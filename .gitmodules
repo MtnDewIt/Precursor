@@ -1,0 +1,4 @@
+[submodule "TagTool-NET"]
+	path = TagTool-NET
+	url = https://github.com/MtnDewIt/TagTool-NET-Test
+	branch = dev

@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using TagTool.BlamFile;
 using TagTool.Cache;
-using TagTool.Cache.HaloOnline;
 using TagTool.Cache.Gen1;
 using TagTool.Cache.Gen2;
 using TagTool.Cache.Gen3;
 using TagTool.Cache.Gen4;
+using TagTool.Cache.HaloOnline;
 using TagTool.Cache.Monolithic;
 using TagTool.Common;
 using TagTool.Geometry.BspCollisionGeometry;
@@ -26,6 +26,10 @@ namespace PrecursorShell.Serialization
     {
         private readonly CacheVersion Version;
         private readonly CachePlatform Platform;
+        private readonly int TagBlockSize;
+        private readonly int TagDataSize;
+        private readonly TagStructure.VersionedCache StructCache;
+        private readonly TagEnum.VersionedCache EnumCache;
         private readonly Stack<string> PathStack;
 
         private string CurrentFieldPath => string.Join(".", PathStack.Reverse());
@@ -36,6 +40,10 @@ namespace PrecursorShell.Serialization
         {
             Version = version;
             Platform = platform;
+            TagBlockSize = CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0x8 : 0xC;
+            TagDataSize = CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0x8 : 0x14;
+            StructCache = TagStructure.GetVersonedCache(version, platform);
+            EnumCache = TagEnum.GetVersonedCache(version, platform);
             PathStack = new Stack<string>();
             Problems = new List<string>();
         }
@@ -162,14 +170,9 @@ namespace PrecursorShell.Serialization
         public object DeserializeObjectStruct(GameCache cache, EndianReader reader, ISerializationContext context, TagStructureInfo info) 
         {
             var baseOffset = reader.BaseStream.Position;
-            var instance = Activator.CreateInstance(info.Types[0]);
+            var instance = info.CreateInstance();
 
-            var fieldEnumerable = ObjectStructure.GetObjectFieldEnumerable(info.Types[0], info.Version, info.CachePlatform);
-
-            if (fieldEnumerable.Problems.Count > 0)
-                Problems.AddRange(fieldEnumerable.Problems);
-
-            foreach (var tagFieldInfo in fieldEnumerable)
+            foreach (var tagFieldInfo in info.TagFields)
                 DeserializeObjectProperty(cache, reader, context, instance, tagFieldInfo, baseOffset);
 
             if (info.TotalSize > 0)
@@ -182,46 +185,109 @@ namespace PrecursorShell.Serialization
         {
             var attr = tagFieldInfo.Attribute;
 
-            if ((attr.Flags & TagFieldFlags.Runtime) != 0 || !CacheVersionDetection.TestAttribute(attr, Version, Platform))
+            if ((attr.Flags & TagFieldFlags.Runtime) != 0)
                 return;
 
             uint align = TagFieldInfo.GetFieldAlignment(tagFieldInfo.FieldType, tagFieldInfo.Attribute, Version, Platform);
-
             if (align > 0)
             {
                 var fieldOffset = (uint)(reader.BaseStream.Position - baseOffset);
-
                 reader.BaseStream.Position += -fieldOffset & (align - 1);
             }
 
             if ((attr.Flags & TagFieldFlags.Padding) != 0)
             {
-                //disable padding warnings for gen2 defs
-                if (Version <= CacheVersion.Halo2PC)
-                {
-                    reader.BaseStream.Position += attr.Length;
-                    return;
-                }
-
-                var unused = reader.ReadBytes(attr.Length).AsSpan();
-                
-                int index = unused.IndexOfAnyExcept((byte)0);
-                
-                if (index != -1) 
-                {
-                    Problems.Add($"Non-zero padding found in {tagFieldInfo.FieldInfo.DeclaringType.FullName}.{tagFieldInfo.FieldInfo.Name} = {index}");
-                }
+                DeserializeObjectPadding(reader, tagFieldInfo);
             }
             else
             {
+                if (tagFieldInfo.FieldType.IsPrimitive)
+                {
+                    if (DeserializeObjectPrimitiveProperty(reader, context, attr, tagFieldInfo, instance))
+                        return;
+                }
+
                 PathStack.Push(tagFieldInfo.FieldInfo.Name);
 
                 var value = DeserializeObjectValue(cache, reader, context, attr, tagFieldInfo.FieldType);
-
                 tagFieldInfo.SetValue(instance, value);
 
                 PathStack.Pop();
             }
+        }
+
+        private static bool DeserializeObjectPrimitiveProperty(EndianReader reader, ISerializationContext context, TagFieldAttribute attr, TagFieldInfo tagFieldInfo, object instance)
+        {
+            switch (Type.GetTypeCode(tagFieldInfo.FieldType))
+            {
+                case TypeCode.Boolean:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadBoolean());
+                    break;
+                case TypeCode.SByte:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadSByte());
+                    break;
+                case TypeCode.Byte:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadByte());
+                    break;
+                case TypeCode.Int16:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadInt16());
+                    break;
+                case TypeCode.UInt16:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadUInt16());
+                    break;
+                case TypeCode.Int32:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadInt32());
+                    break;
+                case TypeCode.UInt32:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadUInt32());
+                    break;
+                case TypeCode.Int64:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadInt64());
+                    break;
+                case TypeCode.UInt64:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadUInt64());
+                    break;
+                case TypeCode.Single:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadSingle());
+                    break;
+                case TypeCode.Double:
+                    tagFieldInfo.SetValueTyped(instance, reader.ReadDouble());
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
+        }
+
+        private void DeserializeObjectPadding(EndianReader reader, TagFieldInfo tagFieldInfo)
+        {
+            var attr = tagFieldInfo.Attribute;
+
+            //disable padding warnings for gen2 defs
+            if (Version <= CacheVersion.Halo2PC)
+            {
+                reader.BaseStream.Position += attr.Length;
+                return;
+            }
+
+            if (attr.Length <= 16)
+            {
+                Span<byte> buffer = stackalloc byte[attr.Length];
+                reader.Read(buffer);
+                CheckObjectPadding(tagFieldInfo, buffer);
+            }
+            else
+            {
+                CheckObjectPadding(tagFieldInfo, reader.ReadBytes(attr.Length));
+            }
+        }
+
+        private void CheckObjectPadding(TagFieldInfo tagFieldInfo, ReadOnlySpan<byte> bytes)
+        {
+            int nonZeroIndex = bytes.IndexOfAnyExcept((byte)0);
+            if (nonZeroIndex != -1)
+                Problems.Add($"Non-zero padding found in {tagFieldInfo.FieldInfo.DeclaringType.FullName}.{tagFieldInfo.FieldInfo.Name} = {bytes[nonZeroIndex]}");
         }
 
         public object DeserializeObjectValue(GameCache cache, EndianReader reader, ISerializationContext context, TagFieldAttribute valueInfo, Type valueType) 
@@ -234,37 +300,24 @@ namespace PrecursorShell.Serialization
 
         public object DeserializeObjectPrimitiveValue(EndianReader reader, Type valueType) 
         {
-            switch (Type.GetTypeCode(valueType))
+            return Type.GetTypeCode(valueType) switch
             {
-                case TypeCode.Single:
-                    float value = DeserializeObjectSingle(reader);
-                    return PrimitiveValueCache.For(value);
-                case TypeCode.Byte:
-                    return PrimitiveValueCache.For(reader.ReadByte());
-                case TypeCode.Int16:
-                    return PrimitiveValueCache.For(reader.ReadInt16());
-                case TypeCode.Int32:
-                    return PrimitiveValueCache.For(reader.ReadInt32());
-                case TypeCode.Int64:
-                    return PrimitiveValueCache.For(reader.ReadInt64());
-                case TypeCode.SByte:
-                    return PrimitiveValueCache.For(reader.ReadSByte());
-                case TypeCode.UInt16:
-                    return PrimitiveValueCache.For(reader.ReadUInt16());
-                case TypeCode.UInt32:
-                    return PrimitiveValueCache.For(reader.ReadUInt32());
-                case TypeCode.UInt64:
-                    return PrimitiveValueCache.For(reader.ReadUInt64());
-                case TypeCode.Boolean:
-                    return PrimitiveValueCache.For(reader.ReadBoolean());
-                case TypeCode.Double:
-                    return PrimitiveValueCache.For(reader.ReadDouble());
-                default:
-                    throw new ArgumentException("Unsupported type " + valueType.Name);
-            }
+                TypeCode.Single => PrimitiveValueCache.For(DeserializeObjectSingle(reader)),
+                TypeCode.Byte => PrimitiveValueCache.For(reader.ReadByte()),
+                TypeCode.Int16 => PrimitiveValueCache.For(reader.ReadInt16()),
+                TypeCode.Int32 => PrimitiveValueCache.For(reader.ReadInt32()),
+                TypeCode.Int64 => PrimitiveValueCache.For(reader.ReadInt64()),
+                TypeCode.SByte => PrimitiveValueCache.For(reader.ReadSByte()),
+                TypeCode.UInt16 => PrimitiveValueCache.For(reader.ReadUInt16()),
+                TypeCode.UInt32 => PrimitiveValueCache.For(reader.ReadUInt32()),
+                TypeCode.UInt64 => PrimitiveValueCache.For(reader.ReadUInt64()),
+                TypeCode.Boolean => PrimitiveValueCache.For(reader.ReadBoolean()),
+                TypeCode.Double => PrimitiveValueCache.For(reader.ReadDouble()),
+                _ => throw new ArgumentException("Unsupported type " + valueType.Name),
+            };
         }
 
-        public float DeserializeObjectSingle(EndianReader reader) 
+        private float DeserializeObjectSingle(EndianReader reader) 
         {
             var value = reader.ReadSingle();
 
@@ -309,8 +362,13 @@ namespace PrecursorShell.Serialization
 
             // Byte array = Data reference
             // TODO: Allow other types to be in data references, since sometimes they can point to a structure
-            if (valueType == typeof(byte[]) && valueInfo.Length == 0)
-                return DeserializeObjectDataReference(reader, context);
+            if (valueType == typeof(byte[]))
+            {
+                if (valueInfo.Length == 0)
+                    return DeserializeObjectDataReference(reader, context);
+                else
+                    return reader.ReadBytes(valueInfo.Length);
+            }
 
             if (valueType == typeof(TagData))
                 return DeserializeObjectTagData(reader, context);
@@ -435,14 +493,14 @@ namespace PrecursorShell.Serialization
             if (valueType == typeof(StructureSurfaceToTriangleMapping))
                 return DeserializeObjectPlaneReference(reader);
 
-            if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(FlagBits<>))
+            if (valueType.IsGenericType && valueType.GetGenericTypeDefinition() == typeof(BitFlags<>))
                 return DeserializeObjectFlagBits(reader, valueInfo, valueType);
 
             // Assume the value is a structure
             return DeserializeObjectStruct(cache, reader, context, TagStructure.GetTagStructureInfo(valueType, Version, Platform));
         }
 
-        public object DeserializeObjectRealPlane3d(EndianReader reader, TagFieldCompression compression) 
+        private object DeserializeObjectRealPlane3d(EndianReader reader, TagFieldCompression compression) 
         {
             var value = new RealPlane3d(reader.ReadSingle(compression), reader.ReadSingle(compression), reader.ReadSingle(compression), reader.ReadSingle(compression));
 
@@ -454,7 +512,7 @@ namespace PrecursorShell.Serialization
             return value;
         }
 
-        public static bool IsValidNormal3d(RealVector3d normal)
+        private static bool IsValidNormal3d(RealVector3d normal)
         {
             float magnitude = RealVector3d.Magnitude(normal);
 
@@ -466,11 +524,11 @@ namespace PrecursorShell.Serialization
             return magnitude < 0.0001f || Math.Abs(magnitude - 1.0f) < 0.0001f;
         }
 
-        public object DeserializeObjectStringId(GameCache cache, EndianReader reader) 
+        private object DeserializeObjectStringId(GameCache cache, EndianReader reader) 
         {
             var value = new StringId(reader.ReadUInt32());
 
-            if (value != StringId.Invalid || value.Value != 0xFFFFFFFF) 
+            if (value != StringId.Invalid) 
             {
                 try
                 {
@@ -487,20 +545,42 @@ namespace PrecursorShell.Serialization
 
         public object DeserializeObjectFlagBits(EndianReader reader, TagFieldAttribute valueInfo, Type valueType) 
         {
-            var enumType = valueType.GenericTypeArguments[0];
-            object value = DeserializeObjectPrimitiveValue(reader, valueInfo.EnumType ?? valueType.GetEnumUnderlyingType());
-            uint castedValue = (uint)Convert.ChangeType(value, typeof(uint));
+            TagEnumInfo enumInfo = EnumCache.GetInfo(valueType.GenericTypeArguments[0]);
+            Type storageType = valueInfo.EnumType;
 
-            return VersionedEnum.ImportFlags(enumType, castedValue, Version, Platform);
+            ulong value;
+            if (storageType == typeof(byte))
+            {
+                value = reader.ReadByte();
+            }
+            else if (storageType == typeof(ushort)) 
+            {
+                value = reader.ReadUInt16();
+            }
+            else if (storageType == typeof(uint))
+            {
+                value = reader.ReadUInt32();
+            }
+            else 
+            {
+                Problems.Add($"Unsupported storage type '{storageType}' for Enum '{enumInfo.Type}'");
+                value = 0;
+            }
+
+            if (!VersionedEnum.ValidateFlagsForImport(enumInfo, value))
+                Problems.Add($"Deserializer: Enum value out of range {enumInfo.Type.FullName} = {value}");
+
+            value = VersionedEnum.ImportFlags(enumInfo, value);
+
+            return (IBitFlags)Activator.CreateInstance(valueType, [value]);
         }
 
         public object DeserializeObjectEnum(EndianReader reader, TagFieldAttribute valueInfo, Type valueType) 
         {
             var storageType = valueInfo.EnumType ?? valueType.GetEnumUnderlyingType();
-
             object value = DeserializeObjectPrimitiveValue(reader, storageType);
 
-            var enumInfo = TagEnum.GetInfo(valueType, Version, Platform);
+            var enumInfo = EnumCache.GetInfo(valueType);
 
             if (enumInfo.Attribute.IsVersioned)
             {
@@ -513,6 +593,7 @@ namespace PrecursorShell.Serialization
                     value = CastObjectEnumValue(valueType, valueInfo.EnumType, value);
                 }
 
+                // #TODO: Replace with existing enum system
                 if (!ObjectEnumHelper.IsEnumDefined(valueType, value))
                 {
                     Problems.Add($"Enum out of range: {CurrentFieldPath} = {value}");
@@ -559,71 +640,78 @@ namespace PrecursorShell.Serialization
 
         public object DeserializeObjectTagBlockAsList(GameCache cache, EndianReader reader, ISerializationContext context, Type valueType) 
         {
-            var result = Activator.CreateInstance(valueType);
-            var elementType = valueType.GenericTypeArguments[0];
+            long startOffset = reader.BaseStream.Position;
 
-            var startOffset = reader.BaseStream.Position;
-            var count = reader.ReadInt32();
-            var pointer = new CacheAddress(reader.ReadUInt32());
-
-            if (count == 0 || (count != 0 && pointer.Value == 0))
+            int count = reader.ReadInt32();
+            if (count == 0)
             {
-                reader.BaseStream.Position = startOffset + (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0xC : 0x8);
-                return result;
+                reader.BaseStream.Position = startOffset + TagBlockSize;
+                return Activator.CreateInstance(valueType);
             }
 
-            var addMethod = valueType.GetMethod("Add");
+            uint pointer = reader.ReadUInt32();
+            reader.BaseStream.Position = context.AddressToOffset((uint)startOffset + 4, pointer);
 
-            reader.BaseStream.Position = context.AddressToOffset((uint)startOffset + 4, pointer.Value);
+            var result = (IList)Activator.CreateInstance(valueType, [count]);
+            DeserializeObjectTagBlockCore(cache, reader, context, result, count, valueType);
 
-            for (var i = 0; i < count; i++)
-            {
-                var element = DeserializeObjectValue(cache,reader, context, null, elementType);
-
-                addMethod.Invoke(result, new[] { element });
-            }
-
-            reader.BaseStream.Position = startOffset + (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0xC : 0x8);
+            reader.BaseStream.Position = startOffset + TagBlockSize;
 
             return result;
         }
 
         public object DeserializeObjectTagBlock(GameCache cache, EndianReader reader, ISerializationContext context, Type valueType) 
         {
-            var result = Activator.CreateInstance(valueType);
-            var elementType = valueType.GenericTypeArguments[0];
+            long startOffset = reader.BaseStream.Position;
 
-            var startOffset = reader.BaseStream.Position;
-            var count = reader.ReadInt32();
+            int count = reader.ReadInt32();
+            if (count == 0)
+            {
+                reader.BaseStream.Position = startOffset + TagBlockSize;
+                return Activator.CreateInstance(valueType);
+            }
 
             var pointer = new CacheAddress(reader.ReadUInt32());
-            if (count == 0 || (count != 0 && pointer.Value == 0))
-            {
-                reader.BaseStream.Position = startOffset + (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0xC : 0x8);
-                return result;
-            }
-
             reader.BaseStream.Position = context.AddressToOffset((uint)startOffset + 4, pointer.Value);
 
-            object[] pooledValuesToAdd = ArrayPool<object>.Shared.Rent(count);
-            Span<object> valuesToAdd = pooledValuesToAdd.AsSpan()[..count];
+            var result = (IList)Activator.CreateInstance(valueType, [count]);
+            DeserializeObjectTagBlockCore(cache, reader, context, result, count, valueType);
 
-            for (var i = 0; i < count; i++)
-            {
-                valuesToAdd[i] = DeserializeObjectValue(cache, reader, context, null, elementType);
-            }
-
-            ReflectionHelpers.GetAddRangeBoxedDelegate(valueType)(result, valuesToAdd);
-            ArrayPool<object>.Shared.Return(pooledValuesToAdd);
-
-            reader.BaseStream.Position = startOffset + (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0xC : 0x8);
-
+            reader.BaseStream.Position = startOffset + TagBlockSize;
             return result;
+        }
+
+        protected void DeserializeObjectTagBlockCore(GameCache cache, EndianReader reader, ISerializationContext context, IList list, int count, Type valueType)
+        {
+            Type elementType = valueType.GenericTypeArguments[0];
+
+            if (list is TagBlock<byte> typedTagBlock)
+            {
+                CollectionsMarshal.SetCount(typedTagBlock.Elements, count);
+                reader.Read(CollectionsMarshal.AsSpan(typedTagBlock.Elements));
+            }
+            else if (list is List<byte> typedListBlock)
+            {
+                CollectionsMarshal.SetCount(typedListBlock, count);
+                reader.Read(CollectionsMarshal.AsSpan(typedListBlock));
+            }
+            else if (elementType.IsClass && !elementType.IsGenericType && elementType.IsSubclassOf(typeof(TagStructure)))
+            {
+                var info = StructCache.GetTagStructureInfo(elementType);
+                for (int i = 0; i < count; i++)
+                    list.Add(DeserializeObjectStruct(cache, reader, context, info));
+            }
+            else
+            {
+                // We generally don't use value types in blocks other than byte, but this is here in case
+                for (int i = 0; i < count; i++)
+                    list.Add(DeserializeObjectValue(cache, reader, context, null, elementType));
+            }
         }
 
         public object DeserializeObjectD3DStructure(GameCache cache, EndianReader reader, ISerializationContext context, Type valueType) 
         {
-            var result = Activator.CreateInstance(valueType);
+            var result = (ID3DStructure)Activator.CreateInstance(valueType);
             var elementType = valueType.GenericTypeArguments[0];
 
             var startOffset = reader.BaseStream.Position;
@@ -631,8 +719,7 @@ namespace PrecursorShell.Serialization
 
             reader.BaseStream.Position = context.AddressToOffset((uint)startOffset + 4, pointer);
 
-            var definition = DeserializeObjectValue(cache,reader, context, null, elementType);
-            valueType.GetField("Definition").SetValue(result, definition);
+            result.Definition = DeserializeObjectValue(cache, reader, context, null, elementType);
 
             reader.BaseStream.Position = startOffset + 0xC;
             return result;
@@ -695,24 +782,24 @@ namespace PrecursorShell.Serialization
 
         public byte[] DeserializeObjectDataReference(EndianReader reader, ISerializationContext context) 
         {
-            var startOffset = reader.BaseStream.Position;
-            var size = reader.ReadInt32();
+            long startOffset = reader.BaseStream.Position;
+            int size = reader.ReadInt32();
 
             if (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version))
-                reader.BaseStream.Position = startOffset + 0xC;
+                reader.Skip(8);
 
             var pointer = reader.ReadUInt32();
 
             if (pointer == 0)
             {
-                reader.BaseStream.Position = startOffset + (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0x14 : 0x8);
-                return new byte[0];
+                reader.BaseStream.Position = startOffset + TagDataSize;
+                return [];
             }
 
-            var result = new byte[size];
-            reader.BaseStream.Position = context.AddressToOffset((uint)(startOffset + (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0xC : 0x4)), pointer);
-            reader.Read(result, 0, size);
-            reader.BaseStream.Position = startOffset + (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0x14 : 0x8);
+            byte[] result = new byte[size];
+            reader.BaseStream.Position = context.AddressToOffset((uint)(reader.Position - 4), pointer);
+            reader.Read(result);
+            reader.BaseStream.Position = startOffset + TagDataSize;
 
             return result;
         }
@@ -724,30 +811,25 @@ namespace PrecursorShell.Serialization
             var startOffset = reader.BaseStream.Position;
             var size = reader.ReadInt32();
 
-            if (CacheVersionDetection.IsInGen(CacheGeneration.First, Version))
-            {
-                reader.ReadUInt32();
-                tagData.Gen1ExternalOffset = reader.ReadUInt32();
-            }
-            else if (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version))
-                reader.BaseStream.Position = startOffset + 0xC;
+            if (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version))
+                reader.Skip(8);
 
             var pointer = reader.ReadUInt32();
 
-            tagData.Data = new byte[0];
+            tagData.Data = [];
             tagData.Size = size;
             tagData.Address = pointer;
 
             if (pointer == 0)
             {
-                reader.BaseStream.Position = startOffset + (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0x14 : 0x8);
+                reader.BaseStream.Position = startOffset + TagDataSize;
                 return tagData;
             }
 
-            var result = new byte[size];
-            reader.BaseStream.Position = context.AddressToOffset((uint)(startOffset + (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0xC : 0x4)), pointer);
-            reader.Read(result, 0, size);
-            reader.BaseStream.Position = startOffset + (!CacheVersionDetection.IsInGen(CacheGeneration.Second, Version) ? 0x14 : 0x8);
+            byte[] result = new byte[size];
+            reader.BaseStream.Position = context.AddressToOffset((uint)(reader.Position - 4), pointer);
+            reader.Read(result);
+            reader.BaseStream.Position = startOffset + TagDataSize;
 
             tagData.Data = result;
 
@@ -790,7 +872,7 @@ namespace PrecursorShell.Serialization
             return Activator.CreateInstance(rangeType, min, max);
         }
 
-        public IndexBufferIndex DeserializeObjectIndexBufferIndex(EndianReader reader) 
+        public IndexBufferIndex DeserializeObjectIndexBufferIndex(EndianReader reader)
         {
             if (Version >= CacheVersion.HaloReach || Version == CacheVersion.HaloOnlineED)
                 return new IndexBufferIndex(reader.ReadInt32());
@@ -798,51 +880,44 @@ namespace PrecursorShell.Serialization
                 return new IndexBufferIndex(reader.ReadUInt16());
         }
 
-        public object DeserializeObjectPlaneReference(EndianReader reader) 
+        public object DeserializeObjectPlaneReference(EndianReader reader)
         {
             if (Version >= CacheVersion.HaloReach || Version == CacheVersion.HaloOnlineED)
             {
                 var value = reader.ReadUInt32();
-
                 return new StructureSurfaceToTriangleMapping((int)(value >> 12), (int)(value & 0xFFF));
             }
             else
             {
                 ushort triangleIndex = reader.ReadUInt16();
                 ushort clusterIndex = reader.ReadUInt16();
-
                 return new StructureSurfaceToTriangleMapping(triangleIndex, clusterIndex);
             }
         }
 
-        public PlatformUnsignedValue DeserializeObjectPlatfornUnsignedValue(EndianReader reader) 
+        public PlatformUnsignedValue DeserializeObjectPlatfornUnsignedValue(EndianReader reader)
         {
-            var platformType = CacheVersionDetection.GetPlatformType(Platform);
-
-            switch (platformType)
+            switch (CacheVersionDetection.GetPlatformType(Platform))
             {
                 case PlatformType._64Bit:
                     return new PlatformUnsignedValue(reader.ReadUInt64());
-
-                default:
                 case PlatformType._32Bit:
                     return new PlatformUnsignedValue(reader.ReadUInt32());
-
+                default:
+                    throw new NotImplementedException();
             }
         }
 
-        public PlatformSignedValue DeserializeObjectPlatfornSignedValue(EndianReader reader) 
+        public PlatformSignedValue DeserializeObjectPlatfornSignedValue(EndianReader reader)
         {
-            var platformType = CacheVersionDetection.GetPlatformType(Platform);
-
-            switch (platformType)
+            switch (CacheVersionDetection.GetPlatformType(Platform))
             {
                 case PlatformType._64Bit:
                     return new PlatformSignedValue(reader.ReadInt64());
-
-                default:
                 case PlatformType._32Bit:
                     return new PlatformSignedValue(reader.ReadInt32());
+                default:
+                    throw new NotImplementedException();
             }
         }
 

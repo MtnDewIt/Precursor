@@ -1,0 +1,7 @@
+<Project>
+   <PropertyGroup>
+       <Platforms>x64</Platforms>
+       <TargetFramework>net10.0-windows</TargetFramework>
+       <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+   </PropertyGroup>
+</Project>

@@ -1,0 +1,17 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="Precursor/Precursor.csproj">
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="PrecursorShell/PrecursorShell.csproj">
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="TagTool-NET/ShaderGenerator/HaloShaderGenerator/HaloShaderGenerator.csproj">
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="TagTool-NET/TagTool/TagTool.csproj">
+    <Platform Project="x64" />
+  </Project>
+</Solution>

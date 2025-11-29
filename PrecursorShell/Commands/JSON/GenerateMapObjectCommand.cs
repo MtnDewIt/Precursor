@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using TagTool.BlamFile;
 using TagTool.Cache;
 using TagTool.Commands.Common;
-using TagTool.IO;
 
 namespace PrecursorShell.Commands.JSON
 {
@@ -71,122 +70,38 @@ namespace PrecursorShell.Commands.JSON
         public async Task ProcessDirectoryAsync(string inputPath)
         {
             var files = new List<string>();
-            var modFiles = new List<Stream>();
+            var mapFiles = new List<MapFile>();
 
-            if (Cache is GameCacheModPackage modCache)
+            if (Cache is GameCacheHaloOnlineBase hoCache) 
             {
                 if (inputPath.Equals("all", StringComparison.OrdinalIgnoreCase))
                 {
-                    modFiles = modCache.BaseModPackage.MapFileStreams;
+                    mapFiles = hoCache.MapFiles.GetAll().ToList();
                 }
-                else 
-                {
-                    foreach (var stream in modCache.BaseModPackage.MapFileStreams) 
-                    {
-                        // This could probably be handled better
-                        stream.Position = 0;
-                        var mapFile = new MapFile();
-                        mapFile.Read(new EndianReader(stream));
-                        stream.Position = 0;
-
-                        if (mapFile.Header.GetName() == inputPath) 
-                        {
-                            modFiles.Add(stream);
-                            break;
-                        }
-                    }
-                }
-
-                MapCount = modFiles.Count;
-
-                StopWatch.Start();
-
-                var tasks = modFiles.Select(ConvertModMapAsync);
-                await Task.WhenAll(tasks);
-
-                StopWatch.Start();
-            }
-            else 
-            {
-                if (File.Exists(inputPath))
-                    files.Add(inputPath);
-                else if (inputPath.Equals("all", StringComparison.OrdinalIgnoreCase))
-                    files = Directory.EnumerateFiles(Cache.Directory.FullName, "*.map").ToList();
                 else
-                    new TagToolError(CommandError.FileNotFound);
-
-                MapCount = files.Count;
-
-                StopWatch.Start();
-
-                var tasks = files.Select(ConvertMapAsync);
-                await Task.WhenAll(tasks);
-
-                StopWatch.Start();
-            }
-        }
-
-        private async Task ConvertMapAsync(string filePath) 
-        {
-            try
-            {
-                var file = new FileInfo(filePath);
-
-                var mapData = new MapFile();
-
-                var mapName = Path.GetFileNameWithoutExtension(file.Name);
-
-                using (var stream = file.OpenRead())
                 {
-                    var reader = new EndianReader(stream);
-
-                    mapData.Read(reader);
-
-                    var mapObject = new MapObject()
-                    {
-                        MapName = mapName,
-                        Version = mapData.Version,
-                        Platform = mapData.Platform,
-                        Header = mapData.Header,
-                        MapFileBlf = mapData.MapFileBlf,
-                        Reports = mapData.Reports,
-                    };
-
-                    var handler = new MapObjectHandler(Cache.Version, Cache.Platform);
-
-                    var jsonData = handler.Serialize(mapObject);
-
-                    var fileInfo = new FileInfo(Path.Combine(ExportPath, $"{mapName}.json"));
-
-                    if (!fileInfo.Directory.Exists)
-                    {
-                        fileInfo.Directory.Create();
-                    }
-
-                    File.WriteAllText(fileInfo.FullName, jsonData);
+                    var modFile = hoCache.MapFiles.FindByName(inputPath);
+                    mapFiles.Add(modFile);
                 }
             }
-            catch (Exception e)
-            {
-                ErrorLog.Add($"Error converting \"{filePath}\" : {e.Message}");
-            }
+
+            MapCount = mapFiles.Count;
+
+            StopWatch.Start();
+
+            var tasks = mapFiles.Select(ConvertMapAsync);
+            await Task.WhenAll(tasks);
+
+            StopWatch.Start();
         }
 
-        private async Task ConvertModMapAsync(Stream stream)
+        private async Task ConvertMapAsync(MapFile mapData) 
         {
             try
             {
-                var mapData = new MapFile();
-
-                var reader = new EndianReader(stream);
-
-                mapData.Read(reader);
-
-                var mapName = mapData.Header.GetName();
-
                 var mapObject = new MapObject()
                 {
-                    MapName = mapName,
+                    MapName = mapData.Header.GetName(),
                     Version = mapData.Version,
                     Platform = mapData.Platform,
                     Header = mapData.Header,
@@ -198,7 +113,7 @@ namespace PrecursorShell.Commands.JSON
 
                 var jsonData = handler.Serialize(mapObject);
 
-                var fileInfo = new FileInfo(Path.Combine(ExportPath, $"{mapName}.json"));
+                var fileInfo = new FileInfo(Path.Combine(ExportPath, $"{mapData.Header.GetName()}.json"));
 
                 if (!fileInfo.Directory.Exists)
                 {
@@ -209,8 +124,7 @@ namespace PrecursorShell.Commands.JSON
             }
             catch (Exception e)
             {
-                // TODO: try parse map info into error message
-                ErrorLog.Add($"Error occured when converting mod package map : {e.Message}");
+                ErrorLog.Add($"Error converting \"{mapData.Header.GetName()}.map\" : {e.Message}");
             }
         }
 

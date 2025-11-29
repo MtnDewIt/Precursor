@@ -79,7 +79,7 @@ namespace PrecursorShell
 
             using (var file = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                file.Read(bytes, 0, bytes.Length);
+                file.ReadExactly(bytes);
             }
 
             var headerPos = BitConverter.ToInt32(bytes, peHeaderOffset);

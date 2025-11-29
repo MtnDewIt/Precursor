@@ -73,16 +73,16 @@ namespace PrecursorShell.Serialization
                         }
                         else
                         {
-                            if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(FlagBits<>))
+                            if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(BitFlags<>))
                             {
                                 var enumType = field.FieldType.GenericTypeArguments[0];
                                 var info = TagEnum.GetInfo(enumType, Info.Version, Info.CachePlatform);
 
                                 if (!info.IsVersioned)
-                                    throw new Exception("FlagBits Enum must have a 'TagEnum' attribute with IsVersioned=True");
+                                    throw new Exception("BitFlags Enum must have a 'TagEnum' attribute with IsVersioned=True");
 
                                 if (attr.EnumType == null)
-                                    throw new Exception("FlagBits Enum must have the 'EnumType' TagField attribute set");
+                                    throw new Exception("BitFlags Enum must have the 'EnumType' TagField attribute set");
                             }
                             else if (field.FieldType.IsEnum)
                             {

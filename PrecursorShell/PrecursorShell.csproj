@@ -1,23 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{D107C22E-F288-4BDA-AEDB-459B57E7D755}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PrecursorShell</RootNamespace>
-    <AssemblyName>PrecursorShell</AssemblyName>
     <ApplicationIcon>PrecursorShell.ico</ApplicationIcon>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>12</LangVersion>
     <GenerateLaunchSettingsFile>false</GenerateLaunchSettingsFile>
-    <Deterministic>false</Deterministic>
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <Platforms>x64</Platforms>
-    <Configuration>Release</Configuration>
-    <Platform>x64</Platform>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="PrecursorShell.ico" />
