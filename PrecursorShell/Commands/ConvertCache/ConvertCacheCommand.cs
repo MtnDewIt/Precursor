@@ -66,6 +66,8 @@ namespace PrecursorShell.Commands.ConvertCache
                         ConvertTagData(modCache, tagCacheStream);
                     }
                 }
+
+                modCache.SaveModPackage(file);
             }
 
             return true;
