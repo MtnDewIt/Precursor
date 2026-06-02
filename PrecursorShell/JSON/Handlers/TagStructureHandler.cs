@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TagTool.BlamFile.Chunks.Megalo;
 using TagTool.Cache;
@@ -24,35 +25,54 @@ namespace PrecursorShell.JSON.Handlers
             Platform = platform;
         }
 
+        private static readonly ConcurrentDictionary<TagStructureInfo, List<TagFieldInfo>> ValidFieldsCache = new ConcurrentDictionary<TagStructureInfo, List<TagFieldInfo>>();
+
         public override void WriteJson(JsonWriter writer, TagStructure value, JsonSerializer serializer)
         {
             var structureInfo = TagStructure.GetTagStructureInfo(value.GetType(), Version, Platform);
 
+            if (!ValidFieldsCache.TryGetValue(structureInfo, out var validFields))
+            {
+                validFields = [];
+
+                var fields = TagStructure.GetTagFieldEnumerable(structureInfo);
+
+                for (int i = 0; i < fields.Count; i++)
+                {
+                    var tagFieldInfo = fields[i];
+                    var fieldName = tagFieldInfo.Name;
+                    var fieldType = tagFieldInfo.FieldType;
+
+                    var isInvalidField = (tagFieldInfo.Attribute != null && tagFieldInfo.Attribute.Flags.HasFlag(TagFieldFlags.Padding)) || 
+                                         fieldName.Contains("unused", StringComparison.OrdinalIgnoreCase) || 
+                                         fieldName.Contains("padding", StringComparison.OrdinalIgnoreCase);
+
+                    if (!isInvalidField && !ExludedTypes.Contains(fieldType))
+                    {
+                        validFields.Add(tagFieldInfo);
+                    }
+                }
+
+                ValidFieldsCache.TryAdd(structureInfo, validFields);
+            }
+
             writer.WriteStartObject();
 
-            for (int i = 0; i < TagStructure.GetTagFieldEnumerable(structureInfo).Count; i++)
+            foreach (var tagFieldInfo in validFields)
             {
-                var tagFieldInfo = TagStructure.GetTagFieldEnumerable(structureInfo)[i];
-
                 var fieldName = tagFieldInfo.Name;
-                var fieldType = tagFieldInfo.FieldType;
-                var fieldInfo = tagFieldInfo.FieldInfo;
                 var fieldValue = tagFieldInfo.GetValue(value);
-                var isInvalidField = tagFieldInfo.Attribute != null && tagFieldInfo.Attribute.Flags.HasFlag(TagFieldFlags.Padding) || fieldName.Contains("unused", StringComparison.OrdinalIgnoreCase) || fieldName.Contains("padding", StringComparison.OrdinalIgnoreCase);
 
-                if (!isInvalidField && !ExludedTypes.Contains(fieldType))
+                switch (fieldValue) 
                 {
-                    switch (fieldValue) 
-                    {
-                        // TODO: Figure out a better way of handling this
-                        case SingleLanguageStringTable table:
-                            ParseSingleLanguageStringTable(writer, serializer, fieldName, table);
-                            break;
-                        default:
-                            writer.WritePropertyName(fieldName);
-                            serializer.Serialize(writer, fieldValue);
-                            break;
-                    }
+                    // TODO: Figure out a better way of handling this
+                    case SingleLanguageStringTable table:
+                        ParseSingleLanguageStringTable(writer, serializer, fieldName, table);
+                        break;
+                    default:
+                        writer.WritePropertyName(fieldName);
+                        serializer.Serialize(writer, fieldValue);
+                        break;
                 }
             }
 

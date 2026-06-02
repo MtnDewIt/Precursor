@@ -1,4 +1,5 @@
-﻿using PrecursorShell.JSON.Handlers;
+using Newtonsoft.Json;
+using PrecursorShell.JSON.Handlers;
 using System.IO;
 using TagTool.Cache;
 using TagTool.IO;
@@ -20,8 +21,10 @@ namespace PrecursorShell.JSON.Parsers
 
         public void ParseFile(string filePath)
         {
-            var jsonData = File.ReadAllText($@"{InputPath}\{filePath}.json");
-            var blfObject = Handler.Deserialize(jsonData);
+            using var fileStream = File.OpenRead($@"{InputPath}\{filePath}.json");
+            using var streamReader = new StreamReader(fileStream);
+            using var jsonReader = new JsonTextReader(streamReader);
+            var blfObject = Handler.Deserialize(jsonReader);
 
             var blfFile = new FileInfo($@"{OutputPath}\{blfObject.FileName}.{blfObject.FileType}");
 

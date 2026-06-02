@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using TagTool.Cache;
 using PrecursorShell.JSON.Objects;
@@ -10,7 +10,7 @@ namespace PrecursorShell.JSON.Handlers
         private CacheVersion Version { get; set; }
         private CachePlatform Platform { get; set; }
 
-        private static List<JsonConverter> Converters;
+        private List<JsonConverter> Converters;
 
         public BlfObjectHandler(CacheVersion version, CachePlatform platform)
         {
@@ -72,58 +72,15 @@ namespace PrecursorShell.JSON.Handlers
             return JsonConvert.SerializeObject(input, settings);
         }
 
-        public BlfObject Deserialize(string input)
+        public BlfObject Deserialize(JsonReader reader)
         {
-            var converters = new List<JsonConverter>
+            var serializer = JsonSerializer.Create(new JsonSerializerSettings
             {
-                // TODO: It can't handle class inheritance within tag structure objects. Breaks game variants :/
-
-                // I really need to merge all these into a single handler which just takes a generic type as an input :/
-                new AngleHandler(),
-                new ArgbColorHandler(),
-                new BlfCRCChecksumHandler(),
-                new BlfSHA1HashHandler(),
-                new BoundsAngleHandler(),
-                new BoundsByteHandler(),
-                new BoundsFloatHandler(),
-                new BoundsIntHandler(),
-                new BoundsLongHandler(),
-                new BoundsSByteHandler(),
-                new BoundsShortHandler(),
-                new BoundsUIntHandler(),
-                new BoundsULongHandler(),
-                new BoundsUShortHandler(),
-                new CacheAddressHandler(),
-                new DatumHandleHandler(),
-                new EnumHandler(),
-                new Int16Point2dHandler(),
-                new NetworkRequestHashHandler(),
-                new RealArgbColorHandler(),
-                new RealBoundingBoxHandler(),
-                new RealEulerAngles2dHandler(),
-                new RealEulerAngles3dHandler(),
-                new RealMatrix4x3Handler(),
-                new RealPlane2dHandler(),
-                new RealPlane3dHandler(),
-                new RealPoint2dHandler(),
-                new RealPoint3dHandler(),
-                new RealQuaternionHandler(),
-                new RealRectangle3dHandler(),
-                new RealRgbColorHandler(),
-                new RealVector2dHandler(),
-                new RealVector3dHandler(),
-                new Rectangle2dHandler(),
-                new RSASignatureHandler(),
-                new TagHandler(),
-            };
-
-            var settings = new JsonSerializerSettings
-            {
-                Converters = converters,
+                Converters = Converters,
                 Formatting = Formatting.Indented
-            };
+            });
 
-            return JsonConvert.DeserializeObject<BlfObject>(input, settings);
+            return serializer.Deserialize<BlfObject>(reader);
         }
     }
 }

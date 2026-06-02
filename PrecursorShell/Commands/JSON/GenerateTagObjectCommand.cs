@@ -71,7 +71,7 @@ namespace PrecursorShell.Commands.JSON
             ExportPath = PathPrefix != null ? Path.Combine(PathPrefix, ExportPath) : ExportPath;
             DataPath = PathPrefix != null ? Path.Combine(PathPrefix, DataPath) : DataPath;
 
-            ProcessInputAsync(args[0]).GetAwaiter().GetResult();
+            ParseCache(args[0]);
 
             Console.WriteLine($"{TagCount - ErrorLog.Count}/{TagCount} Tags Converted Successfully in {StopWatch.ElapsedMilliseconds.FormatMilliseconds()} with {ErrorLog.Count} {(ErrorLog.Count == 1 ? "error" : "errors")}\n");
 
@@ -85,13 +85,64 @@ namespace PrecursorShell.Commands.JSON
             return true;
         }
 
-        public async Task ProcessInputAsync(string input) 
+        private async void ParseCache(string input) 
         {
-            var tagTable = new List<CachedTag>();
+            if (Cache is GameCacheModPackage modCache)
+            {
+                var tagCacheCount = modCache.BaseModPackage.GetTagCacheCount();
+
+                StopWatch.Start();
+
+                for (int tagCacheIndex = 0; tagCacheIndex < tagCacheCount; tagCacheIndex++)
+                {
+                    modCache.SetActiveTagCache(tagCacheIndex);
+
+                    List<CachedTag> tagTable = ParseTagTable(input);
+
+                    TagCount += tagTable.Count;
+
+                    string tagCacheName = modCache.BaseModPackage.CacheNames[tagCacheIndex];
+
+                    ExportPath = Path.Combine(ExportPath, tagCacheName);
+                    DataPath = Path.Combine(DataPath, tagCacheName);
+
+                    using (var cacheStream = modCache.BaseModPackage.TagCachesStreams[tagCacheIndex]) 
+                    {
+                        var tasks = tagTable.Select(tag => ConvertTagAsync(tag, cacheStream.Stream));
+                        await Task.WhenAll(tasks);
+                    }
+
+                    ExportPath = Directory.GetParent(ExportPath).FullName;
+                    DataPath = Directory.GetParent(DataPath).FullName;
+                }
+
+                StopWatch.Stop();
+            }
+            else 
+            {
+                List<CachedTag> tagTable = ParseTagTable(input);
+
+                TagCount = tagTable.Count;
+
+                using (var cacheStream = Cache.OpenCacheRead())
+                {
+                    StopWatch.Start();
+
+                    var tasks = tagTable.Select(tag => ConvertTagAsync(tag, cacheStream));
+                    await Task.WhenAll(tasks);
+
+                    StopWatch.Stop();
+                }
+            }
+        }
+
+        private List<CachedTag> ParseTagTable(string input) 
+        {
+            List<CachedTag> tagTable = [];
 
             if (Cache.TagCache.TryGetCachedTag(input, out var tag))
             {
-                if (Cache is GameCacheHaloOnline hoCache) 
+                if (Cache is GameCacheHaloOnline hoCache)
                 {
                     tagTable.Add(tag);
 
@@ -110,22 +161,12 @@ namespace PrecursorShell.Commands.JSON
                     tagTable.RemoveAll(x => (x as CachedTagHaloOnline).IsEmpty());
                 }
             }
-            else 
+            else
             {
                 new TagToolError(CommandError.TagInvalid);
             }
 
-            TagCount = tagTable.Count;
-
-            using (var cacheStream = Cache.OpenCacheRead()) 
-            {
-                StopWatch.Start();
-
-                var tasks = tagTable.Select(tag => ConvertTagAsync(tag, cacheStream));
-                await Task.WhenAll(tasks);
-
-                StopWatch.Stop();
-            }
+            return tagTable;
         }
 
         private async Task ConvertTagAsync(CachedTag tag, Stream cacheStream) 
@@ -250,6 +291,11 @@ namespace PrecursorShell.Commands.JSON
                     using (var scriptFileStream = scriptFileInfo.Create())
                     using (var scriptWriter = new StreamWriter(scriptFileStream))
                     {
+                        if (Cache is GameCacheModPackage modCache)
+                        {
+                            Cache = modCache.BaseCacheReference;
+                        }
+
                         var decompiler = new ScriptDecompiler(Cache, scnr);
                         decompiler.DecompileScripts(scriptWriter);
                     }

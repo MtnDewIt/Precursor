@@ -1,4 +1,5 @@
-﻿using PrecursorShell.JSON.Handlers;
+using Newtonsoft.Json;
+using PrecursorShell.JSON.Handlers;
 using PrecursorShell.JSON.Objects;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,8 @@ namespace PrecursorShell.JSON.Parsers
         private MapObjectParser MapParser;
         private string InputPath;
 
+        private static readonly Regex UnicodeRegex = new Regex(@"\\[uU]([0-9A-F]{4})", RegexOptions.Compiled);
+        
         public TagObjectParser(GameCache cache, Stream cacheStream, string inputPath)
         {
             Cache = cache;
@@ -45,8 +48,10 @@ namespace PrecursorShell.JSON.Parsers
                     return;
                 }
 
-                var jsonData = File.ReadAllText(fullPath);
-                var tagObject = TagHandler.Deserialize(jsonData);
+                using var fileStream = File.OpenRead(fullPath);
+                using var streamReader = new StreamReader(fileStream);
+                using var jsonReader = new JsonTextReader(streamReader);
+                var tagObject = TagHandler.Deserialize(jsonReader);
 
                 hoCache.TagCache.TryGetTag($@"{tagObject.TagName}.{tagObject.TagType}", out var tag);
 
@@ -588,7 +593,7 @@ namespace PrecursorShell.JSON.Parsers
 
             var stringId = Cache.StringTable.GetStringId(stringIdIndex);
 
-            var parsedContent = stringIdContent != null ? new Regex(@"\\[uU]([0-9A-F]{4})").Replace(stringIdContent, match => ((char)int.Parse(match.Value.Substring(2), NumberStyles.HexNumber)).ToString()) : null;
+            var parsedContent = stringIdContent != null ? UnicodeRegex.Replace(stringIdContent, match => ((char)int.Parse(match.Value.Substring(2), NumberStyles.HexNumber)).ToString()) : null;
 
             var localizedStr = unic.Strings.FirstOrDefault(s => s.StringID == stringId);
 
@@ -609,37 +614,46 @@ namespace PrecursorShell.JSON.Parsers
 
         public static string DecodeNonAsciiCharacters(string value)
         {
-            var specialchars = new Dictionary<string, char>
+            if (string.IsNullOrEmpty(value)) 
             {
-                {"\\r", '\r' },
-                {"\\n", '\n' },
-                {"\\t", '\t' }
-            };
+                return value;
+            }
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder(value.Length);
+
             for (int i = 0; i < value.Length; i++)
             {
-                if (value[i] == '\\')
+                if (value[i] == '\\' && i + 1 < value.Length)
                 {
-                    if (i + 1 < value.Length && value[i + 1] == 'u' && i + 5 < value.Length)
-                    {
-                        string unicodeHex = value.Substring(i + 2, 4);
-                        if (int.TryParse(unicodeHex, NumberStyles.HexNumber, null, out int unicodeValue))
-                        {
-                            sb.Append((char)unicodeValue);
-                            i += 5;
-                            continue;
-                        }
+                    char next = value[i + 1];
+                    if (next == 'r') 
+                    { 
+                        sb.Append('\r'); i++; 
                     }
-
-                    foreach (var pair in specialchars)
+                    else if (next == 'n') 
+                    { 
+                        sb.Append('\n'); i++; 
+                    }
+                    else if (next == 't') 
+                    { 
+                        sb.Append('\t'); i++; 
+                    }
+                    else if (next == 'u' || next == 'U')
                     {
-                        if (value.Substring(i).StartsWith(pair.Key))
+                        if (i + 5 < value.Length)
                         {
-                            sb.Append(pair.Value);
-                            i += pair.Key.Length - 1;
-                            break;
+                            if (int.TryParse(value.AsSpan(i + 2, 4), NumberStyles.HexNumber, null, out int unicodeValue))
+                            {
+                                sb.Append((char)unicodeValue);
+                                i += 5;
+                                continue;
+                            }
                         }
+                        sb.Append(value[i]);
+                    }
+                    else
+                    {
+                        sb.Append(value[i]);
                     }
                 }
                 else
@@ -647,6 +661,7 @@ namespace PrecursorShell.JSON.Parsers
                     sb.Append(value[i]);
                 }
             }
+
             return sb.ToString();
         }
 

@@ -11,6 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\**\*" Link="Resources\%(RecursiveDir)\%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="..\TagTool-NET\data\**\*" Link="data\%(RecursiveDir)\%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TagTool-NET\TagTool\TagTool.csproj" PrivateAssets="all" Private="false" />
