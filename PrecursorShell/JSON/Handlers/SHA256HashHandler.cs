@@ -10,9 +10,9 @@ namespace PrecursorShell.JSON.Handlers
         {
             var signatureString = string.Empty;
 
-            if (!Array.TrueForAll(value.Data, b => b == 0))
+            if (!value.IsInvalid())
             {
-                signatureString = value.GetHash();
+                signatureString = value.ToString();
             }
 
             writer.WriteValue(signatureString);

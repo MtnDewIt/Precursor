@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Globalization;
-using System.Collections.Generic;
 using TagTool.Cache;
 
 namespace PrecursorShell.JSON.Handlers
@@ -12,9 +10,9 @@ namespace PrecursorShell.JSON.Handlers
         {
             var signatureString = string.Empty;
 
-            if (!Array.TrueForAll(value.Data, b => b == 0))
+            if (!value.IsInvalid())
             {
-                signatureString = value.GetCRC();
+                signatureString = value.ToString();
             }
 
             writer.WriteValue(signatureString);

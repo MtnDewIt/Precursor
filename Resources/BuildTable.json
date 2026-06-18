@@ -1,0 +1,228 @@
+{
+  "Builds": [
+    {
+      "Build": "HaloXbox",
+      "Path": "E:\\Builds\\Gen1\\HaloXbox"
+    },
+    {
+      "Build": "HaloPC",
+      "Path": "E:\\Builds\\Gen1\\HaloPC"
+    },
+    {
+      "Build": "HaloCustomEdition",
+      "Path": "E:\\Builds\\Gen1\\HaloCustomEdition"
+    },
+    {
+      "Build": "Halo2Alpha",
+      "Path": "E:\\Builds\\Gen2\\Halo2Alpha"
+    },
+    {
+      "Build": "Halo2Beta",
+      "Path": "E:\\Builds\\Gen2\\Halo2Beta"
+    },
+    {
+      "Build": "Halo2Xbox",
+      "Path": "E:\\Builds\\Gen2\\Halo2Xbox\\maps"
+    },
+    {
+      "Build": "Halo2Vista",
+      "Path": "E:\\Builds\\Gen2\\Halo2Vista\\maps"
+    },
+    {
+      "Build": "Halo3PreAlpha",
+      "Path": "E:\\Builds\\Gen3\\Halo3PreAlpha\\maps"
+    },
+    {
+      "Build": "Halo3Alpha",
+      "Path": "E:\\Builds\\Gen3\\Halo3Alpha\\maps"
+    },
+    {
+      "Build": "Halo3Beta",
+      "Path": "E:\\Builds\\Gen3\\Halo3Beta\\maps"
+    },
+    {
+      "Build": "Halo3March7Delta",
+      "Path": "E:\\Builds\\Gen3\\Halo3March7Delta\\maps"
+    },
+    {
+      "Build": "Halo3March8Delta",
+      "Path": "E:\\Builds\\Gen3\\Halo3March8Delta\\maps"
+    },
+    {
+      "Build": "Halo3March9Delta",
+      "Path": "E:\\Builds\\Gen3\\Halo3March9Delta\\maps"
+    },
+    {
+      "Build": "Halo3Epsilon",
+      "Path": "E:\\Builds\\Gen3\\Halo3Epsilon\\maps"
+    },
+    {
+      "Build": "Halo3DLC",
+      "Path": "E:\\Builds\\Gen3\\Halo3DLC\\maps"
+    },
+    {
+      "Build": "Halo3Retail",
+      "Path": "E:\\Builds\\Gen3\\Halo3Retail\\maps"
+    },
+    {
+      "Build": "Halo3MythicRetail",
+      "Path": "E:\\Builds\\Gen3\\Halo3MythicRetail\\maps"
+    },
+    {
+      "Build": "Halo3ODST",
+      "Path": "E:\\Builds\\Gen3\\Halo3ODST\\maps"
+    },
+    {
+      "Build": "HaloReachAlpha",
+      "Path": "E:\\Builds\\Gen3\\HaloReachAlpha"
+    },
+    {
+      "Build": "HaloReachPreBeta",
+      "Path": "E:\\Builds\\Gen3\\HaloReachPreBeta"
+    },
+    {
+      "Build": "HaloReachBeta",
+      "Path": "E:\\Builds\\Gen3\\HaloReachBeta"
+    },
+    {
+      "Build": "HaloReach",
+      "Path": "E:\\Builds\\Gen3\\HaloReach\\maps"
+    },
+    {
+      "Build": "HaloReach11883",
+      "Path": "E:\\Builds\\Gen3\\HaloReach11883"
+    },
+    {
+      "Build": "Halo4220811",
+      "Path": "E:\\Builds\\Gen4\\Halo4220811"
+    },
+    {
+      "Build": "Halo4280911",
+      "Path": "E:\\Builds\\Gen4\\Halo4280911"
+    },
+    {
+      "Build": "Halo4E3",
+      "Path": "E:\\Builds\\Gen4\\Halo4E3\\maps"
+    },
+    {
+      "Build": "Halo4Retail",
+      "Path": "E:\\Builds\\Gen4\\Halo4\\maps"
+    },
+    {
+      "Build": "Halo4140113",
+      "Path": "E:\\Builds\\Gen4\\Halo4140113"
+    },
+    {
+      "Build": "Halo4131113",
+      "Path": "E:\\Builds\\Gen4\\Halo4131113"
+    },
+    {
+      "Build": "HaloOnlineED",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnlineED\\maps"
+    },
+    {
+      "Build": "HaloOnline106708",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline106708\\maps"
+    },
+    {
+      "Build": "HaloOnline155080",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline155080\\maps"
+    },
+    {
+      "Build": "HaloOnline171227",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline171227\\maps"
+    },
+    {
+      "Build": "HaloOnline177150",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline177150\\maps"
+    },
+    {
+      "Build": "HaloOnline235640",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline235640\\maps"
+    },
+    {
+      "Build": "HaloOnline301003",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline301003\\maps"
+    },
+    {
+      "Build": "HaloOnline332089",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline332089\\maps"
+    },
+    {
+      "Build": "HaloOnline373869",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline373869\\maps"
+    },
+    {
+      "Build": "HaloOnline416138",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline416138\\maps"
+    },
+    {
+      "Build": "HaloOnline430653",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline430653\\maps"
+    },
+    {
+      "Build": "HaloOnline454665",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline454665\\maps"
+    },
+    {
+      "Build": "HaloOnline479394",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline479394\\maps"
+    },
+    {
+      "Build": "HaloOnline498295",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline498295\\maps"
+    },
+    {
+      "Build": "HaloOnline530945",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline530945\\maps"
+    },
+    {
+      "Build": "HaloOnline533032",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline533032\\maps"
+    },
+    {
+      "Build": "HaloOnline554482",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline554482\\maps"
+    },
+    {
+      "Build": "HaloOnline571698",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline571698\\maps"
+    },
+    {
+      "Build": "HaloOnline604673",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline604673\\maps"
+    },
+    {
+      "Build": "HaloOnline700255",
+      "Path": "E:\\Builds\\GenHaloOnline\\HaloOnline700255\\maps"
+    },
+    {
+      "Build": "Halo1MCC",
+      "Path": "D:\\SteamLibrary\\steamapps\\common\\Halo The Master Chief Collection\\halo1\\maps"
+    },
+    {
+      "Build": "Halo2MCC",
+      "Path": "D:\\SteamLibrary\\steamapps\\common\\Halo The Master Chief Collection\\halo2\\h2_maps_win64_dx11"
+    },
+    {
+      "Build": "Halo3MCC",
+      "Path": "D:\\SteamLibrary\\steamapps\\common\\Halo The Master Chief Collection\\halo3\\maps"
+    },
+    {
+      "Build": "Halo3ODSTMCC",
+      "Path": "D:\\SteamLibrary\\steamapps\\common\\Halo The Master Chief Collection\\halo3odst\\maps"
+    },
+    {
+      "Build": "HaloReachMCC",
+      "Path": "D:\\SteamLibrary\\steamapps\\common\\Halo The Master Chief Collection\\haloreach\\maps"
+    },
+    {
+      "Build": "Halo4MCC",
+      "Path": "D:\\SteamLibrary\\steamapps\\common\\Halo The Master Chief Collection\\halo4\\maps"
+    },
+    {
+      "Build": "Halo2AMPMCC",
+      "Path": "D:\\SteamLibrary\\steamapps\\common\\Halo The Master Chief Collection\\groundhog\\maps"
+    }
+  ]
+}
