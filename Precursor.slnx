@@ -5,6 +5,9 @@
   <Project Path="Precursor/Precursor.csproj">
     <Platform Project="x64" />
   </Project>
+  <Project Path="Precursor.Tests/Precursor.Tests.csproj">
+    <Platform Project="x64" />
+  </Project>
   <Project Path="PrecursorShell/PrecursorShell.csproj">
     <Platform Project="x64" />
   </Project>
