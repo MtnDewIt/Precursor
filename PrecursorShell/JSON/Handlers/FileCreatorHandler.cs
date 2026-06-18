@@ -8,11 +8,11 @@ namespace PrecursorShell.JSON.Handlers
     {
         public override void WriteJson(JsonWriter writer, FileCreator value, JsonSerializer serializer)
         {
-            var creatorString = "";
+            var creatorString = string.Empty;
 
-            if (!Array.TrueForAll(value.Data, b => b == 0))
+            if (!value.IsInvalid())
             {
-                creatorString = FileCreator.GetCreator(value.Data);
+                creatorString = value.ToString();
             }
 
             writer.WriteValue(creatorString);
@@ -23,15 +23,15 @@ namespace PrecursorShell.JSON.Handlers
             var creatorData = Array.Empty<byte>();
             var creatorString = reader.Value.ToString();
 
-            if (creatorString != "")
-            {
-                creatorData = FileCreator.SetCreator(creatorString);
-            }
-
             var fileCreator = new FileCreator()
             {
                 Data = creatorData,
             };
+
+            if (creatorString != string.Empty)
+            {
+                fileCreator.SetCreator(creatorString);
+            }
 
             return fileCreator;
         }

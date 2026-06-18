@@ -109,7 +109,7 @@ namespace PrecursorShell.Commands.JSON
 
                 using (var cacheStream = modCache.BaseModPackage.TagCachesStreams[tagCacheIndex])
                 {
-                    var tasks = tagTable.Select(tag => ConvertTagAsync(tag, cacheStream.Stream));
+                    var tasks = tagTable.Select(tag => ConvertTagAsync(tag, cacheStream));
                     await Task.WhenAll(tasks);
                 }
 

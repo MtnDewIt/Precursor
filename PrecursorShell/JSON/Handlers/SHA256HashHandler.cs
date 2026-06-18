@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Globalization;
-using System.Collections.Generic;
 using TagTool.Cache;
 
 namespace PrecursorShell.JSON.Handlers
@@ -10,7 +8,7 @@ namespace PrecursorShell.JSON.Handlers
     {
         public override void WriteJson(JsonWriter writer, SHA256Hash value, JsonSerializer serializer)
         {
-            var signatureString = "";
+            var signatureString = string.Empty;
 
             if (!Array.TrueForAll(value.Data, b => b == 0))
             {
@@ -26,7 +24,7 @@ namespace PrecursorShell.JSON.Handlers
 
             var signature = new SHA256Hash();
 
-            if (signatureString != "")
+            if (signatureString != string.Empty)
             {
                 signature.SetHash(signatureString);
             }

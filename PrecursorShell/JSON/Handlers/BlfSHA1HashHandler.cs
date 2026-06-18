@@ -9,11 +9,11 @@ namespace PrecursorShell.JSON.Handlers
     {
         public override void WriteJson(JsonWriter writer, BlfEndOfFileSHA1.BlfSHA1Hash value, JsonSerializer serializer)
         {
-            var hashString = "";
+            var hashString = string.Empty;
 
             if (!Array.TrueForAll(value.Hash, b => b == 0))
             {
-                hashString = BitConverter.ToString(value.Hash).Replace("-", "");
+                hashString = Convert.ToHexString(value.Hash);
             }
 
             writer.WriteValue(hashString);
@@ -25,7 +25,7 @@ namespace PrecursorShell.JSON.Handlers
 
             byte[] result = new byte[256];
 
-            if (hashString != "")
+            if (hashString != string.Empty)
             {
                 var chunkSize = 2;
 

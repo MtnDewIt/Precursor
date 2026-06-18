@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using TagTool.Cache;
 
 namespace PrecursorShell.JSON.Handlers
@@ -10,11 +8,11 @@ namespace PrecursorShell.JSON.Handlers
     {
         public override void WriteJson(JsonWriter writer, NetworkRequestHash value, JsonSerializer serializer)
         {
-            var hashString = "";
+            var hashString = string.Empty;
 
-            if (!Array.TrueForAll(value.Data, b => b == 0)) 
+            if (!value.IsInvalid()) 
             {
-                hashString = value.GetHash();
+                hashString = value.ToString();
             }
 
             writer.WriteValue(hashString);
@@ -26,7 +24,7 @@ namespace PrecursorShell.JSON.Handlers
 
             var networkRequestHash = new NetworkRequestHash();
 
-            if (hashString != "") 
+            if (hashString != string.Empty) 
             {
                 networkRequestHash.SetHash(hashString);
             }

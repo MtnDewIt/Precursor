@@ -10,7 +10,7 @@ namespace PrecursorShell.JSON.Handlers
     {
         public override void WriteJson(JsonWriter writer, ResourceCRC value, JsonSerializer serializer)
         {
-            var signatureString = "";
+            var signatureString = string.Empty;
 
             if (!Array.TrueForAll(value.Data, b => b == 0))
             {
@@ -26,7 +26,7 @@ namespace PrecursorShell.JSON.Handlers
 
             var signature = new ResourceCRC();
 
-            if (signatureString != "")
+            if (signatureString != string.Empty)
             {
                 signature.SetCRC(signatureString);
             }

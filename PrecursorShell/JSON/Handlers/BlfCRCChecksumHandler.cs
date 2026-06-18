@@ -9,7 +9,7 @@ namespace PrecursorShell.JSON.Handlers
     {
         public override void WriteJson(JsonWriter writer, BlfEndOfFileCRC.BlfCRCChecksum value, JsonSerializer serializer) 
         {
-            var checksumString = "";
+            var checksumString = string.Empty;
 
             if (value.Checksum != 0) 
             {
@@ -25,7 +25,7 @@ namespace PrecursorShell.JSON.Handlers
 
             uint result = 0;
 
-            if (checksumString != "") 
+            if (checksumString != string.Empty) 
             {
                 result = uint.Parse(checksumString, NumberStyles.HexNumber);
             }
