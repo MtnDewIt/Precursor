@@ -93,28 +93,28 @@ namespace PrecursorShell.Commands.JSON
 
                 StopWatch.Start();
 
-                for (int tagCacheIndex = 0; tagCacheIndex < tagCacheCount; tagCacheIndex++)
+                // #TODO: Get from command line?
+                int tagCacheIndex = 0;
+
+                modCache.SetActiveTagCache(tagCacheIndex);
+
+                List<CachedTag> tagTable = ParseTagTable(input);
+
+                TagCount += tagTable.Count;
+
+                string tagCacheName = modCache.BaseModPackage.CacheNames[tagCacheIndex];
+
+                ExportPath = Path.Combine(ExportPath, tagCacheName);
+                DataPath = Path.Combine(DataPath, tagCacheName);
+
+                using (var cacheStream = modCache.BaseModPackage.TagCachesStreams[tagCacheIndex])
                 {
-                    modCache.SetActiveTagCache(tagCacheIndex);
-
-                    List<CachedTag> tagTable = ParseTagTable(input);
-
-                    TagCount += tagTable.Count;
-
-                    string tagCacheName = modCache.BaseModPackage.CacheNames[tagCacheIndex];
-
-                    ExportPath = Path.Combine(ExportPath, tagCacheName);
-                    DataPath = Path.Combine(DataPath, tagCacheName);
-
-                    using (var cacheStream = modCache.BaseModPackage.TagCachesStreams[tagCacheIndex]) 
-                    {
-                        var tasks = tagTable.Select(tag => ConvertTagAsync(tag, cacheStream.Stream));
-                        await Task.WhenAll(tasks);
-                    }
-
-                    ExportPath = Directory.GetParent(ExportPath).FullName;
-                    DataPath = Directory.GetParent(DataPath).FullName;
+                    var tasks = tagTable.Select(tag => ConvertTagAsync(tag, cacheStream.Stream));
+                    await Task.WhenAll(tasks);
                 }
+
+                ExportPath = Directory.GetParent(ExportPath).FullName;
+                DataPath = Directory.GetParent(DataPath).FullName;
 
                 StopWatch.Stop();
             }
