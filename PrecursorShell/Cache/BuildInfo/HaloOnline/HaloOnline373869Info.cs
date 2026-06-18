@@ -188,7 +188,7 @@ namespace PrecursorShell.Cache.BuildInfo.HaloOnline
                 return new FileValidationResult(false, $"Invalid File: {fileName} - Failed to deserialize file section header");
             }
 
-            var timestamp = LastModificationDate.GetTimestamp(header.CreationDate);
+            var timestamp = header.CreationDate.ToString();
 
             if (BuildDateTable.TryGetValue(resourceType, out var expectedTimestamp) && expectedTimestamp != timestamp)
             {
