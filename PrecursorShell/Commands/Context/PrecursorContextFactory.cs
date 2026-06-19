@@ -1,5 +1,4 @@
 ﻿using PrecursorShell.Commands.Builds;
-using PrecursorShell.Commands.Cache;
 using PrecursorShell.Commands.Common;
 using PrecursorShell.Commands.ConvertCache;
 using PrecursorShell.Commands.GenerateCache;
@@ -27,7 +26,6 @@ namespace PrecursorShell.Commands.Context
             context.AddCommand(new UpdateBuildTableCommand());
 
             context.AddCommand(new ValidateBitmapsCommand());
-            context.AddCommand(new ValidateCacheDefinitionsCommand());
             context.AddCommand(new ValidateTagResourceDefinitionsCommand());
             context.AddCommand(new ValidateTagDefinitionsCommand());
 

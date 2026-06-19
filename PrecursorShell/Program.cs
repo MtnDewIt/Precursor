@@ -1,5 +1,4 @@
 ﻿using PrecursorShell.Cache.BuildTable;
-using PrecursorShell.Cache.Reports;
 using PrecursorShell.Commands;
 using PrecursorShell.Commands.Context;
 using PrecursorShell.Common;
@@ -16,7 +15,6 @@ namespace PrecursorShell
 
         // TODO: Move these elsewhere
         public static BuildTable BuildTable = new();
-        public static CacheDefinitionReport CacheDefinitionReport = new();
         public static TagDefinitionReport TagDefinitionReport = new();
 
         static void Main()
